@@ -17,7 +17,7 @@ echo -e "         R A S P I      (c) Robot OS                         -K. Damage
 
 local_home=`pwd`
 export PATH=$local_home:$PATH
-export RASPI_HOME=/git/projects/cython/personal
+#export RASPI_HOME=/git/projects/cython/personal
 #export RASPI_HOME=/opt/nvme
 #export RASPI_HOME=/opt
 PYTHON="python"
