@@ -18,28 +18,17 @@
 # Doc
 # ------------------------------------------------------------------------ 79->
 # Dependancies:
-#                   registry
-#                   node
-#                   relay
-#                   conf
+#                   transport
 #                   common
 #                   argparse
 #                   time
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-os.sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.abspath(__file__)
-            )
-        )
-    )
-from registry import load_tasks
-from node import TaskNode, CacheNode
-from relay import Relay
-from conf.configuration import *
+from transport.registry import load_tasks
+from transport.node import TaskNode, CacheNode
+from transport.relay import Relay
+from transport.conf.configuration import *
 from common.spawner import ProcessHandler
 from common.print_helpers import Logger, Colours
 import argparse

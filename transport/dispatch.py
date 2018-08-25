@@ -24,20 +24,12 @@
 #            
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-os.sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.abspath(__file__)
-            )
-        )
-    )
-from .conf.configuration import RELAY_ADDR
-from .conf.configuration import RELAY_RECV
-from .conf.configuration import RELAY_PUBLISHER
-from .conf.configuration import CACHE_ADDR
-from .conf.configuration import CACHE_RECV
-from .conf.configuration import LOG_LEVEL
+from transport.conf.configuration import RELAY_ADDR
+from transport.conf.configuration import RELAY_RECV
+from transport.conf.configuration import RELAY_PUBLISHER
+from transport.conf.configuration import CACHE_ADDR
+from transport.conf.configuration import CACHE_RECV
+from transport.conf.configuration import LOG_LEVEL
 from common.datatypes import *
 from common.print_helpers import Logger
 import zmq

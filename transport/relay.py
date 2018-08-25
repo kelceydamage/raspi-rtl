@@ -24,17 +24,9 @@
 #    
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-os.sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.abspath(__file__)
-            )
-        )
-    )
-from conf.configuration import CHUNKING
-from conf.configuration import CHUNKING_SIZE
-from conf.configuration import LOG_LEVEL
+from transport.conf.configuration import CHUNKING
+from transport.conf.configuration import CHUNKING_SIZE
+from transport.conf.configuration import LOG_LEVEL
 from common.datatypes import *
 from common.print_helpers import Logger
 import zmq

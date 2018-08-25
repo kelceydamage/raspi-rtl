@@ -25,14 +25,6 @@
 #       
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-os.sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.abspath(__file__)
-            )
-        )
-    )
 import pkgutil
 import sys
 from common.print_helpers import Logger

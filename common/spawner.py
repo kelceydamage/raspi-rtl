@@ -30,7 +30,7 @@ from multiprocessing import Process
 from multiprocessing import Pool
 from multiprocessing import Queue
 from multiprocessing import current_process
-from .print_helpers import Logger
+from common.print_helpers import Logger
 import os
 import signal
 import sys
