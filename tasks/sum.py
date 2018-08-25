@@ -20,14 +20,6 @@
 
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-os.sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.abspath(__file__)
-            )
-        )
-    )
 from common.print_helpers import Logger
 from transport.conf.configuration import LOG_LEVEL
 
@@ -41,7 +33,8 @@ LOG = Logger(LOG_LEVEL)
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_sum(kwargs):
-    LOG.logc('NODE-{0}'.format(kwargs['worker']), 'starting task', 'sum', 1, 'LIGHTBLUE')
+    name = 'NODE-{0}'.format(kwargs['worker'])
+    LOG.logc(name, 'starting task', 'sum', 1, 'LIGHTBLUE')
     results = []
     for item in kwargs['data']:
         l = sum(item)
