@@ -1,6 +1,6 @@
-FILTER='start.py'
-PIDS=(`ps aux|grep $FILTER|awk '{print $2}'`)
-unset 'PIDS[${#PIDS[@]}-1]'
+FILTER='transport/bin/start.py'
+PIDS=(`ps aux|grep $FILTER|grep -v grep|awk '{print $2}'`)
+#unset 'PIDS[${#PIDS[@]}-1]'
 if [ ${#PIDS[@]} -eq 0 ]; then
     echo "-------------------------------------------------------------------------------"
     echo "Failed to find any running instances"
