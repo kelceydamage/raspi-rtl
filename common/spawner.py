@@ -26,6 +26,12 @@
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
+import os
+os.sys.path.append(
+    os.path.dirname(
+        os.path.abspath(__file__)
+        )
+    )
 from multiprocessing import Process
 from multiprocessing import Pool
 from multiprocessing import Queue
