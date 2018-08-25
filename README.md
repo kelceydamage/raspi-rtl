@@ -71,7 +71,7 @@ To stop the service:
 
 ## Using The Client
 
-```
+```python
 from transport.dispatch import Dispatcher
 from common.datatypes import *
 
