@@ -30,7 +30,7 @@ from multiprocessing import Process
 from multiprocessing import Pool
 from multiprocessing import Queue
 from multiprocessing import current_process
-from print_helpers import Logger
+from .print_helpers import Logger
 import os
 import signal
 import sys
@@ -127,7 +127,7 @@ class ProcessHandler(ProcessSpawner):
             msg = 'Type [ctrl-c] to exit and shutdown workers'
             LOG.logn('HANDLER', 'start', msg, 0, 'PURPLE')
         else:
-            msg = 'Starting cluster of {0} service type: {1}'format(
+            msg = 'Starting cluster of {0} service type: {1}'.format(
                 len(self.services),
                 self.services[0][1][-1]
             )
