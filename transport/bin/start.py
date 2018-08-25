@@ -25,6 +25,16 @@
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
+import os
+os.sys.path.append(
+    os.path.dirname(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(__file__)
+                )
+            )
+        )
+    )
 from transport.registry import load_tasks
 from transport.node import TaskNode, CacheNode
 from transport.relay import Relay

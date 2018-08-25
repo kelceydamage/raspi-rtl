@@ -18,20 +18,20 @@
 # Doc
 # ------------------------------------------------------------------------ 79->
 # Dependancies:
-#                   os
 #                   pkgutil
 #                   sys
 #                   common
+#                   transport
 #       
 # Imports
 # ------------------------------------------------------------------------ 79->
 import pkgutil
 import sys
 from common.print_helpers import Logger
+from transport.conf.configuration import LOG_LEVEL
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-LOG_LEVEL = 1
 LOG = Logger(LOG_LEVEL)
 
 # Classes
@@ -58,6 +58,7 @@ def load_tasks(dirname):
                     functions[member] = '{0}.{1}'.format(package_name, member)
             except Exception as e:
                 LOG.loge('REGISTRY', 'load_tasks', e)
+    LOG.logc('REGISTRY', 'load_tasks', functions, 3, 'PURPLE')
     return functions
 
 # Main

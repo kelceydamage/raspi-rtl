@@ -21,7 +21,7 @@ export RASPI_HOME=/git/projects/cython/personal
 #export RASPI_HOME=/opt/nvme
 #export RASPI_HOME=/opt
 PYTHON="python"
-$PYTHON $RASPI_HOME/raspi/transport/bin/start.py -m
-$PYTHON $RASPI_HOME/raspi/transport/bin/start.py ROUTER -a 0.0.0.0 &
-$PYTHON $RASPI_HOME/raspi/transport/bin/start.py CACHE -a 0.0.0.0 &
-$PYTHON $RASPI_HOME/raspi/transport/bin/start.py TASK -a 0.0.0.0 -p 19100 &
+$PYTHON $RASPI_HOME/rtl/transport/bin/start.py -m
+$PYTHON $RASPI_HOME/rtl/transport/bin/start.py ROUTER -a 0.0.0.0 &
+$PYTHON $RASPI_HOME/rtl/transport/bin/start.py CACHE -a 0.0.0.0 &
+$PYTHON $RASPI_HOME/rtl/transport/bin/start.py TASK -a 0.0.0.0 -p 19100 &

@@ -25,8 +25,18 @@
 #                     
 # Imports
 # ------------------------------------------------------------------------ 79->
-from conf.configuration import TASK_WORKERS
-from conf.configuration import LOG_LEVEL
+import os
+os.sys.path.append(
+    os.path.dirname(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(__file__)
+                )
+            )
+        )
+    )
+from transport.conf.configuration import TASK_WORKERS
+from transport.conf.configuration import LOG_LEVEL
 from common.datatypes import *
 from common.print_helpers import Logger
 from tasks import *
@@ -133,8 +143,11 @@ class CacheNode(Node):
         self.recv_socket.bind('tcp://{0}:{1}'.format(host, port))
         self.send_socket = self.recv_socket
         self.type = 'CACHE'
+        cwd = os.getcwd()
+        cache_path = '{0}/transport/cache/'.format(cwd)
+        print(cache_path)
         mylmdb = lmdb.Environment(
-            path='/opt/raspi/task_engine/cache/',
+            path=cache_path,
             map_size=1000000000,
             subdir=True,
             map_async=True,
