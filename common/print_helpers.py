@@ -65,7 +65,7 @@ class Logger(object):
                     padding('[{0}]'.format(message[0]), 40),
                     message[1],
                     message[2]
-                )
+                ),
                 getattr(self.colour, colour)
             )
 
@@ -76,7 +76,7 @@ class Logger(object):
                     padding('[{0}]'.format(header), 40),
                     name,
                     message
-                )
+                ),
                 getattr(self.colour, colour)
             )
 
@@ -87,7 +87,7 @@ class Logger(object):
                     padding('[{0}]'.format(header), 40),
                     name,
                     message
-                )
+                ),
                 getattr(self.colour, colour)
             )
 
@@ -98,7 +98,7 @@ class Logger(object):
                     padding('[{0}]'.format(header), 40),
                     name,
                     message
-                )
+                ),
                 self.colours.RED
             )
 class Colours(object):
