@@ -75,7 +75,7 @@ class Node(object):
     def start(self):
         while True:
             envelope = self.recv()
-            LOG.logc('NODE', 'start', '<---- received', 1, 'PURPLE')
+            LOG.logc('NODE-{0}'.format(self.pid), 'start', '<---- received', 2, 'PURPLE')
             if envelope.lifespan > 0:
                 envelope = self.run(envelope)
             self.send(envelope)
@@ -136,7 +136,6 @@ class CacheNode(Node):
         self.type = 'CACHE'
         cwd = os.getcwd()
         cache_path = '{0}/transport/cache/'.format(cwd)
-        print(cache_path)
         mylmdb = lmdb.Environment(
             path=cache_path,
             map_size=1000000000,
@@ -167,6 +166,7 @@ class CacheNode(Node):
         """
         Need to update to use the envelope standard
         """
+        LOG.loge('CACHE', 'run', '<---- request')
         req = Tools.deserialize(cr[2])
         key = Tools.deserialize(cr[3])
         if req == 'check':

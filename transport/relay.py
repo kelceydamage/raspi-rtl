@@ -36,7 +36,6 @@ import zmq
 LOG = Logger(LOG_LEVEL)
 VERSION                 = b'0.1'
 CHUNKING = True
-CHUNKING_SIZE = 2
 
 # Classes
 # ------------------------------------------------------------------------ 79->
@@ -90,7 +89,7 @@ class Relay(object):
         envelope.pack(header, meta.extract(), pipeline.extract(), self.buffer)
         self.send_socket.send_multipart(envelope.seal())
         self.buffer = []
-        LOG.logc('RELAY', 'ship', 'sent ---->', 1, 'PURPLE')
+        LOG.logc('RELAY', 'ship', 'sent ---->', 2, 'PURPLE')
 
     def receive(self):
         envelope = Envelope()
@@ -124,18 +123,18 @@ class Relay(object):
     def assemble(self, envelope):
         header, meta, pipeline, data = envelope.unpack()
         meta, success, count = self.retrieve_state(meta)
-        LOG.logc('RELAY', 'state in', self.state, 2, 'PURPLE')
+        LOG.logc('RELAY', 'state in', self.state, 3, 'PURPLE')
         if success:
             self.queue.extend(data)
             if count == 0:
                 envelope.pack(header, meta.extract(), pipeline.extract(), self.queue)
                 self.publisher.send_multipart(envelope.seal())
                 self.queue = []
-                LOG.logc('RELAY', 'assemble', 'published ---->', 1, 'PURPLE')
+                LOG.logc('RELAY', 'assemble', 'published ---->', 2, 'PURPLE')
         else:
             self.publisher.send_multipart(envelope.seal())
             print('send to client single')
-            LOG.logc('RELAY', 'assemble', 'published ---->', 1, 'PURPLE')
+            LOG.logc('RELAY', 'assemble', 'published ---->', 2, 'PURPLE')
 
     def chunk(self, envelope):
         header, meta, pipeline, data = envelope.unpack()
@@ -151,13 +150,13 @@ class Relay(object):
             if len(self.buffer) > 0:
                 self.ship(header, meta, pipeline)
         del envelope
-        LOG.logc('RELAY', 'state out', self.state, 2, 'PURPLE')
+        LOG.logc('RELAY', 'state out', self.state, 3, 'PURPLE')
 
     def start(self):
         while True:
             envelope = self.receive()
-            LOG.logc('RELAY', 'start', '<---- recieved', 1, 'PURPLE')
-            LOG.logc('RELAY', 'start', envelope.open(), 3, 'BLUE')
+            LOG.logc('RELAY', 'start', '<---- recieved', 2, 'PURPLE')
+            LOG.logc('RELAY', 'start', envelope.open(), 4, 'BLUE')
             if envelope.lifespan > 0:
                 self.chunk(envelope)
             else:
