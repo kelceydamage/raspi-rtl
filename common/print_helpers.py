@@ -62,9 +62,9 @@ class Logger(object):
         char = ''
         if nline:
             char = '\n'
-        return '{3}{0} ({1}) {2}'.format(
-            padding('[{0}]:'.format(header), 20),
-            name,
+        return '{3}{0} {1} {2}'.format(
+            padding('[{0}]:'.format(header), 16),
+			padding('({0})'.format(name), 24),
             message,
             char
             )
@@ -73,21 +73,21 @@ class Logger(object):
         if mode < self.log_level:
             printc(
                 self._sprint(message[0], message[1], message[3]),
-                getattr(self.colour, colour)
+                getattr(self.colours, colour)
             )
 
     def logc(self, header, name, message, mode=0, colour='RED'):
         if mode < self.log_level:
             printc(
                 self._sprint(header, name, message),
-                getattr(self.colour, colour)
+                getattr(self.colours, colour)
             )
 
     def logn(self, header, name, message, mode=0, colour='RED'):
         if mode < self.log_level:
             printc(
                 self._sprint(header, name, message, True),
-                getattr(self.colour, colour)
+                getattr(self.colours, colour)
             )
 
     def loge(self, header, name, message, mode=0):
