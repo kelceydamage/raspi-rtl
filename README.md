@@ -35,6 +35,25 @@ To stop the service:
 |           | Send        |*      |
 |CacheNode  | Router      | 19002 |
 
+## Settings (configuration.py)
+
+| Setting | Value | Description |
+|---------|-------|-------------|
+|LOG_LEVEL| 3     |             |
+|STARTING_PORT| 10000|          |
+|TASK_WORKERS | 3 | Worker processes per node (per physical server) |
+|CACHE_WORKERS | 1 |            |
+|RESPONSE_TIME | 0.005 | Controls the rate at which tasks are sent to the workers, and in doing so, the size of the queue. A higher response time increases throughput at the cost of the systems responsiveness. |
+|RELAY_LISTEN | '0.0.0.0' |     |
+|RELAY_ADDR   | '127.0.0.1' |   |
+|RELAY_RECV   | 19000       |   |
+|RELAY_SEND   | 19001       |   |
+|RELAY_PUBLISHER | 19300    |   |
+|CHUNKING     | True | Chunking determines if and how much the router breaks up queues in order the better balance worker loads. RESPONSE_TIME and CHUNKING should be balanced to get an Optimal throughput and worker load balance.|
+|CHUNKING_SIZE | 500 |          |
+|CACHE_ADDR   | '127.0.0.1' |   |
+|CACHE_RECV   | 19002 |         |
+
 ## Using The Client
 
 ```
