@@ -133,7 +133,7 @@ class Envelope(object):
         self.lifespan = 0
 
     def pack(self, header, meta, pipeline, data):
-        meta['lifespan'] = len(pipeline['pipeline'])
+        meta['lifespan'] = len(pipeline['tasks'])
         meta['length'] = len(data)
         meta['size'] = sys.getsizeof(data)
         self.lifespan = meta['lifespan']
@@ -214,14 +214,14 @@ class Pipeline(object):
     """
     def __init__(self, pipeline=None):
         self.kwargs = {}
-        self.pipeline = collections.deque()
+        self.tasks = collections.deque()
         self.completed = collections.deque()
         if pipeline != None:
             self.load(pipeline)
 
     def extract(self):
         return {
-            'pipeline': self.pipeline,
+            'tasks': self.tasks,
             'completed': self.completed,
             'kwargs': self.kwargs
         }
@@ -231,7 +231,7 @@ class Pipeline(object):
             setattr(self, k, v)
 
     def consume(self):
-        current = self.pipeline.pop(0)
+        current = self.tasks.pop(0)
         self.completed.append(current)
         return current
 
@@ -246,7 +246,7 @@ class Meta(object):
     METHODS:        .extract()
                     Returns a dict representation of the meta(obj).
 
-                    .load(pipeline)
+                    .load(meta)
                     Loads a dict representation of a meta(obj) into a
                     meta(obj).
     """
