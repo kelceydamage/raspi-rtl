@@ -1,0 +1,6 @@
+pyzmq
+pytest-cov
+python-coveralls
+codecov
+coverage
+ujson
