@@ -25,11 +25,11 @@
 # Globals
 # ------------------------------------------------------------------------ 79->
 # Logging
-LOG_LEVEL               = 3
+LOG_LEVEL               = 2
 
 # Workers
 STARTING_PORT           = 10000
-TASK_WORKERS            = 3         # Worker processes per node (per physical
+TASK_WORKERS            = 16         # Worker processes per node (per physical
                                     # server)
 CACHE_WORKERS           = 1
 RESPONSE_TIME           = 0.005     # Controls the rate at which tasks are sent 
