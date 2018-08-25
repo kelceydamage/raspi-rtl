@@ -17,146 +17,263 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-# dependancies:
-#
+# Dependancies:
+#                   hashlib
+#                   base64
+#                   ujson
+#                   collections
+#                   uuid
+#                   sys
+#                
 # Imports
 # ------------------------------------------------------------------------ 79->
+import hashlib
+import base64
+import ujson
+import collections
+import uuid
+import sys
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Logger(object):
+class Tools(object):
     """
-    NAME:           Logger
-    
-    DESCRIPTION:    Provides a basic logger to stdout
+    NAME:           Tools
 
-    METHODS:        .log(message, mode=0)
-                    Basic logger prints message to screen if mode less then 
-                    log_mode
+    DESCRIPTION:    A class of utility functions used by the datatypes.
 
-                    .logm(message, mode=0, colour='RED')
-                    Logger that allows the header, name, and message to be
-                    passed as a list
+    METHODS:        .serialize(obj)
+                    Converts an object into a bytes encoded serialized object.
 
-                    .logc(header, name, message, mode=0, colour='RED)
-                    Logger that allows specifying the colour.
+                    .deserialize(obj)
+                    Converts a bytes encoded serialized object back into an 
+                    object.
 
-                    .logn(header, name, message, mode=0, colour='RED')
-                    logc but with a newline at the front.
+                    .create_header(meta)
+                    Creates a bytes encoded hash(md5) of the metadata.
 
-                    .loge(header, name, message, mode=0)
-                    Error logger prints in red.
+                    .create_id()
+                    Creates a bytes encoded UUID4.
     """
-    def __init__(self, log_level):
-        self.colours = Colours()
-        self.log_level = log_level
+    @staticmethod
+    def serialize(obj):
+        return base64.b64encode((ujson.dumps(obj)).encode())
 
-    def log(self, message, mode=0):
-        if mode < self.log_level:
-            print(message)
+    @staticmethod
+    def deserialize(obj):
+        return ujson.loads(base64.b64decode(obj).decode())
 
-    def logm(self, message, mode=0, colour='RED'):
-        if mode < self.log_level:
-            printc(
-                '{0}: ({1}) {2}'.format(
-                    padding('[{0}]'.format(message[0]), 40),
-                    message[1],
-                    message[2]
-                )
-                getattr(self.colour, colour)
-            )
+    @staticmethod
+    def create_header(meta):
+        return hashlib.md5(ujson.dumps(meta).encode()).hexdigest().encode()
 
-    def logc(self, header, name, message, mode=0, colour='RED'):
-        if mode < self.log_level:
-            printc(
-                '{0}: ({1}) {2}'.format(
-                    padding('[{0}]'.format(header), 40),
-                    name,
-                    message
-                )
-                getattr(self.colour, colour)
-            )
+    @staticmethod
+    def create_id():
+        return str(uuid.uuid4()).encode()
 
-    def logn(self, header, name, message, mode=0, colour='RED'):
-        if mode < self.log_level:
-            printc(
-                '\n{0}: ({1}) {2}'.format(
-                    padding('[{0}]'.format(header), 40),
-                    name,
-                    message
-                )
-                getattr(self.colour, colour)
-            )
-
-    def loge(self, header, name, message, mode=0):
-        if mode < self.log_level:
-            printc(
-                '{0}: ({1}) {2}'.format(
-                    padding('[{0}]'.format(header), 40),
-                    name,
-                    message
-                )
-                self.colours.RED
-            )
-class Colours(object):
+class Envelope(object):
     """
-    NAME:           Colours
+    NAME:           Envelope
 
-    DESCRIPTION:    Provides templated print colours for printc
+    DESCRIPTION:    A class of utility functions used by the datatypes. It 
+                    stores a header, meta, pipeline, and data, for sending
+                    between members of the transport framework.
 
-    self.RED             = '\033[38;5;1m'
-    self.BLUE             = '\033[38;5;12m'
-    self.GREEN             = '\033[38;5;10m'
-    self.CORAL             = '\033[38;5;9m'
-    self.DARKBLUE        = '\033[38;5;4m'
-    self.PURPLE            = '\033[38;5;5m'
-    self.CYAN            = '\033[38;5;6m'
-    self.LIGHTBLUE        = '\033[38;5;14m'
-    self.BRED            = '\033[48;5;1m'
-    self.BBLUE            = '\033[48;5;12m'
-    self.BGREEN            = '\033[48;5;10m'
-    self.BCORAL            = '\033[48;5;9m'
-    self.BDARKBLUE        = '\033[48;5;4m'
-    self.BPURPLE        = '\033[48;5;5m'
-    self.BCYAN             = '\033[48;5;6m'
-    self.BLIGHTBLUE        = '\033[48;5;14m'
-    self.BLACK            = '\033[38;5;0m'
-    self.ENDC             = '\033[m'
+    METHODS:        .pack(header, meta, pipeline, data)
+                    Packs up a header, meta(obj), pipeline(obj), and data
+                    into and envelope(obj).
+
+                    .load(sealed_envelope)
+                    Loads the serialized representation of an envelope(obj)
+                    into an envelope(obj).
+
+                    .open()
+                    Returns the envelope(obj) in it's completely deserialized
+                    form.
+
+                    .unpack()
+                    Unpacks the envelope(obj) into a header, meta(obj), 
+                    pipeline(obj), and data.
+
+                    .seal()
+                    Returns the internal deque as a list.
+
+                    .get_header()
+                    Returns bytes encoded serialized header.
+
+                    .get_raw_header()
+                    Returns the deserialized header.
+
+                    .get_meta()
+                    Returns the envelopes deserialized meta(obj).
+
+                    .get_pipeline()
+                    Returns the envelopes deserialized pipeline(obj).
+
+                    .get_data()
+                    Returns the envelopes deserialized data.
+
+                    .update_data(data)
+                    Replace the envelopes data.
+
+                    .update_meta(meta)
+                    Replace the envelopes meta.
+
+                    .empty()
+                    Clear the envelope.
+
+                    .validate()
+                    Validate the envelope length.
     """
     def __init__(self):
-        super(Colours, self).__init__()
-        self.RED             = '\033[38;5;1m'
-        self.BLUE             = '\033[38;5;12m'
-        self.GREEN             = '\033[38;5;10m'
-        self.CORAL             = '\033[38;5;9m'
-        self.DARKBLUE        = '\033[38;5;4m'
-        self.PURPLE            = '\033[38;5;5m'
-        self.CYAN            = '\033[38;5;6m'
-        self.LIGHTBLUE        = '\033[38;5;14m'
-        self.BRED            = '\033[48;5;1m'
-        self.BBLUE            = '\033[48;5;12m'
-        self.BGREEN            = '\033[48;5;10m'
-        self.BCORAL            = '\033[48;5;9m'
-        self.BDARKBLUE        = '\033[48;5;4m'
-        self.BPURPLE        = '\033[48;5;5m'
-        self.BCYAN             = '\033[48;5;6m'
-        self.BLIGHTBLUE        = '\033[48;5;14m'
-        self.BLACK            = '\033[38;5;0m'
-        self.ENDC             = '\033[m'
+        self.contents = collections.deque(maxlen=4)
+        self.lifespan = 0
+
+    def pack(self, header, meta, pipeline, data):
+        meta['lifespan'] = len(pipeline['pipeline'])
+        meta['length'] = len(data)
+        meta['size'] = sys.getsizeof(data)
+        self.lifespan = meta['lifespan']
+        self.length = meta['length']
+        self.size = meta['size']
+        [self.contents.append(Tools.serialize(x)) for x in (header, meta, pipeline, data)]
+        del header
+        del meta
+        del pipeline
+        del data
+        
+    def load(self, sealed_envelope):
+        [self.contents.append(x) for x in sealed_envelope]
+        meta = self.get_meta()
+        self.lifespan = meta.lifespan
+        self.length = meta.length
+        self.size = meta.size
+        del sealed_envelope
+        del meta
+
+    def open(self):
+        return [Tools.deserialize(x) for x in self.contents]
+
+    def unpack(self):
+        return self.get_raw_header(), self.get_meta(), self.get_pipeline(), self.get_data()
+
+    def seal(self):
+        return list(self.contents)
+
+    def get_header(self):
+        return self.contents[0]
+
+    def get_raw_header(self):
+        return Tools.deserialize(self.contents[0])
+
+    def get_meta(self):
+        return Meta(Tools.deserialize(self.contents[1]))
+
+    def get_pipeline(self):
+        return Pipeline(Tools.deserialize(self.contents[2]))
+
+    def get_data(self):
+        return Tools.deserialize(self.contents[3])
+
+    def update_data(self, data):
+        self.contents.pop()
+        self.contents.append(Tools.serialize(data))
+
+    def update_meta(self, meta):
+        self.contents.pop(1)
+        self.contents.insert(Tools.serialize(meta.extract()), 1)
+
+    def empty(self):
+        self.contents.clear()
+
+    def validate(self):
+        if len(self.contents) != 4:
+            raise Exception('[ENVELOPE] (validation): size missmatch')
+
+class Pipeline(object):
+    """
+    NAME:           Pipeline
+
+    DESCRIPTION:    A class for storing the envelopes pipeline. Tasks to be 
+                    completed, tasks already completed, and task arguments
+                    are part of the pipeline object.
+
+    METHODS:        .extract()
+                    Returns a dict representation of the pipeline(obj).
+
+                    .load(pipeline)
+                    Loads a dict representation of a pipeline(obj) into a
+                    pipeline(obj).
+
+                    .consume()
+                    Pops the first item in tasks and places it in completed.
+                    Returns the popped item.
+    """
+    def __init__(self, pipeline=None):
+        self.kwargs = {}
+        self.pipeline = collections.deque()
+        self.completed = collections.deque()
+        if pipeline != None:
+            self.load(pipeline)
+
+    def extract(self):
+        return {
+            'pipeline': self.pipeline,
+            'completed': self.completed,
+            'kwargs': self.kwargs
+        }
+
+    def load(self, pipeline):
+        for k, v in pipeline.items():
+            setattr(self, k, v)
+
+    def consume(self):
+        current = self.pipeline.pop(0)
+        self.completed.append(current)
+        return current
+
+class Meta(object):
+        """
+    NAME:           Meta
+
+    DESCRIPTION:    A class for storing the envelopes metadata. Size, length,
+                    lifespan, times, and stage, are all part of the meta
+                    object.
+
+    METHODS:        .extract()
+                    Returns a dict representation of the meta(obj).
+
+                    .load(pipeline)
+                    Loads a dict representation of a meta(obj) into a
+                    meta(obj).
+    """
+    def __init__(self, meta=None):
+        self.size = 0
+        self.length = 0
+        self.lifespan = 0
+        self.times = {}
+        self.stage = Tools.create_id()
+        if meta != None:
+            self.load(meta)
+
+    def extract(self):
+        return {
+            'size': self.size,
+            'length': self.length,
+            'lifespan': self.lifespan,
+            'times': self.times,
+            'stage': self.stage
+        }
+
+    def load(self, meta):
+        for k, v in meta.items():
+            setattr(self, k, v)
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def padding(message, width):
-    if len(message) < width:
-        message += ' ' * (width - len(message))
-    return message
-
-def printc(message, colour):
-    endc = '\033[m'
-    print('{0}{1}{2}'.format(colour, message, endc))
 
 # Main
 # ------------------------------------------------------------------------ 79->
