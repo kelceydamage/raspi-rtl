@@ -58,47 +58,42 @@ class Logger(object):
         if mode < self.log_level:
             print(message)
 
+    def _sprint(self, header, name, message, nline=False):
+        char = ''
+        if nline:
+            char = '\n'
+        return '{3}{0} ({1}) {2}'.format(
+            padding('[{0}]:'.format(header), 20),
+            name,
+            message,
+            char
+            )
+
     def logm(self, message, mode=0, colour='RED'):
         if mode < self.log_level:
             printc(
-                '{0}: ({1}) {2}'.format(
-                    padding('[{0}]'.format(message[0]), 40),
-                    message[1],
-                    message[2]
-                ),
+                self._sprint(message[0], message[1], message[3]),
                 getattr(self.colour, colour)
             )
 
     def logc(self, header, name, message, mode=0, colour='RED'):
         if mode < self.log_level:
             printc(
-                '{0}: ({1}) {2}'.format(
-                    padding('[{0}]'.format(header), 40),
-                    name,
-                    message
-                ),
+                self._sprint(header, name, message),
                 getattr(self.colour, colour)
             )
 
     def logn(self, header, name, message, mode=0, colour='RED'):
         if mode < self.log_level:
             printc(
-                '\n{0}: ({1}) {2}'.format(
-                    padding('[{0}]'.format(header), 40),
-                    name,
-                    message
-                ),
+                self._sprint(header, name, message, True),
                 getattr(self.colour, colour)
             )
 
     def loge(self, header, name, message, mode=0):
         if mode < self.log_level:
             printc(
-                '{0}: ({1}) {2}'.format(
-                    padding('[{0}]'.format(header), 40),
-                    name,
-                    message
-                ),
+                self._sprint(header, name, message),
                 self.colours.RED
             )
 class Colours(object):
