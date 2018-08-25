@@ -4,3 +4,4 @@ python-coveralls
 codecov
 coverage
 ujson
+lmdb
