@@ -14,6 +14,17 @@
 
 ![logo](https://github.com/kelceydamage/rtl/blob/master/docs/msg-diag.png?raw=true)
 
+The transport layer is comprised of 3 main components:
+
+#### Relay
+The relay is the primary coordinator for forwarding, splitting, and assembling work requests. The role of the relay is to ensure pipeline stages are assigned to tasknodes, and completed pipelines are returned to the requestor.
+
+#### TaskNode
+The tasknode processes a given stage in the pipeline. If a stage exists in the task library, it is executed over the accompanying data, and the result is returned to the relay.
+
+#### CacheNode
+The cachenode was originally designed to store repetitive REST queries to external services, but can also store and age out any type of data that can be represented as a key, value pair.
+
 ## Usage
 
 To start the service:
