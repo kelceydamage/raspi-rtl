@@ -15,5 +15,5 @@ htmlcov
 __pycache__
 .DS_Store
 drivers
-jobs
+jobs/custom*
 tasks/custom*
