@@ -236,7 +236,7 @@ class Pipeline(object):
         return current
 
 class Meta(object):
-        """
+    """
     NAME:           Meta
 
     DESCRIPTION:    A class for storing the envelopes metadata. Size, length,
