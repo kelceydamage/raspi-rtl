@@ -65,6 +65,7 @@ CHUNKING                = True      # Chunking determines if and how much the
 CHUNKING_SIZE           = 500
 
 # Cache
+CACHE_LISTEN            = '0.0.0.0'
 CACHE_ADDR              = '127.0.0.1'
 CACHE_RECV              = 19002
 
