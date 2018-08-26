@@ -132,8 +132,8 @@ class CacheNode(Node):
         super(CacheNode, self).__init__(pid=pid)
         self.recv_socket = self._context.socket(zmq.ROUTER)
         self.recv_socket.bind('tcp://{0}:{1}'.format(host, port))
-        self.send_socket = self.recv_socket
         self.type = 'CACHE'
+        self.current_route = ''
         cwd = os.getcwd()
         cache_path = '{0}/transport/cache/'.format(cwd)
         mylmdb = lmdb.Environment(
@@ -150,6 +150,19 @@ class CacheNode(Node):
         self.lmdb = mylmdb
         LOG.logc('CACHE-{0}'.format(self.pid), 'Startup', 'Online', 0, 'GREEN')
 
+    def recv(self):
+        parcel = Parcel()
+        parcel.load(self.recv_socket.recv_multipart())
+        route, envelope = parcel.unpack()
+        self.current_route = route
+        return envelope
+
+    def send(self, envelope):
+        parcel = Parcel()
+        parcel.pack(self.current_route, envelope)
+        self.recv_socket.send_multipart(parcel.seal())
+        self.current_route = ''
+
     def store(self, key, value):
         with lmdb.Environment.begin(self.lmdb, write=True) as txn:
             txn.put(
@@ -163,31 +176,34 @@ class CacheNode(Node):
             return txn.get(key)
 
     def run(self, envelope):
-        """
-        Need to update to use the envelope standard
-        """
-        LOG.loge('CACHE', 'run', '<---- request')
-        req = Tools.deserialize(cr[2])
-        key = Tools.deserialize(cr[3])
-        if req == 'check':
+        LOG.logc('CACHE-{0}'.format(self.pid), 'run', '<---- request', 2, 'PURPLE')
+        key, value = envelope.get_data()
+        response = [key]
+        request = envelope.get_raw_header()
+        if request == 'check':
             try:
-                r = self.cache_key_get(key.encode())
-                if r != None:
-                    return Tools.serialize(True)
+                r = self.retrieve(key.encode())
+                if r == None:
+                    response.append(False)
                 else:
-                    return Tools.serialize(False)
+                    response.append(True)
             except Exception as e:
                 LOG.loge('CACHE-{0}'.format(self.pid), 'check', e)
-                return Tools.serialize(False)
-        elif req == 'get':
-            return self.cache_key_get(key.encode())
-        elif req == 'set':
+        elif request == 'get':
             try:
-                self.cache_key_set(key.encode(), cr[4])
-                return Tools.serialize(True)
+                response.append(Tools.deserialize(self.retrieve(key.encode())))
+            except Exception as e:
+                LOG.loge('CACHE-{0}'.format(self.pid), 'get', e)    
+                response.append(False)
+        elif request == 'set':
+            try:
+                self.store(key.encode(), Tools.serialize(value))
+                response.append(True)
             except Exception as e:
                 LOG.loge('CACHE-{0}'.format(self.pid), 'set', e)
-                return Tools.serialize(False)
+                response.append(False)
+        envelope.update_data(response)
+        return envelope
 
 # Functions
 # ------------------------------------------------------------------------ 79->
