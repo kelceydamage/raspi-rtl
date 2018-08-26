@@ -29,7 +29,7 @@
 # ------------------------------------------------------------------------ 79->
 import hashlib
 import base64
-import ujson
+import ujson as json
 import collections
 import uuid
 import sys
@@ -60,19 +60,63 @@ class Tools(object):
     """
     @staticmethod
     def serialize(obj):
-        return base64.b64encode((ujson.dumps(obj)).encode())
+        return base64.b64encode((json.dumps(obj)).encode())
 
     @staticmethod
     def deserialize(obj):
-        return ujson.loads(base64.b64decode(obj).decode())
+        return json.loads(base64.b64decode(obj).decode())
 
     @staticmethod
     def create_header(meta):
-        return hashlib.md5(ujson.dumps(meta).encode()).hexdigest().encode()
+        return hashlib.md5(json.dumps(meta).encode()).hexdigest().encode()
 
     @staticmethod
     def create_id():
         return str(uuid.uuid4()).encode()
+
+class Parcel(object):
+    """
+    NAME:           Envelope
+
+    DESCRIPTION:    A class of utility functions used by the envelope when 
+                    routing, beit dealer or router sockets. It stores an 
+                    additional header(route) and a null byte char. Used for
+                    sending between routing members of the transport framework.
+
+    METHODS:        .pack(route, envelope)
+                    Packs up a header(route) and and envelope into a parcel.
+
+                    .unpack()
+                    Unpacks the parcel into both a route and an envelope.
+
+                    .load()
+                    Loads the serialized representation of a parcel into a 
+                    parcel(obj).
+
+                    .seal()
+                    Returns the internal deque as a list.
+    """
+    def __init__(self):
+        self.contents = collections.deque(maxlen=6)
+        self.lifespan = 0
+
+    def pack(self, route, envelope):
+        self.contents.append(route)
+        self.contents.append(b'')
+        self.contents.extend(envelope.seal())
+
+    def unpack(self):
+        envelope = Envelope()
+        envelope.load(list(self.contents)[2:])
+        return self.contents[0], envelope
+
+    def load(self, parcel):
+        envelope = Envelope()
+        envelope.load(parcel[2:])
+        self.pack(parcel[0], envelope)
+
+    def seal(self):
+        return list(self.contents)
 
 class Envelope(object):
     """
@@ -139,7 +183,11 @@ class Envelope(object):
         self.lifespan = meta['lifespan']
         self.length = meta['length']
         self.size = meta['size']
-        [self.contents.append(Tools.serialize(x)) for x in (header, meta, pipeline, data)]
+        if header != '':
+            h = header
+        else:
+            h = Tools.serialize(Tools.create_id())
+        [self.contents.append(Tools.serialize(x)) for x in (h, meta, pipeline, data)]
         del header
         del meta
         del pipeline
@@ -176,7 +224,7 @@ class Envelope(object):
         return Pipeline(Tools.deserialize(self.contents[2]))
 
     def get_data(self):
-        return Tools.deserialize(self.contents[3])
+        return Tools.deserialize(self.contents[-1])
 
     def update_data(self, data):
         self.contents.pop()
