@@ -118,7 +118,7 @@ def start_worker(args, pid):
         try:
             LOG.logc('START', 'CacheNode-{0}'.format(pid), 'Starting', 0, 'LIGHTBLUE')
             CacheNode(
-                host=CACHE_ADDR,
+                host=CACHE_LISTEN,
                 port=CACHE_RECV,
                 pid=pid
                 ).start()
