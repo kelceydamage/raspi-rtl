@@ -59,12 +59,13 @@ class Dispatcher(object):
                     Close the connections to the relay.
     """
     def __init__(self):
-        super(Dispatcher, self).__init__()
         context = zmq.Context()
+        push_uri = 'tcp://{0}:{1}'.format(RELAY_ADDR, RELAY_RECV)
+        pull_uri = 'tcp://{0}:{1}'.format(RELAY_ADDR, RELAY_PUBLISHER)
         self.push_socket = context.socket(zmq.PUSH)
-        self.push_socket.connect('tcp://{0}:{1}'.format(RELAY_ADDR, RELAY_RECV))
         self.sub_socket = context.socket(zmq.SUB)
-        self.sub_socket.connect('tcp://{0}:{1}'.format(RELAY_ADDR, RELAY_PUBLISHER))
+        self.push_socket.connect(push_uri)
+        self.sub_socket.connect(pull_uri)
         self.sub_socket.set(zmq.SUBSCRIBE, b'0')
         self.results = []
 
@@ -96,26 +97,35 @@ class Cache(object):
                     the lookup are returned.
     """
     def __init__(self):
+        context = zmq.Context()
         try:
-            self.req_addr = 'tcp://{}:{}'.format(CACHE_ADDR, CACHE_RECV)
-            self.req_socket = zmq.Context().socket(zmq.REQ)
-            self.req_socket.connect(self.req_addr)
+            req_uri = 'tcp://{0}:{1}'.format(CACHE_ADDR, CACHE_RECV)
+            self.req_socket = context.socket(zmq.REQ)
+            self.req_socket.connect(req_uri)
+            self.pipeline = Pipeline()
+            self.pipeline.tasks = ['cache']
+            self.meta = Meta()
         except Exception as e:
-            printc('[CACHE_CLIENT]: (__init__) {0}'.format(str(e)), COLOURS.RED)
+            LOG.loge('CACHE_CLIENT', '__init__', e)
 
-    def send(self, message):
-        msg = [Tools.serialize(x) for x in message]
+    def send(self, method, key, value=None):
+        envelope = Envelope()
+        envelope.pack(
+            method,
+            self.meta.extract(), 
+            self.pipeline.extract(), 
+            (key, value)
+            )
         try:
-            self.req_socket.send_multipart(msg)
+            self.req_socket.send_multipart(envelope.seal())
         except Exception as e:
-            printc('[CACHE_CLIENT]: (send) {0}'.format(str(e)), COLOURS.RED)
-        while True:
-            try:
-                r = self.req_socket.recv_multipart()
-            except Exception as e:
-                print(str(e))
-            break
-        return Tools.deserialize(r[0])
+            LOG.loge('CACHE', 'send', e)
+        try:
+            envelope.load(self.req_socket.recv_multipart())
+        except Exception as e:
+            LOG.loge('CACHE', 'recv', e)
+        header, meta, pipeline, data = envelope.unpack()
+        return data
 
 # Functions
 # ------------------------------------------------------------------------ 79->
