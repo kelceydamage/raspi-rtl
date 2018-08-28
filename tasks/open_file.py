@@ -90,10 +90,3 @@ def task_open_file(kwargs):
 
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':
-    kwargs = {'kwargs':{}, 'worker':'local', 'data':[]}
-    kwargs['kwargs']['file'] = 'metric_combos_42.list'
-    kwargs['kwargs']['path'] = 'interim_data'
-    kwargs['kwargs']['encoding'] = True
-    out = task_open_file(kwargs)
-    print(len(out))
