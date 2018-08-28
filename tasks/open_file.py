@@ -32,16 +32,6 @@
 
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-os.sys.path.append(
-    #os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(
-                os.path.abspath(__file__)
-                )
-            )
-        #)
-    )
 from common.print_helpers import Logger
 from transport.conf.configuration import LOG_LEVEL
 import zlib
