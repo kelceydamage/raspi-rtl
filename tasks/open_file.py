@@ -32,10 +32,21 @@
 
 # Imports
 # ------------------------------------------------------------------------ 79->
+import os
+os.sys.path.append(
+    #os.path.dirname(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(__file__)
+                )
+            )
+        #)
+    )
 from common.print_helpers import Logger
 from transport.conf.configuration import LOG_LEVEL
 import zlib
-import time
+import ast
+import ujson as json
 
 # Globals
 # ------------------------------------------------------------------------ 79->
@@ -49,28 +60,50 @@ LOG = Logger(LOG_LEVEL)
 def configure(kwargs):
     delimiter = '\n'
     compression = False
+    encoding = False
     if 'compression' in kwargs['kwargs']:
         compression = kwargs['kwargs']['compression']
     if 'delimiter' in kwargs['kwargs']:
         delimiter = kwargs['kwargs']['delimiter']
-    return compression, delimiter
+    if 'encoding' in kwargs['kwargs']:
+        encoding = kwargs['kwargs']['encoding']
+    return compression, encoding, delimiter
 
 def task_open_file(kwargs):
-    compression, delimiter = configure(kwargs)
     name = 'NODE-{0}'.format(kwargs['worker'])
     LOG.logc(name, 'starting task', 'open_file', 1, 'LIGHTBLUE')
+    if kwargs['data'] != []:
+        if kwargs['data'] == [False]:
+            return [False]
+    compression, encoding, delimiter = configure(kwargs)
     file_name = kwargs['kwargs']['file']
     file_path = kwargs['kwargs']['path']
-    with open('{0}/{1}'.format(file_path, file_name), 'rb') as f:
+    mode = 'r'
+    if compression:
+        mode = 'rb'
+    with open('{0}/{1}'.format(file_path, file_name), mode) as f:
         r = f.read()
         if compression:
             r = zlib.decompress(r).decode()
-    parts = r.split(delimiter)
+    parts = r.replace('][', ']\n[').split(delimiter)
     results = []
+    if parts == ['']:
+        return [False]
     for i in range(len(parts)):
-        results.append(parts.pop().strip('\n'))
+        item = parts.pop().strip('\n')
+        if item != '':
+            if encoding:
+                item = json.loads(item.rstrip())
+        results.append(item)
     del parts
     return results
 
 # Main
 # ------------------------------------------------------------------------ 79->
+if __name__ == '__main__':
+    kwargs = {'kwargs':{}, 'worker':'local', 'data':[]}
+    kwargs['kwargs']['file'] = 'metric_combos_42.list'
+    kwargs['kwargs']['path'] = 'interim_data'
+    kwargs['kwargs']['encoding'] = True
+    out = task_open_file(kwargs)
+    print(len(out))
