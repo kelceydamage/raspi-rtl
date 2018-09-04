@@ -90,17 +90,14 @@ args = parser.parse_known_args()
 
 
 def start_worker(args, pid):
-    try:
-        if args[-1] == 0:
-            Relay(pid=pid).start()
-        elif args[-1] == 1:
-            time.sleep(0.5)
-            TaskNode(pid=pid, functions=args[2]).start()
-        elif args[-1] == 2:
-            time.sleep(0.5)
-            CacheNode(pid=pid).start()
-    except Exception as e:
-        LOG.loge('START', 'start_worker', '{1}'.format(e))
+    if args[-1] == 0:
+        Relay(pid=pid).start()
+    elif args[-1] == 1:
+        time.sleep(0.5)
+        TaskNode(pid=pid, functions=args[2]).start()
+    elif args[-1] == 2:
+        time.sleep(0.5)
+        CacheNode(pid=pid).start()
 
 
 def _loop(args, functions=''):
@@ -122,20 +119,19 @@ def validate(args, values):
 def gen_services(host, port, mode, functions):
     SERVICES = []
     if validate([host], [None]):
-        try:
-            if mode == 'router':
-                args = [1, 0, port, host]
-                SERVICES = _loop(args)
-            elif mode == 'task':
-                args = [TASK_WORKERS, 1, port, host]
-                SERVICES = _loop(args, functions)
-            elif mode == 'cache':
-                args = [CACHE_WORKERS, 2, port, host]
-                SERVICES = _loop(args)
-        except Exception as e:
-            msg = 'Invald options and arguments provided. Unable to start services'
-            LOG.loge('START', 'gen_services', msg)
-            exit(1)
+        if mode == 'router':
+            args = [1, 0, port, host]
+            SERVICES = _loop(args)
+        elif mode == 'task':
+            args = [TASK_WORKERS, 1, port, host]
+            SERVICES = _loop(args, functions)
+        elif mode == 'cache':
+            args = [CACHE_WORKERS, 2, port, host]
+            SERVICES = _loop(args)
+    else:
+        msg = 'Invald arguments provided. Unable to start services'
+        LOG.loge('START', 'gen_services', msg)
+        exit(1)
     return SERVICES, functions
 
 
