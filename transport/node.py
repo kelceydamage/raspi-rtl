@@ -186,7 +186,7 @@ class CacheNode(Node):
         router_uri = 'tcp://{0}:{1}'.format(CACHE_LISTEN, CACHE_RECV)
         self.recv_socket.bind(router_uri)
         self.type = 'CACHE'
-        self.count = 0
+        self.count = 1
         self.header = 'CACHE-{0}'.format(self.pid)
         self.load_database()
         self.methods = {
