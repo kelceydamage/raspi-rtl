@@ -28,6 +28,8 @@
 import os
 from transport.conf.configuration import TASK_WORKERS
 from transport.conf.configuration import LOG_LEVEL
+from transport.conf.configuration import CACHE_PATH
+from transport.conf.configuration import CACHE_MAP_SIZE
 from common.datatypes import *
 from common.print_helpers import Logger
 from tasks import *
@@ -37,7 +39,7 @@ import lmdb
 # Globals
 # ------------------------------------------------------------------------ 79->
 LOG = Logger(LOG_LEVEL)
-VERSION                 = b'0.1'
+VERSION                 = b'0.2'
 
 # Classes
 # ------------------------------------------------------------------------ 79->
@@ -75,7 +77,7 @@ class Node(object):
     def start(self):
         while True:
             envelope = self.recv()
-            LOG.logc('NODE-{0}'.format(self.pid), 'start', '<---- received', 2, 'PURPLE')
+            LOG.logc('NODE-{0}'.format(self.pid), 'start', '<---- received', 3, 'PURPLE')
             if envelope.lifespan > 0:
                 envelope = self.run(envelope)
             self.send(envelope)
@@ -107,9 +109,10 @@ class TaskNode(Node):
         kwargs['data'] = data
         kwargs['worker'] = self.pid
         try:
-            r = eval(self.functions[func])(kwargs)
+            f = eval(self.functions[func])
+            r = f(kwargs)
         except Exception as e:
-            raise Exception(e)
+            raise Exception('TASK-EVAL: {0}'.format(e))
         envelope.pack(header, meta.extract(), pipeline.extract(), r)
         return envelope
 
@@ -134,20 +137,27 @@ class CacheNode(Node):
         self.recv_socket.bind('tcp://{0}:{1}'.format(host, port))
         self.type = 'CACHE'
         self.current_route = ''
-        cwd = os.getcwd()
-        cache_path = '{0}/transport/cache/'.format(cwd)
-        mylmdb = lmdb.Environment(
-            path=cache_path,
-            map_size=1000000000,
-            subdir=True,
-            map_async=True,
-            writemap=True,
-            max_readers=TASK_WORKERS,
-            max_dbs=0,
-            max_spare_txns=TASK_WORKERS,
-            lock=True
-        )
-        self.lmdb = mylmdb
+        self.count = 0
+        self.use_counter = 0
+        try:
+            self.lmdb = lmdb.Environment(
+                path=CACHE_PATH,
+                map_size=CACHE_MAP_SIZE,
+                subdir=True,
+                readonly=False,
+                metasync=False,
+                map_async=True,
+                sync=False,
+                writemap=True,
+                readahead=True,
+                max_readers=TASK_WORKERS*2,
+                max_dbs=0,
+                max_spare_txns=TASK_WORKERS*2,
+                lock=True,
+                create=True
+            )
+        except Exception as e:
+            LOG.loge('CACHE', '__inti__', e)
         LOG.logc('CACHE-{0}'.format(self.pid), 'Startup', 'Online', 0, 'GREEN')
 
     def recv(self):
@@ -163,46 +173,77 @@ class CacheNode(Node):
         self.recv_socket.send_multipart(parcel.seal())
         self.current_route = ''
 
+    def handler(self, func, key=None, value=None):
+        try:
+            if value != None:
+                return func(key.encode(), value)
+            elif key != None:
+                return func(key.encode())
+            else:
+                return func()
+        except Exception as e:
+            LOG.loge('CACHE-{0}'.format(self.pid), func.__name__, '{0}\n{1}\n{2}'.format(e, key, value))
+            return False
+
     def store(self, key, value):
         with lmdb.Environment.begin(self.lmdb, write=True) as txn:
-            txn.put(
-                key,
-                value,
-                overwrite=True
-                )
+            txn.put(key, value, overwrite=True)
+        return True
 
     def retrieve(self, key):
-        with lmdb.Environment.begin(self.lmdb, write=True) as txn:
-            return txn.get(key)
+        with lmdb.Environment.begin(self.lmdb) as txn:
+            value = txn.get(key)
+        return value
+
+    def check(self, key):
+        if self.retrieve(key) == None:
+            return False
+        else:
+            return True
+
+    def sync(self):
+        self.lmdb.sync()
+
+    def get_status(self):
+        return self.lmdb.stat()
+
+    def get_info(self):
+        return self.lmdb.info()
+
+    def get_path(self):
+        return self.lmdb.path()
+
+    def get_stale_readers(self):
+        return self.lmdb.reader_check()
+
+    def get_reader_lock_table(self):
+        return self.lmdb.readers()
 
     def run(self, envelope):
-        LOG.logc('CACHE-{0}'.format(self.pid), 'run', '<---- request', 2, 'PURPLE')
+        LOG.logc('CACHE-{0}'.format(self.pid), 'run', '<---- request', 3, 'PURPLE')
         key, value = envelope.get_data()
         response = [key]
         request = envelope.get_raw_header()
-        if request == 'check':
-            try:
-                r = self.retrieve(key.encode())
-                if r == None:
-                    response.append(False)
-                else:
-                    response.append(True)
-            except Exception as e:
-                LOG.loge('CACHE-{0}'.format(self.pid), 'check', e)
+        if request == 'status':
+            value = self.handler(self.get_status)
+        elif request == 'check':
+            value = self.handler(self.check, key)
         elif request == 'get':
-            try:
-                response.append(Tools.deserialize(self.retrieve(key.encode())))
-            except Exception as e:
-                LOG.loge('CACHE-{0}'.format(self.pid), 'get', e)    
-                response.append(False)
+            value = Tools.deserialize(self.handler(self.retrieve, key))
         elif request == 'set':
-            try:
-                self.store(key.encode(), Tools.serialize(value))
-                response.append(True)
-            except Exception as e:
-                LOG.loge('CACHE-{0}'.format(self.pid), 'set', e)
-                response.append(False)
-        envelope.update_data(response)
+            value = self.handler(self.store, key, Tools.serialize(value))
+            self.count += 1
+        elif request == 'info':
+            value = self.handler(self.get_info)
+        elif request == 'path':
+            value = self.handler(self.get_path)
+        elif request == 'stale_readers':
+            value = self.handler(self.get_stale_readers)
+        elif request == 'locks':
+            value = self.handler(self.get_reader_lock_table)
+        envelope.update_data([key, value])
+        if self.count % 10000 == 0:
+            print('CACHE VOLUME:', self.count)
         return envelope
 
 # Functions
