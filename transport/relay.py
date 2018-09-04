@@ -30,7 +30,7 @@ from transport.conf.configuration import LOG_LEVEL
 from transport.conf.configuration import RELAY_LISTEN
 from transport.conf.configuration import RELAY_RECV
 from transport.conf.configuration import RELAY_SEND
-from transport.conf.configuration import PUBLISHER_PORT
+from transport.conf.configuration import RELAY_PUBLISHER
 from common.datatypes import *
 from common.print_helpers import Logger
 import zmq
