@@ -30,6 +30,11 @@ from transport.conf.configuration import TASK_WORKERS
 from transport.conf.configuration import LOG_LEVEL
 from transport.conf.configuration import CACHE_PATH
 from transport.conf.configuration import CACHE_MAP_SIZE
+from transport.conf.configuration import RELAY_ADDR
+from transport.conf.configuration import RELAY_SEND
+from transport.conf.configuration import RELAY_RECV
+from transport.conf.configuration import CACHE_LISTEN
+from transport.conf.configuration import CACHE_RECV
 from common.datatypes import *
 from common.print_helpers import Logger
 from tasks import *
@@ -99,12 +104,14 @@ class TaskNode(Node):
                     is determined by the state of the pipeline.
     """
 
-    def __init__(self, relay, recv_port, send_port, pid, functions):
+    def __init__(self, pid, functions):
         super(TaskNode, self).__init__(pid=pid, functions=functions)
         self.recv_socket = self._context.socket(zmq.PULL)
         self.send_socket = self._context.socket(zmq.PUSH)
-        self.recv_socket.connect('tcp://{0}:{1}'.format(relay, recv_port))
-        self.send_socket.connect('tcp://{0}:{1}'.format(relay, send_port))
+        pull_uri = 'tcp://{0}:{1}'.format(RELAY_ADDR, RELAY_SEND)
+        push_uri = 'tcp://{0}:{1}'.format(RELAY_ADDR, RELAY_RECV)
+        self.recv_socket.connect(pull_uri)
+        self.send_socket.connect(push_uri)
         self.type = 'TASK'
         self.header = 'TASK-{0}'.format(self.pid)
         LOG.logc(self.header, 'Startup', 'Online', 0, 'GREEN')
@@ -140,10 +147,11 @@ class CacheNode(Node):
                     Run the cache request against the cache.
     """
 
-    def __init__(self, host, port, pid):
+    def __init__(self, pid):
         super(CacheNode, self).__init__(pid=pid)
         self.recv_socket = self._context.socket(zmq.ROUTER)
-        self.recv_socket.bind('tcp://{0}:{1}'.format(host, port))
+        router_uri = 'tcp://{0}:{1}'.format(CACHE_LISTEN, CACHE_RECV)
+        self.recv_socket.bind(router_uri)
         self.type = 'CACHE'
         self.count = 0
         self.header = 'CACHE-{0}'.format(self.pid)

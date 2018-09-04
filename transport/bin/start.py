@@ -104,24 +104,14 @@ def start_worker(args, pid):
         time.sleep(0.5)
         try:
             LOG.logc('START', 'TaskNode-{0}'.format(pid), 'Starting', 0, 'LIGHTBLUE')
-            TaskNode(
-                relay=RELAY_ADDR, 
-                recv_port=RELAY_SEND,
-                send_port=RELAY_RECV,
-                pid=pid,
-                functions=args[2],
-                ).start()
+            TaskNode(pid=pid, functions=args[2]).start()
         except Exception as e:
             LOG.loge('START', 'start_worker', 'TaskNode {0}'.format(e))
     elif args[-1] == 2:
         time.sleep(0.5)
         try:
             LOG.logc('START', 'CacheNode-{0}'.format(pid), 'Starting', 0, 'LIGHTBLUE')
-            CacheNode(
-                host=CACHE_LISTEN,
-                port=CACHE_RECV,
-                pid=pid
-                ).start()
+            CacheNode(pid=pid).start()
         except Exception as e:
             LOG.loge('START', 'start_worker', 'CacheNode {0}'.format(e))
 
