@@ -72,14 +72,14 @@ def _open(compression, file_path, file_name):
     return r
 
 
-def decode(parts):
+def decode(parts, encoding):
     results = []
     for i in range(len(parts)):
         item = parts.pop().strip('\n')
+        if encoding:
+            item = json.loads(item.rstrip())
         if item != '':
-            if encoding:
-                item = json.loads(item.rstrip())
-        results.append(item)
+            results.append(item)
     return results
 
 
@@ -97,7 +97,7 @@ def task_open_file(kwargs):
     parts = r.replace('][', ']\n[').split(delimiter)
     if parts == ['']:
         return [False]
-    results = decode(parts)
+    results = decode(parts, encoding)
     del parts
     return results
 
