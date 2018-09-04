@@ -91,13 +91,7 @@ def start_worker(args, pid):
     if args[-1] == 0:
         try:
             LOG.logn('START', 'Relay-{0}'.format(pid), 'Starting', 0, 'LIGHTBLUE')
-            Relay(
-                host=RELAY_LISTEN,
-                recv_port=RELAY_RECV,
-                send_port=RELAY_SEND,
-                publisher_port=RELAY_PUBLISHER,
-                pid=pid
-                ).start()
+            Relay(pid=pid).start()
         except Exception as e:
             LOG.loge('START', 'start_worker', 'Relay {0}'.format(e))
     elif args[-1] == 1:

@@ -21,12 +21,16 @@
 #                   conf
 #                   common
 #                   zmq
-#    
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
 from transport.conf.configuration import CHUNKING
 from transport.conf.configuration import CHUNKING_SIZE
 from transport.conf.configuration import LOG_LEVEL
+from transport.conf.configuration import RELAY_LISTEN
+from transport.conf.configuration import RELAY_RECV
+from transport.conf.configuration import RELAY_SEND
+from transport.conf.configuration import PUBLISHER_PORT
 from common.datatypes import *
 from common.print_helpers import Logger
 import zmq
@@ -34,11 +38,13 @@ import zmq
 # Globals
 # ------------------------------------------------------------------------ 79->
 LOG = Logger(LOG_LEVEL)
-VERSION                 = b'0.1'
+VERSION = b'0.2'
 CHUNKING = True
 
 # Classes
 # ------------------------------------------------------------------------ 79->
+
+
 class Relay(object):
     """
     NAME:           Router
@@ -49,7 +55,7 @@ class Relay(object):
                     Pack the envelope and send to a node.
 
                     .receive()
-                    Receive sealed envelop returns an Envelope() 
+                    Receive sealed envelop returns an Envelope()
                     object.
 
                     .create_state(meta)
@@ -69,15 +75,19 @@ class Relay(object):
                     .start()
                     Start the relay and begin listening.
     """
-    def __init__(self, host, recv_port, send_port, publisher_port, pid):
+
+    def __init__(self, pid):
         super(Relay, self).__init__()
         context = zmq.Context()
-        self.recv_socket = context.socket(zmq.PULL) # ROUTER
-        self.send_socket = context.socket(zmq.PUSH) # DEALER
+        self.recv_socket = context.socket(zmq.PULL)
+        self.send_socket = context.socket(zmq.PUSH)
         self.publisher = context.socket(zmq.PUB)
-        self.recv_socket.bind('tcp://{0}:{1}'.format(host, recv_port))
-        self.send_socket.bind('tcp://{0}:{1}'.format(host, send_port))
-        self.publisher.bind('tcp://{0}:{1}'.format(host, publisher_port))
+        pull_uri = 'tcp://{0}:{1}'.format(RELAY_LISTEN, RELAY_RECV)
+        push_uri = 'tcp://{0}:{1}'.format(RELAY_LISTEN, RELAY_SEND)
+        publiser_uri = 'tcp://{0}:{1}'.format(RELAY_LISTEN, RELAY_PUBLISHER)
+        self.recv_socket.bind(pull_uri)
+        self.send_socket.bind(push_uri)
+        self.publisher.bind(publiser_uri)
         self.pid = pid
         self.state = {}
         self.buffer = []
@@ -127,7 +137,12 @@ class Relay(object):
         if success:
             self.queue.extend(data)
             if count == 0:
-                envelope.pack(header, meta.extract(), pipeline.extract(), self.queue)
+                envelope.pack(
+                    header,
+                    meta.extract(),
+                    pipeline.extract(),
+                    self.queue
+                    )
                 self.publisher.send_multipart(envelope.seal())
                 self.queue = []
                 LOG.logc('RELAY', 'assemble', 'published ---->', 2, 'PURPLE')
