@@ -30,6 +30,7 @@ os.sys.path.append(
     )
 from transport.dispatch import Cache
 from common.datatypes import Tools
+from transport.conf.configuration import CACHE_PATH
 
 # Globals
 # ------------------------------------------------------------------------ 79->
@@ -42,18 +43,60 @@ CACHE = Cache() # pragma: no cover
 # Functions
 # ------------------------------------------------------------------------ 79->
 def test_cache_check(): # pragma: no cover
-    print(HEADER)
+    print('TEST: (check)')
     r = CACHE.send('check', HEADER)
-    print(r)
     assert r[1] == False
 
 def test_cache_set(): # pragma: no cover
+    print('TEST: (set)')
     r = CACHE.send('set', HEADER, 'test data')
     assert r[1] == True
 
 def test_cache_get(): # pragma: no cover
+    print('TEST: (get)')
     r = CACHE.send('get', HEADER, 'test data')
     assert r[1] == 'test data'
+
+def test_cache_status(): # pragma: no cover
+    print('TEST: (status)')
+    r = CACHE.send('status', HEADER, 'test data')
+    assert type(r[1]) == dict
+    assert list(r[1].keys()) == [
+        'psize',
+        'depth',
+        'branch_pages',
+        'leaf_pages',
+        'overflow_pages',
+        'entries'
+        ]
+
+def test_cache_info(): # pragma: no cover
+    print('TEST: (info)')
+    r = CACHE.send('info', HEADER, 'test data')
+    assert type(r[1]) == dict
+    assert list(r[1].keys()) == [
+        'map_addr', 
+        'map_size', 
+        'last_pgno', 
+        'last_txnid', 
+        'max_readers', 
+        'num_readers'
+        ]
+
+def test_cache_stale(): # pragma: no cover
+    print('TEST: (stale)')
+    r = CACHE.send('stale_readers', HEADER, 'test data')
+    assert type(r[1]) == int
+
+def test_cache_readers(): # pragma: no cover
+    print('TEST: (path)')
+    r = CACHE.send('path', HEADER, 'test data')
+    assert r[1] == CACHE_PATH
+
+def test_cache_locks(): # pragma: no cover
+    print('TEST: (locks)')
+    r = CACHE.send('locks', HEADER, 'test data')
+    assert type(r[1]) == str
 
 # Main
 # ------------------------------------------------------------------------ 79->
@@ -61,3 +104,8 @@ if __name__ == '__main__': # pragma: no cover
     test_cache_check()
     test_cache_set()
     test_cache_get()
+    test_cache_status()
+    test_cache_info()
+    test_cache_stale()
+    test_cache_readers()
+    test_cache_locks()
