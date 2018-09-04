@@ -68,6 +68,9 @@ CHUNKING_SIZE           = 500
 CACHE_LISTEN            = '0.0.0.0'
 CACHE_ADDR              = '127.0.0.1'
 CACHE_RECV              = 19002
+CACHE_PATH              = '/tmp/'
+CACHE_MAP_SIZE          = 1000000000  # ~1GB
+
 
 # Classes
 # ------------------------------------------------------------------------ 79->
