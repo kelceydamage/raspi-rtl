@@ -92,7 +92,7 @@ class Relay(object):
         self.state = {}
         self.buffer = []
         self.queue = []
-        LOG.logc('RELAY-{0}'.format(self.pid), 'Startup', 'Online', 0, 'GREEN')
+        LOG.logn('RELAY-{0}'.format(self.pid), 'Startup', 'Online', 0, 'GREEN')
 
     def ship(self, header, meta, pipeline):
         envelope = Envelope()
