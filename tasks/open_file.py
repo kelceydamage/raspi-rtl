@@ -27,9 +27,9 @@
 #                       Value to split the file on. Default is '\n'.
 #
 #                       'compression'
-#                       Boolean to denote zlib compression on file. Default is 
+#                       Boolean to denote zlib compression on file. Default is
 #                       False.
-
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
 from common.print_helpers import Logger
@@ -47,27 +47,21 @@ LOG = Logger(LOG_LEVEL)
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def configure(kwargs):
-    delimiter = '\n'
-    compression = False
-    encoding = False
-    if 'compression' in kwargs['kwargs']:
-        compression = kwargs['kwargs']['compression']
-    if 'delimiter' in kwargs['kwargs']:
-        delimiter = kwargs['kwargs']['delimiter']
-    if 'encoding' in kwargs['kwargs']:
-        encoding = kwargs['kwargs']['encoding']
-    return compression, encoding, delimiter
 
-def task_open_file(kwargs):
-    name = 'NODE-{0}'.format(kwargs['worker'])
-    LOG.logc(name, 'starting task', 'open_file', 1, 'LIGHTBLUE')
-    if kwargs['data'] != []:
-        if kwargs['data'] == [False]:
-            return [False]
-    compression, encoding, delimiter = configure(kwargs)
-    file_name = kwargs['kwargs']['file']
-    file_path = kwargs['kwargs']['path']
+
+def configure(kwargs):
+    keys = ['compression', 'delimiter', 'encoding']
+    defaults = {'compression': False, 'delimiter': '\\n', 'encoding': False}
+    params = []
+    for key in keys:
+        if key in kwargs['kwargs']:
+            params.append(kwargs['kwargs'][key])
+        else:
+            params.append(defaults[key])
+    return params
+
+
+def _open(compression, file_path, file_name):
     mode = 'r'
     if compression:
         mode = 'rb'
@@ -75,16 +69,35 @@ def task_open_file(kwargs):
         r = f.read()
         if compression:
             r = zlib.decompress(r).decode()
-    parts = r.replace('][', ']\n[').split(delimiter)
+    return r
+
+
+def decode(parts):
     results = []
-    if parts == ['']:
-        return [False]
     for i in range(len(parts)):
         item = parts.pop().strip('\n')
         if item != '':
             if encoding:
                 item = json.loads(item.rstrip())
         results.append(item)
+    return results
+
+
+def task_open_file(kwargs):
+    name = 'NODE-{0}'.format(kwargs['worker'])
+    LOG.logc(name, 'starting task', 'open_file', 1, 'LIGHTBLUE')
+    if kwargs['data'] != []:
+        if kwargs['data'] == [False]:
+            return [False]
+    compression, delimiter, encoding = configure(kwargs)
+    file_name = kwargs['kwargs']['file']
+    file_path = kwargs['kwargs']['path']
+    mode = 'r'
+    r = _open(compression, file_path, file_name)
+    parts = r.replace('][', ']\n[').split(delimiter)
+    if parts == ['']:
+        return [False]
+    results = decode(parts)
     del parts
     return results
 
