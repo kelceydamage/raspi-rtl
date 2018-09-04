@@ -108,30 +108,17 @@ def _loop(args, functions=''):
     return services
 
 
-def validate(args, values):
-    index = 0
-    for arg in args:
-        if arg == values[index]:
-            return False
-    return True
-
-
 def gen_services(host, port, mode, functions):
     SERVICES = []
-    if validate([host], [None]):
-        if mode == 'router':
-            args = [1, 0, port, host]
-            SERVICES = _loop(args)
-        elif mode == 'task':
-            args = [TASK_WORKERS, 1, port, host]
-            SERVICES = _loop(args, functions)
-        elif mode == 'cache':
-            args = [CACHE_WORKERS, 2, port, host]
-            SERVICES = _loop(args)
-    else:
-        msg = 'Invald arguments provided. Unable to start services'
-        LOG.loge('START', 'gen_services', msg)
-        exit(1)
+    if mode == 'router':
+        args = [1, 0, port, host]
+        SERVICES = _loop(args)
+    elif mode == 'task':
+        args = [TASK_WORKERS, 1, port, host]
+        SERVICES = _loop(args, functions)
+    elif mode == 'cache':
+        args = [CACHE_WORKERS, 2, port, host]
+        SERVICES = _loop(args)
     return SERVICES, functions
 
 
