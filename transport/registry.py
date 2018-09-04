@@ -22,7 +22,7 @@
 #                   sys
 #                   common
 #                   transport
-#       
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
 import pkgutil
@@ -39,12 +39,14 @@ LOG = Logger(LOG_LEVEL)
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+
+
 def load_tasks(dirname):
     """
     NAME:           load_tasks
-    
-    DESCRIPTION:    Auto loader and parser for task modules. This function is 
-                    written for efficiency, so I appologize for lack of 
+
+    DESCRIPTION:    Auto loader and parser for task modules. This function is
+                    written for efficiency, so I appologize for lack of
                     readability.
     """
     functions = {}
@@ -60,6 +62,7 @@ def load_tasks(dirname):
                 LOG.loge('REGISTRY', 'load_tasks', e)
     LOG.logc('REGISTRY', 'load_tasks', functions, 3, 'PURPLE')
     return functions
+
 
 # Main
 # ------------------------------------------------------------------------ 79->

@@ -21,7 +21,7 @@
 #                   zmq
 #                   common
 #                   conf
-#            
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
 from transport.conf.configuration import RELAY_ADDR
@@ -40,15 +40,17 @@ LOG = Logger(LOG_LEVEL)
 
 # Classes
 # ------------------------------------------------------------------------ 79->
+
+
 class Dispatcher(object):
     """
     NAME:           Dispatcher
-    
+
     DESCRIPTION:    Dispatches tasks to the relay.
 
     METHODS:        .send(envelope)
-                    Send a type Envelope() object to the relay. This is a 
-                    blocking method, and will wait until the results of the 
+                    Send a type Envelope() object to the relay. This is a
+                    blocking method, and will wait until the results of the
                     task are returned.
 
                     ._receive()
@@ -58,6 +60,7 @@ class Dispatcher(object):
                     .close()
                     Close the connections to the relay.
     """
+
     def __init__(self):
         context = zmq.Context()
         push_uri = 'tcp://{0}:{1}'.format(RELAY_ADDR, RELAY_RECV)
@@ -85,17 +88,19 @@ class Dispatcher(object):
         self.push_socket.send_multipart(sealed)
         return self._recieve()
 
+
 class Cache(object):
     """
     NAME:           Cache
-    
+
     DESCRIPTION:    Sends cache requests to a cache node.
 
     METHODS:        .send(envelope)
-                    Send a type Envelope() object to the cache node. This 
-                    is a blocking method, and will wait until the results of 
+                    Send a type Envelope() object to the cache node. This
+                    is a blocking method, and will wait until the results of
                     the lookup are returned.
     """
+
     def __init__(self):
         context = zmq.Context()
         try:
@@ -112,8 +117,8 @@ class Cache(object):
         envelope = Envelope()
         envelope.pack(
             method,
-            self.meta.extract(), 
-            self.pipeline.extract(), 
+            self.meta.extract(),
+            self.pipeline.extract(),
             (key, value)
             )
         try:
@@ -129,6 +134,6 @@ class Cache(object):
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-    
+
 # Main
 # ------------------------------------------------------------------------ 79->

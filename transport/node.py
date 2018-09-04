@@ -148,7 +148,7 @@ class CacheNode(Node):
 
                     .handler(func, key=None, value=None)
                     Handle all incoming requests and run requested method.
-    
+
                     .store(key, value)
                     Store a key and value in the cache.
 
