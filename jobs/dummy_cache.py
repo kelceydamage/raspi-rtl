@@ -43,6 +43,7 @@ CACHE = Cache()  # pragma: no cover
 # Functions
 # ------------------------------------------------------------------------ 79->
 
+
 def test_cache_check():  # pragma: no cover
     print('TEST: (check)')
     r = CACHE.send('check', HEADER)
@@ -57,13 +58,13 @@ def test_cache_set():  # pragma: no cover
 
 def test_cache_get():  # pragma: no cover
     print('TEST: (get)')
-    r = CACHE.send('get', HEADER, 'test data')
+    r = CACHE.send('get', HEADER)
     assert r[1] == 'test data'
 
 
 def test_cache_status():  # pragma: no cover
     print('TEST: (status)')
-    r = CACHE.send('status', HEADER, 'test data')
+    r = CACHE.send('status')
     assert type(r[1]) == dict
     assert list(r[1].keys()) == [
         'psize',
@@ -77,7 +78,7 @@ def test_cache_status():  # pragma: no cover
 
 def test_cache_info():  # pragma: no cover
     print('TEST: (info)')
-    r = CACHE.send('info', HEADER, 'test data')
+    r = CACHE.send('info')
     assert type(r[1]) == dict
     assert list(r[1].keys()) == [
         'map_addr',
@@ -91,19 +92,19 @@ def test_cache_info():  # pragma: no cover
 
 def test_cache_stale():  # pragma: no cover
     print('TEST: (stale)')
-    r = CACHE.send('stale_readers', HEADER, 'test data')
+    r = CACHE.send('stale_readers')
     assert type(r[1]) == int
 
 
 def test_cache_readers():  # pragma: no cover
     print('TEST: (path)')
-    r = CACHE.send('path', HEADER, 'test data')
+    r = CACHE.send('path')
     assert r[1] == CACHE_PATH
 
 
 def test_cache_locks():  # pragma: no cover
     print('TEST: (locks)')
-    r = CACHE.send('locks', HEADER, 'test data')
+    r = CACHE.send('locks')
     assert type(r[1]) == str
 
 

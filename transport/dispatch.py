@@ -108,7 +108,7 @@ class Cache(object):
         except Exception as e:
             LOG.loge('CACHE_CLIENT', '__init__', e)
 
-    def send(self, method, key, value=None):
+    def send(self, method, key=None, value=None):
         envelope = Envelope()
         envelope.pack(
             method,
