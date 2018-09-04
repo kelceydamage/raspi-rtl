@@ -90,53 +90,52 @@ args = parser.parse_known_args()
 
 
 def start_worker(args, pid):
-    if args[-1] == 0:
-        try:
+    try:
+        if args[-1] == 0:
             Relay(pid=pid).start()
-        except Exception as e:
-            LOG.loge('START', 'start_worker', 'Relay {0}'.format(e))
-    elif args[-1] == 1:
-        time.sleep(0.5)
-        try:
+        elif args[-1] == 1:
+            time.sleep(0.5)
             TaskNode(pid=pid, functions=args[2]).start()
-        except Exception as e:
-            LOG.loge('START', 'start_worker', 'TaskNode {0}'.format(e))
-    elif args[-1] == 2:
-        time.sleep(0.5)
-        try:
+        elif args[-1] == 2:
+            time.sleep(0.5)
             CacheNode(pid=pid).start()
-        except Exception as e:
-            LOG.loge('START', 'start_worker', 'CacheNode {0}'.format(e))
+    except Exception as e:
+        LOG.loge('START', 'start_worker', '{1}'.format(e))
+
+
+def _loop(args, functions=''):
+    services = []
+    for i in range(args[0]):
+        payload = [start_worker, [args[3], args[2], functions, args[1]]]
+        services.append(payload)
+    return services
+
+
+def validate(args, values):
+    index = 0
+    for arg in args:
+        if arg == values[index]:
+            return False
+    return True
 
 
 def gen_services(host, port, mode, functions):
-    def _loop(count, worker_type, port, host, functions=''):
-        for i in range(count):
-            payload = [start_worker, [host, port, functions, worker_type]]
-            SERVICES.append(payload)
-        return SERVICES
-
     SERVICES = []
-    try:
-        if mode == 'router':
-            if host is None:
-                raise
-            else:
-                SERVICES = _loop(1, 0, port, host)
-        elif mode == 'task':
-            if host is None or port is None:
-                raise
-            else:
-                SERVICES = _loop(TASK_WORKERS, 1, port, host, functions)
-        elif mode == 'cache':
-            if host is None:
-                raise
-            else:
-                SERVICES = _loop(CACHE_WORKERS, 2, port, host)
-    except Exception as e:
-        msg = 'Invald options and arguments provided. Unable to start services'
-        LOG.loge('START', 'gen_services', msg)
-        exit(1)
+    if validate([host], [None]):
+        try:
+            if mode == 'router':
+                args = [1, 0, port, host]
+                SERVICES = _loop(args)
+            elif mode == 'task':
+                args = [TASK_WORKERS, 1, port, host]
+                SERVICES = _loop(args, functions)
+            elif mode == 'cache':
+                args = [CACHE_WORKERS, 2, port, host]
+                SERVICES = _loop(args)
+        except Exception as e:
+            msg = 'Invald options and arguments provided. Unable to start services'
+            LOG.loge('START', 'gen_services', msg)
+            exit(1)
     return SERVICES, functions
 
 
