@@ -34,7 +34,7 @@ from transport.conf.configuration import CACHE_PATH
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-HEADER = Tools.create_id() # pragma: no cover
+HEADER = Tools.create_id()  # pragma: no cover
 CACHE = Cache() # pragma: no cover
 
 # Classes
@@ -42,22 +42,25 @@ CACHE = Cache() # pragma: no cover
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def test_cache_check(): # pragma: no cover
+def test_cache_check():  # pragma: no cover
     print('TEST: (check)')
     r = CACHE.send('check', HEADER)
     assert r[1] == False
 
-def test_cache_set(): # pragma: no cover
+
+def test_cache_set():  # pragma: no cover
     print('TEST: (set)')
     r = CACHE.send('set', HEADER, 'test data')
     assert r[1] == True
 
-def test_cache_get(): # pragma: no cover
+
+def test_cache_get():  # pragma: no cover
     print('TEST: (get)')
     r = CACHE.send('get', HEADER, 'test data')
     assert r[1] == 'test data'
 
-def test_cache_status(): # pragma: no cover
+
+def test_cache_status():  # pragma: no cover
     print('TEST: (status)')
     r = CACHE.send('status', HEADER, 'test data')
     assert type(r[1]) == dict
@@ -70,7 +73,8 @@ def test_cache_status(): # pragma: no cover
         'entries'
         ]
 
-def test_cache_info(): # pragma: no cover
+
+def test_cache_info():  # pragma: no cover
     print('TEST: (info)')
     r = CACHE.send('info', HEADER, 'test data')
     assert type(r[1]) == dict
@@ -83,20 +87,24 @@ def test_cache_info(): # pragma: no cover
         'num_readers'
         ]
 
-def test_cache_stale(): # pragma: no cover
+
+def test_cache_stale():  # pragma: no cover
     print('TEST: (stale)')
     r = CACHE.send('stale_readers', HEADER, 'test data')
     assert type(r[1]) == int
 
-def test_cache_readers(): # pragma: no cover
+
+def test_cache_readers():  # pragma: no cover
     print('TEST: (path)')
     r = CACHE.send('path', HEADER, 'test data')
     assert r[1] == CACHE_PATH
 
-def test_cache_locks(): # pragma: no cover
+
+def test_cache_locks():  # pragma: no cover
     print('TEST: (locks)')
     r = CACHE.send('locks', HEADER, 'test data')
     assert type(r[1]) == str
+    
 
 # Main
 # ------------------------------------------------------------------------ 79->
