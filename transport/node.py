@@ -137,11 +137,44 @@ class CacheNode(Node):
 
     DESCRIPTION:    A cache variant of the node, whose role is to cache values.
 
-    METHODS:        .store(key, value)
+    METHODS:        .load_database()
+                    Initialize the lmdb database environment.
+
+                    .recv()
+                    Receive incoming envelopes.
+
+                    .send()
+                    Send outgoing envelope.
+
+                    .handler(func, key=None, value=None)
+                    Handle all incoming requests and run requested method.
+    
+                    .store(key, value)
                     Store a key and value in the cache.
 
                     .retrieve(key)
                     Retrieve a value from the cache based on its key.
+
+                    .check(key)
+                    Check if a key exists in the database.
+
+                    .sync()
+                    Force sync of the lmdb environment.
+
+                    .get_status()
+                    Return status information about the database environment.
+
+                    .get_info()
+                    Return additional information about the database.
+
+                    .get_path()
+                    Return the location of the database.
+
+                    .get_stale_readers()
+                    Return a count of stale reader connections.
+
+                    .get_reader_lock_table()
+                    Return lock table.
 
                     .run(envelope)
                     Run the cache request against the cache.
