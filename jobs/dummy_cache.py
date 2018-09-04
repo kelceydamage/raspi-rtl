@@ -35,13 +35,14 @@ from transport.conf.configuration import CACHE_PATH
 # Globals
 # ------------------------------------------------------------------------ 79->
 HEADER = Tools.create_id()  # pragma: no cover
-CACHE = Cache() # pragma: no cover
+CACHE = Cache()  # pragma: no cover
 
 # Classes
 # ------------------------------------------------------------------------ 79->
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+
 def test_cache_check():  # pragma: no cover
     print('TEST: (check)')
     r = CACHE.send('check', HEADER)
@@ -79,11 +80,11 @@ def test_cache_info():  # pragma: no cover
     r = CACHE.send('info', HEADER, 'test data')
     assert type(r[1]) == dict
     assert list(r[1].keys()) == [
-        'map_addr', 
-        'map_size', 
-        'last_pgno', 
-        'last_txnid', 
-        'max_readers', 
+        'map_addr',
+        'map_size',
+        'last_pgno',
+        'last_txnid',
+        'max_readers',
         'num_readers'
         ]
 
@@ -104,7 +105,7 @@ def test_cache_locks():  # pragma: no cover
     print('TEST: (locks)')
     r = CACHE.send('locks', HEADER, 'test data')
     assert type(r[1]) == str
-    
+
 
 # Main
 # ------------------------------------------------------------------------ 79->
