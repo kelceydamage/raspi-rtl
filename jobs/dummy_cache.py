@@ -46,13 +46,13 @@ CACHE = Cache()  # pragma: no cover
 def test_cache_check():  # pragma: no cover
     print('TEST: (check)')
     r = CACHE.send('check', HEADER)
-    assert r[1] == False
+    assert str(r[1]) == 'False'
 
 
 def test_cache_set():  # pragma: no cover
     print('TEST: (set)')
     r = CACHE.send('set', HEADER, 'test data')
-    assert r[1] == True
+    assert str(r[1]) == 'True'
 
 
 def test_cache_get():  # pragma: no cover
@@ -109,7 +109,7 @@ def test_cache_locks():  # pragma: no cover
 
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__': # pragma: no cover
+if __name__ == '__main__':  # pragma: no cover
     test_cache_check()
     test_cache_set()
     test_cache_get()
