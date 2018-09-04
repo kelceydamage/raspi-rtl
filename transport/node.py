@@ -43,6 +43,7 @@ VERSION                 = b'0.2'
 
 # Classes
 # ------------------------------------------------------------------------ 79->
+
 class Node(object):
     """
     NAME:           Node
@@ -59,6 +60,8 @@ class Node(object):
                     .start()
                     Starts the node and begins requesting sealed envelopes.
     """
+
+
     def __init__(self, pid, functions=''):
         super(Node, self).__init__()
         self._context = zmq.Context()
@@ -66,13 +69,16 @@ class Node(object):
         self.pid = pid
         self.functions = functions
 
+
     def recv(self):
         envelope = Envelope()
         envelope.load(self.recv_socket.recv_multipart())
         return envelope
 
+
     def send(self, envelope):
         self.send_socket.send_multipart(envelope.seal())
+
 
     def start(self):
         while True:
@@ -81,6 +87,7 @@ class Node(object):
             if envelope.lifespan > 0:
                 envelope = self.run(envelope)
             self.send(envelope)
+
 
 class TaskNode(Node):
     """
@@ -93,6 +100,8 @@ class TaskNode(Node):
                     Run a specific function from the registry. Which function is 
                     determined by the state of the pipeline.
     """
+
+
     def __init__(self, relay, recv_port, send_port, pid, functions):
         super(TaskNode, self).__init__(pid=pid, functions=functions)
         self.recv_socket = self._context.socket(zmq.PULL)
@@ -101,6 +110,7 @@ class TaskNode(Node):
         self.send_socket.connect('tcp://{0}:{1}'.format(relay, send_port))
         self.type = 'TASK'
         LOG.logc('TASK-{0}'.format(self.pid), 'Startup', 'Online', 0, 'GREEN')
+
 
     def run(self, envelope):
         header, meta, pipeline, data = envelope.unpack()
@@ -115,6 +125,7 @@ class TaskNode(Node):
             raise Exception('TASK-EVAL: {0}'.format(e))
         envelope.pack(header, meta.extract(), pipeline.extract(), r)
         return envelope
+
 
 class CacheNode(Node):
     """
@@ -131,6 +142,8 @@ class CacheNode(Node):
                     .run(envelope)
                     Run the cache request against the cache.
     """
+
+
     def __init__(self, host, port, pid):
         super(CacheNode, self).__init__(pid=pid)
         self.recv_socket = self._context.socket(zmq.ROUTER)
@@ -160,6 +173,7 @@ class CacheNode(Node):
             LOG.loge('CACHE', '__inti__', e)
         LOG.logc('CACHE-{0}'.format(self.pid), 'Startup', 'Online', 0, 'GREEN')
 
+
     def recv(self):
         parcel = Parcel()
         parcel.load(self.recv_socket.recv_multipart())
@@ -167,11 +181,13 @@ class CacheNode(Node):
         self.current_route = route
         return envelope
 
+
     def send(self, envelope):
         parcel = Parcel()
         parcel.pack(self.current_route, envelope)
         self.recv_socket.send_multipart(parcel.seal())
         self.current_route = ''
+
 
     def handler(self, func, key=None, value=None):
         try:
@@ -182,18 +198,21 @@ class CacheNode(Node):
             else:
                 return func()
         except Exception as e:
-            LOG.loge('CACHE-{0}'.format(self.pid), func.__name__, '{0}\n{1}\n{2}'.format(e, key, value))
+            LOG.loge('CACHE-{0}'.format(self.pid), func.__name__, e)
             return False
+
 
     def store(self, key, value):
         with lmdb.Environment.begin(self.lmdb, write=True) as txn:
             txn.put(key, value, overwrite=True)
         return True
 
+
     def retrieve(self, key):
         with lmdb.Environment.begin(self.lmdb) as txn:
             value = txn.get(key)
         return value
+
 
     def check(self, key):
         if self.retrieve(key) == None:
@@ -201,23 +220,30 @@ class CacheNode(Node):
         else:
             return True
 
+
     def sync(self):
         self.lmdb.sync()
+
 
     def get_status(self):
         return self.lmdb.stat()
 
+
     def get_info(self):
         return self.lmdb.info()
+
 
     def get_path(self):
         return self.lmdb.path()
 
+
     def get_stale_readers(self):
         return self.lmdb.reader_check()
 
+
     def get_reader_lock_table(self):
         return self.lmdb.readers()
+
 
     def run(self, envelope):
         LOG.logc('CACHE-{0}'.format(self.pid), 'run', '<---- request', 3, 'PURPLE')
@@ -245,6 +271,7 @@ class CacheNode(Node):
         if self.count % 10000 == 0:
             print('CACHE VOLUME:', self.count)
         return envelope
+
 
 # Functions
 # ------------------------------------------------------------------------ 79->
