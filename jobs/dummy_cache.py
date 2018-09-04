@@ -46,27 +46,23 @@ CACHE = Cache()  # pragma: no cover
 
 def test_cache_check():  # pragma: no cover
     print('TEST: (check)')
-    r = CACHE.send('check', HEADER)
-    assert str(r[1]) == 'False'
+    assert str(CACHE.send('check', HEADER)[1]) == 'False'
 
 
 def test_cache_set():  # pragma: no cover
     print('TEST: (set)')
-    r = CACHE.send('set', HEADER, 'test data')
-    assert str(r[1]) == 'True'
+    assert str(CACHE.send('set', HEADER, 'test data')[1]) == 'True'
 
 
 def test_cache_get():  # pragma: no cover
     print('TEST: (get)')
-    r = CACHE.send('get', HEADER)
-    assert r[1] == 'test data'
+    assert CACHE.send('get', HEADER)[1] == 'test data'
 
 
 def test_cache_status():  # pragma: no cover
     print('TEST: (status)')
-    r = CACHE.send('status')
-    assert type(r[1]) == dict
-    assert list(r[1].keys()) == [
+    assert type(CACHE.send('status')[1]) == dict
+    assert list(CACHE.send('status')[1].keys()) == [
         'psize',
         'depth',
         'branch_pages',
@@ -78,9 +74,8 @@ def test_cache_status():  # pragma: no cover
 
 def test_cache_info():  # pragma: no cover
     print('TEST: (info)')
-    r = CACHE.send('info')
-    assert type(r[1]) == dict
-    assert list(r[1].keys()) == [
+    assert type(CACHE.send('info')[1]) == dict
+    assert list(CACHE.send('info')[1].keys()) == [
         'map_addr',
         'map_size',
         'last_pgno',
@@ -92,20 +87,17 @@ def test_cache_info():  # pragma: no cover
 
 def test_cache_stale():  # pragma: no cover
     print('TEST: (stale)')
-    r = CACHE.send('stale_readers')
-    assert type(r[1]) == int
+    assert type(CACHE.send('stale_readers')[1]) == int
 
 
 def test_cache_readers():  # pragma: no cover
     print('TEST: (path)')
-    r = CACHE.send('path')
-    assert r[1] == CACHE_PATH
+    assert CACHE.send('path')[1] == CACHE_PATH
 
 
 def test_cache_locks():  # pragma: no cover
     print('TEST: (locks)')
-    r = CACHE.send('locks')
-    assert type(r[1]) == str
+    assert type(CACHE.send('locks')[1]) == str
 
 
 # Main
