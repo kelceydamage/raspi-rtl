@@ -30,9 +30,12 @@ from transport.conf.configuration import RELAY_PUBLISHER
 from transport.conf.configuration import CACHE_ADDR
 from transport.conf.configuration import CACHE_RECV
 from transport.conf.configuration import LOG_LEVEL
+from transport.conf.configuration import CACHE_MAP_SIZE
+from transport.conf.configuration import CACHE_PATH
 from common.datatypes import *
 from common.print_helpers import Logger
 import zmq
+import lmdb
 
 # Globals
 # ------------------------------------------------------------------------ 79->
@@ -110,8 +113,22 @@ class Cache(object):
             self.pipeline = Pipeline()
             self.pipeline.tasks = ['cache']
             self.meta = Meta()
+            self.lmdb = lmdb.open(
+                CACHE_PATH,
+                readonly=True,
+                subdir=True,
+                map_size=CACHE_MAP_SIZE
+                )
         except Exception as e:
             LOG.loge('CACHE_CLIENT', '__init__', e)
+
+    def get(self, key):
+        with self.lmdb.begin() as txn:
+            value = txn.get(key.encode())
+        return (key, Tools.deserialize(value))
+
+    def put(self, key, value):
+        self.send('put', key, value)
 
     def send(self, method, key=None, value=None):
         envelope = Envelope()
