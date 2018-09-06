@@ -69,14 +69,10 @@ To stop the service:
 |CACHE_ADDR   | '127.0.0.1' |   |
 |CACHE_RECV   | 19002 |         |
 
-## Using The Client
-
+## Creating A Job
 ```python
-from transport.dispatch import Dispatcher
+# Import the datatypes
 from common.datatypes import *
-
-# Create a dispatcher
-dispatcher = Dispatcher()
 
 # Create envelope
 envelope = Envelope()
@@ -96,6 +92,14 @@ header = Tools.create_id()
 
 # Pack the envelope
 envelope.pack(header, meta.extract(), pipeline.extract(), data)
+
+```
+
+## Using The Client
+
+```python
+# Import the Dispatcher
+from transport.dispatch import Dispatcher
 
 # Dispatch envelope
 envelope = dispatcher.send(envelope)
