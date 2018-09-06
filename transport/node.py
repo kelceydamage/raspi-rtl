@@ -193,11 +193,12 @@ class CacheNode(Node):
             'status': self.get_status,
             'check': self.check,
             'get': self.retrieve,
-            'set': self.store,
+            'put': self.store,
             'info': self.get_info,
             'path': self.get_path,
             'stale_readers': self.get_stale_readers,
-            'locks': self.get_reader_lock_table
+            'locks': self.get_reader_lock_table,
+            'readers': self.get_readers
         }
         LOG.logc(self.header, 'Startup', 'Online', 0, 'GREEN')
 
@@ -207,9 +208,9 @@ class CacheNode(Node):
             map_size=CACHE_MAP_SIZE,
             subdir=True,
             readonly=False,
-            metasync=False,
-            map_async=True,
-            sync=False,
+            metasync=True,
+            #map_async=True,
+            sync=True,
             writemap=True,
             readahead=True,
             max_readers=TASK_WORKERS*2,
@@ -245,13 +246,14 @@ class CacheNode(Node):
             return False
 
     def store(self, key, value):
-        with lmdb.Environment.begin(self.lmdb, write=True) as txn:
+        with self.lmdb.begin(write=True) as txn:
             txn.put(key, value, overwrite=True)
             self.count += 1
+        self.sync()
         return True
 
     def retrieve(self, key):
-        with lmdb.Environment.begin(self.lmdb) as txn:
+        with self.lmdb.begin() as txn:
             value = txn.get(key)
         return value
 
@@ -275,6 +277,9 @@ class CacheNode(Node):
 
     def get_stale_readers(self):
         return self.lmdb.reader_check()
+
+    def get_readers(self):
+        return self.lmdb.readers()
 
     def get_reader_lock_table(self):
         return self.lmdb.readers()
