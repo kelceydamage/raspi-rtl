@@ -55,7 +55,10 @@ class Dispatcher(object):
 
     DESCRIPTION:    Dispatches tasks to the relay.
 
-    METHODS:        .send(envelope)
+    METHODS:        .log_wrapper(msg, mode=0, colour='GREEN')
+                    Wrapper for logger to clean up code.
+
+                    .send(envelope)
                     Send a type Envelope() object to the relay. This is a
                     blocking method, and will wait until the results of the
                     task are returned.
