@@ -114,7 +114,7 @@ envelope = dispatcher.send(envelope)
 
 Profiler adds about 12.7% overhead. The dispatcher calls are round-trip time, all other calls are affected by chunk size.
 
-A note on overhead and scalability, increasing the chunk size by 1000x increased performance by 33.3x. Bundled tasks perform better as a rule. While there will be a need to send small commands such as directional/movement controls, the real capability in in processing massive ammounts of signal data. The forthcoming DataNodes will be publishers/processors of sensor data.
+A note on overhead and scalability, increasing the chunk size by 1000x increased performance by 33.3x. This is mainly due to the opperation performed (sum). There is no benefit in parallelization of an operation optimized for a tight loop, and adding more distribution overhead to such tasks has massive reprecutions. However, bundled tasks do perform better as a rule. While there will be a need to send small commands such as directional/movement controls, the real capability in in processing massive ammounts of signal data. The forthcoming DataNodes will be publishers/processors of sensor data.
 
 ### Setup 1 (Chunk size: 10000) 0.09312 s/chunk, 10.74 chunks/s, 107,388 operations/s
 
