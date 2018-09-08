@@ -32,14 +32,18 @@ from transport.conf.configuration import CACHE_RECV
 from transport.conf.configuration import LOG_LEVEL
 from transport.conf.configuration import CACHE_MAP_SIZE
 from transport.conf.configuration import CACHE_PATH
+from transport.conf.configuration import PROFILE
 from common.datatypes import *
 from common.print_helpers import Logger
+from common.print_helpers import timer
 import zmq
 import lmdb
+import time
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 LOG = Logger(LOG_LEVEL)
+VERSION = '0.3'
 
 # Classes
 # ------------------------------------------------------------------------ 79->
@@ -64,90 +68,54 @@ class Dispatcher(object):
                     Close the connections to the relay.
     """
 
+    @timer(LOG, 'dispatcher', PROFILE)
     def __init__(self):
+        self.log_msg = {
+                'system': 'dispatcher',
+                'name': self.__init__.__name__,
+            }
         context = zmq.Context()
         push_uri = 'tcp://{0}:{1}'.format(RELAY_ADDR, RELAY_RECV)
         pull_uri = 'tcp://{0}:{1}'.format(RELAY_ADDR, RELAY_PUBLISHER)
         self.push_socket = context.socket(zmq.PUSH)
         self.sub_socket = context.socket(zmq.SUB)
         self.push_socket.connect(push_uri)
+        self.log_wrapper('connected-relay', mode=4)
         self.sub_socket.connect(pull_uri)
-        self.sub_socket.set(zmq.SUBSCRIBE, b'0')
+        self.log_wrapper('connected-publisher', mode=4)
         self.results = []
 
+    def log_wrapper(self, msg, mode=0, colour='GREEN'):
+        self.log_msg['message'] = msg
+        self.log_msg['colour'] = colour
+        LOG.logw(self.log_msg, mode, 'machine.log')
+
+    @timer(LOG, 'dispatcher', PROFILE)
     def _recieve(self):
+        self.log_msg['name'] = self._recieve.__name__
         envelope = Envelope()
         envelope.load(self.sub_socket.recv_multipart())
-        LOG.logc('DISPATCHER', 'receive', '<---- published', 1, 'GREEN')
+        self.log_wrapper('<---- published', mode=1)
         return envelope
 
+    @timer(LOG, 'dispatcher', PROFILE)
     def close(self):
+        self.log_msg['name'] = self.close.__name__
         self.push_socket.disconnect(self.push_addr)
         self.sub_socket.disconnect(self.sub_addr)
+        self.log_wrapper('connection-closed', mode=4)
 
+    @timer(LOG, 'dispatcher', PROFILE)
     def send(self, envelope):
+        self.log_msg['name'] = self.send.__name__
+        self.log_wrapper('starting job', mode=0)
         sealed = envelope.seal()
         self.sub_socket.set(zmq.SUBSCRIBE, sealed[0])
+        self.log_wrapper('subscribed-{0}'.format(sealed[0]), mode=4)
         self.push_socket.send_multipart(sealed)
+        self.log_wrapper('dispatch-sent', mode=3)
         return self._recieve()
 
-
-class Cache(object):
-    """
-    NAME:           Cache
-
-    DESCRIPTION:    Sends cache requests to a cache node.
-
-    METHODS:        .send(envelope)
-                    Send a type Envelope() object to the cache node. This
-                    is a blocking method, and will wait until the results of
-                    the lookup are returned.
-    """
-
-    def __init__(self):
-        context = zmq.Context()
-        try:
-            req_uri = 'tcp://{0}:{1}'.format(CACHE_ADDR, CACHE_RECV)
-            self.req_socket = context.socket(zmq.REQ)
-            self.req_socket.connect(req_uri)
-            self.pipeline = Pipeline()
-            self.pipeline.tasks = ['cache']
-            self.meta = Meta()
-            self.lmdb = lmdb.open(
-                CACHE_PATH,
-                readonly=True,
-                subdir=True,
-                map_size=CACHE_MAP_SIZE
-                )
-        except Exception as e:
-            LOG.loge('CACHE_CLIENT', '__init__', e)
-
-    def get(self, key):
-        with self.lmdb.begin() as txn:
-            value = txn.get(key.encode())
-        return (key, Tools.deserialize(value))
-
-    def put(self, key, value):
-        self.send('put', key, value)
-
-    def send(self, method, key=None, value=None):
-        envelope = Envelope()
-        envelope.pack(
-            method,
-            self.meta.extract(),
-            self.pipeline.extract(),
-            (key, value)
-            )
-        try:
-            self.req_socket.send_multipart(envelope.seal())
-        except Exception as e:
-            LOG.loge('CACHE', 'send', e)
-        try:
-            envelope.load(self.req_socket.recv_multipart())
-        except Exception as e:
-            LOG.loge('CACHE', 'recv', e)
-        header, meta, pipeline, data = envelope.unpack()
-        return data
 
 # Functions
 # ------------------------------------------------------------------------ 79->
