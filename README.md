@@ -114,11 +114,11 @@ envelope = dispatcher.send(envelope)
 
 Profiler adds about 12.7% overhead. The dispatcher calls are round-trip time, all other calls are affected by chunk size.
 
-A note on overhead and scalability, increasing the chunk size by 1000x increased throughput by 395x. This is mainly due to the opperation performed (sum). There is no benefit in parallelization of an operation optimized for a tight loop, and adding more distribution overhead to such tasks has massive reprecutions. However, bundled tasks do perform better as a rule. While there will be a need to send small commands such as directional/movement controls, the real capability in in processing massive ammounts of signal data. The forthcoming DataNodes will be publishers/processors of sensor data.
+A note on overhead and scalability, increasing the chunk size by 1000x increased throughput by 358x. This is mainly due to the opperation performed (sum). There is no benefit in parallelization of an operation optimized for a tight loop, and adding more distribution overhead to such tasks has massive reprecutions. However, bundled tasks do perform better as a rule. While there will be a need to send small commands such as directional/movement controls, the real capability in in processing massive ammounts of signal data. The forthcoming DataNodes will be publishers/processors of sensor data.
 
 There is still a lot of optimizations I can perform based on tht results below.
 
-### Setup 1 (Chunk size: 10000) 0.0753 s/chunk, 13.28 chunks/s, 132,802 operations/s
+### Setup 1 (Chunk size: 10000) 0.0694 s/chunk, 14.41 chunks/s, 144,092 operations/s
 
 * Task operations: 500000
 * Job runs: 10
@@ -132,32 +132,32 @@ RANKED
 
 Class                           Method                          per 1000 calls            count
 ----------------------------------------------------------------------------------------------------
-[dispatcher]                    * send()                        3766.35838100 s           10
-[dispatcher]                    * _recieve()                    3715.81669600 s           10
-[node]                          * recv()                        118.04933366 s            2000
-[registry]                      * load_tasks()                  27.68346000 s             4
-[relay]                         * receive()                     23.33444788 s             2010
-[tasknode]                      * __init__()                    18.39899750 s             4
-[cachenode]                     * __init__()                    13.32831000 s             1
-[tasknode]                      * run()                         13.09554515 s             2000
-[node]                          * __init__()                    9.73731400 s              5
-[relay]                         * chunk()                       9.18255240 s              1510
-[relay]                         * __init__()                    6.33697000 s              1
-[task_sum]                      * task_sum()                    2.80779358 s              2000
-[relay]                         * assemble()                    1.35952374 s              500
-[relay]                         * empty_cache()                 0.93393400 s              10
-[node]                          * send()                        0.57681933 s              2000
-[cache]                         * __init__()                    0.47109717 s              4050
-[relay]                         * ship()                        0.43799093 s              2000
-[dispatcher]                    * __init__()                    0.28577300 s              10
-[cache]                         * sync()                        0.21387800 s              10
-[cachenode]                     * load_database()               0.11729000 s              1
-[relay]                         * create_state()                0.01037836 s              500
-[relay]                         * retrieve_state()              0.00600460 s              500
-[node]                          * consume()                     0.00526189 s              2000
+[dispatcher]                    * send()                        3470.47519600 s           10
+[dispatcher]                    * _recieve()                    3423.93544900 s           10
+[node]                          * recv()                        104.63802426 s            2000
+[tasknode]                      * __init__()                    30.55210250 s             4
+[registry]                      * load_tasks()                  23.48390000 s             4
+[relay]                         * receive()                     20.75517193 s             2010
+[cachenode]                     * __init__()                    18.32995000 s             1
+[node]                          * __init__()                    17.83271000 s             5
+[tasknode]                      * run()                         11.03664602 s             2000
+[relay]                         * __init__()                    10.30387000 s             1
+[relay]                         * chunk()                       8.30758409 s              1510
+[task_sum]                      * task_sum()                    2.88230656 s              2000
+[relay]                         * assemble()                    1.34038972 s              500
+[relay]                         * empty_cache()                 0.96810100 s              10
+[node]                          * send()                        0.52017534 s              2000
+[cache]                         * __init__()                    0.50478686 s              2050
+[relay]                         * ship()                        0.43643186 s              2000
+[dispatcher]                    * __init__()                    0.27435400 s              10
+[cache]                         * sync()                        0.21709900 s              10
+[cachenode]                     * load_database()               0.10498000 s              1
+[relay]                         * create_state()                0.01009514 s              500
+[relay]                         * retrieve_state()              0.00569642 s              500
+[node]                          * consume()                     0.00530776 s              2000
 ```
 
-### Setup 12(Chunk size: 10) 0.0298 s/chunk, 33.56 chunks/s, 335.6 operations/s
+### Setup 12(Chunk size: 10) 0.0249 s/chunk, 40.16 chunks/s, 401.6 operations/s
 
 * Task operations: 5000
 * Job runs: 1
@@ -171,27 +171,27 @@ RANKED
 
 Class                           Method                          per 1000 calls            count
 ----------------------------------------------------------------------------------------------------
-[dispatcher]                    * send()                        16754.65632000 s          1
-[dispatcher]                    * _recieve()                    16751.63486000 s          1
-[tasknode]                      * __init__()                    27.58852500 s             4
-[node]                          * recv()                        22.86703347 s             2000
-[registry]                      * load_tasks()                  22.09832250 s             4
-[node]                          * __init__()                    12.45389800 s             5
-[cachenode]                     * __init__()                    11.40730000 s             1
-[tasknode]                      * run()                         5.28934333 s              2000
-[relay]                         * chunk()                       4.24201905 s              1501
-[relay]                         * __init__()                    4.05777000 s              1
-[relay]                         * receive()                     3.47492400 s              2001
-[relay]                         * empty_cache()                 3.16290000 s              1
-[cache]                         * sync()                        2.46841000 s              1
-[relay]                         * assemble()                    0.75060228 s              500
-[cache]                         * __init__()                    0.49802226 s              4014
-[dispatcher]                    * __init__()                    0.27867000 s              1
-[cachenode]                     * load_database()               0.15292000 s              1
-[node]                          * send()                        0.07388488 s              2000
-[relay]                         * ship()                        0.06444775 s              2000
-[task_sum]                      * task_sum()                    0.00918006 s              2000
-[relay]                         * create_state()                0.00639448 s              500
-[relay]                         * retrieve_state()              0.00542992 s              500
-[node]                          * consume()                     0.00528747 s              2000
+[dispatcher]                    * send()                        12468.96321000 s          1
+[dispatcher]                    * _recieve()                    12465.48821000 s          1
+[registry]                      * load_tasks()                  26.45072250 s             4
+[node]                          * recv()                        19.87149568 s             2000
+[tasknode]                      * __init__()                    19.48554750 s             4
+[node]                          * __init__()                    13.17459400 s             5
+[cachenode]                     * __init__()                    9.15045000 s              1
+[relay]                         * __init__()                    5.27194000 s              1
+[tasknode]                      * run()                         3.45447507 s              2000
+[relay]                         * receive()                     3.44741138 s              2001
+[relay]                         * chunk()                       2.96670804 s              1501
+[relay]                         * empty_cache()                 0.79428000 s              1
+[relay]                         * assemble()                    0.74978176 s              500
+[cache]                         * __init__()                    0.44252657 s              2014
+[dispatcher]                    * __init__()                    0.38343000 s              1
+[cache]                         * sync()                        0.17893000 s              1
+[cachenode]                     * load_database()               0.10803000 s              1
+[node]                          * send()                        0.06517629 s              2000
+[relay]                         * ship()                        0.05432817 s              2000
+[task_sum]                      * task_sum()                    0.00800832 s              2000
+[relay]                         * create_state()                0.00657530 s              500
+[relay]                         * retrieve_state()              0.00543254 s              500
+[node]                          * consume()                     0.00433238 s              2000
 ```
