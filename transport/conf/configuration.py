@@ -30,19 +30,19 @@ PROFILE                 = False
 
 # Workers
 STARTING_PORT           = 10000
-TASK_WORKERS            = 16         # Worker processes per node (per physical
+TASK_WORKERS            = 16        # Worker processes per node (per physical
                                     # server)
 CACHE_WORKERS           = 1
-RESPONSE_TIME           = 0.005     # Controls the rate at which tasks are sent 
+RESPONSE_TIME           = 0.005     # Controls the rate at which tasks are sent
                                     # to the workers,
-                                    # and in doing so, the size of the queue. 
-                                    # Example: 
-                                    #       1000 req @0.01 = ~100 tasks per 
+                                    # and in doing so, the size of the queue.
+                                    # Example:
+                                    #       1000 req @0.01 = ~100 tasks per
                                     #       queue
-                                    #       1000 reg @0.001 = ~10 tasks per 
+                                    #       1000 reg @0.001 = ~10 tasks per
                                     #       queue
-                                    # A higher response time increases 
-                                    # throughput at the cost of the systems 
+                                    # A higher response time increases
+                                    # throughput at the cost of the systems
                                     # responsiveness.
 
 # Router
@@ -51,18 +51,18 @@ RELAY_ADDR              = '127.0.0.1'
 RELAY_RECV              = 19000
 RELAY_SEND              = 19001
 RELAY_PUBLISHER         = 19300
-CHUNKING                = True      # Chunking determines if and how much the 
-                                    # router breaks up queues in order the 
+CHUNKING                = True      # Chunking determines if and how much the
+                                    # router breaks up queues in order the
                                     # better balance worker loads.
                                     # Example:
-                                    #       chunking = 10 will break up all 
-                                    #       queues int ~ 10 tasks per worker. 
-                                    #       This will negativly affect response 
-                                    #       time since it adds delay at the 
+                                    #       chunking = 10 will break up all
+                                    #       queues int ~ 10 tasks per worker.
+                                    #       This will negativly affect response
+                                    #       time since it adds delay at the
                                     #       router, and extra network activity.
-                                    # RESPONSE_TIME and CHUNKING should be 
-                                    # balanced to get an Optimal throughput 
-                                    # and worker load balance.    
+                                    # RESPONSE_TIME and CHUNKING should be
+                                    # balanced to get an Optimal throughput
+                                    # and worker load balance.
 CHUNKING_SIZE           = 10000
 
 # Cache
