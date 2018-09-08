@@ -23,7 +23,7 @@
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
-from transport.cache import Cache
+from transport.cache import Cache # pragma: no cover
 from common.encoding import Tools
 
 # Globals
@@ -79,7 +79,17 @@ class Parcel(object):
         return list(self.contents)
 
 
-class Envelope(object):
+class Container(object):
+    """
+    NAME:           Envelope v0.3
+
+    DESCRIPTION:    A class of utility functions used by the datatypes. It
+                    stores a header, meta, pipeline, and data, for sending
+                    between members of the transport framework.
+    """
+
+
+class Envelope(Container):
     """
     NAME:           Envelope v0.3
 
@@ -247,14 +257,14 @@ class Envelope(object):
             self.cache_data()
         return self.open(True)
 
-    def cache_data(self):
+    def cache_data(self): # pragma: no cover
         key = Tools.create_key(Tools.create_id())
         r = self.cache.put(key, self['data'])
         if r[1]:
             self['meta']['cache_key'] = key
             self['data'].clear()
 
-    def retrieve_cache(self):
+    def retrieve_cache(self): # pragma: no cover
         key = self['meta']['cache_key']
         r = self.cache.get(key)
         self.update_data(r[1])
