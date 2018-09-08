@@ -24,21 +24,22 @@ import os
 os.sys.path.append(
     os.path.dirname(
         os.path.dirname(
-            #os.path.dirname(
-                os.path.abspath(__file__)
-                )
-            #)
+            os.path.abspath(__file__)
+            )
         )
     )
 import zmq
 from transport.dispatch import Dispatcher
 from common.datatypes import *
 from common.print_helpers import *
+from transport.cache import Cache
+import time
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 COLOURS = Colours()
 COUNT = 2
+CACHE = Cache()
 
 # Classes
 # ------------------------------------------------------------------------ 79->
@@ -49,17 +50,18 @@ COUNT = 2
 # Main
 # ------------------------------------------------------------------------ 79->
 if __name__ == '__main__':
+    s = time.time()
     dispatcher = Dispatcher()
     meta = Meta()
     pipeline = Pipeline()
-    data = [[1, 2, 3], [2, 3 ,4], [5, 3 ,4], [1, 2, 3]]
-    envelope = Envelope()
+    data = [[1, 2, 3] for i in range(500000)]
+    envelope = Envelope(cached=False)
     header = Tools.create_id()
     pipeline.tasks = ['task_sum', 'task_sum', 'task_sum', 'task_sum']
     meta.lifespan = 3
-    
-    envelope.pack(header, meta.extract(), pipeline.extract(), data)
+    envelope.pack(header, meta, pipeline, data)
+    print('Sending')
     envelope = dispatcher.send(envelope)
 
-    print(envelope.open())
-    printc('JOB COMPLETED', COLOURS.GREEN)
+    print(len(envelope.manifest['data']))
+    printc('JOB COMPLETED: {0}s'.format(time.time() - s), COLOURS.GREEN)
