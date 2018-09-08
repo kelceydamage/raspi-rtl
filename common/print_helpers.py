@@ -21,42 +21,55 @@
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
+import functools
+import time
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
+
+
 class Logger(object):
     """
     NAME:           Logger
-    
+
     DESCRIPTION:    Provides a basic logger to stdout
 
     METHODS:        .log(message, mode=0)
-                    Basic logger prints message to screen if mode less then 
+                    Basic logger prints message to screen if mode less then
                     log_mode
 
-                    .logm(message, mode=0, colour='RED')
-                    Logger that allows the header, name, and message to be
-                    passed as a list
+                    .write(line, log)
+                    Write a line to a specific log file.
 
-                    .logc(header, name, message, mode=0, colour='RED)
-                    Logger that allows specifying the colour.
+                    ._sprint(header, name, message, nline=False)
+                    Format a log line for human readable output.
 
-                    .logn(header, name, message, mode=0, colour='RED')
-                    logc but with a newline at the front.
+                    .logw(mdict, mode=0, file='machine.log')
+                    Logwriter for writing to files. Default file is the
+                    machine.log.
 
-                    .loge(header, name, message, mode=0)
-                    Error logger prints in red.
+                    .logd(mdict, mode=0, colour='RED')
+                    Logwriter for writing to stdout. Default color is red.
     """
     def __init__(self, log_level):
         self.colours = Colours()
         self.log_level = log_level
+        self.location = 'var/log/'
 
     def log(self, message, mode=0):
         if mode < self.log_level:
             print(message)
+
+    def write(self, line, log):
+        try:
+            with open('{0}{1}'.format(self.location, log), 'a+') as f:
+                f.write('{0}\n'.format(line))
+        except Exception as e:
+            print('ERROR', e)
+            raise
 
     def _sprint(self, header, name, message, nline=False):
         char = ''
@@ -64,38 +77,25 @@ class Logger(object):
             char = '\n'
         return '{3}{0} {1} {2}'.format(
             padding('[{0}]:'.format(header), 16),
-			padding('({0})'.format(name), 24),
+            padding('({0})'.format(name), 24),
             message,
             char
             )
 
-    def logm(self, message, mode=0, colour='RED'):
+    def logw(self, mdict, mode=0, file='machine.log'):
         if mode < self.log_level:
-            printc(
-                self._sprint(message[0], message[1], message[3]),
-                getattr(self.colours, colour)
-            )
+            self.write(mdict, file)
 
-    def logc(self, header, name, message, mode=0, colour='RED'):
+    def logd(self, mdict, mode=0, colour='RED'):
         if mode < self.log_level:
-            printc(
-                self._sprint(header, name, message),
-                getattr(self.colours, colour)
-            )
+            msg = self._sprint(
+                mdict['system'],
+                mdict['name'],
+                mdict['message']
+                )
+            printc(msg, getattr(self.colours, colour))
 
-    def logn(self, header, name, message, mode=0, colour='RED'):
-        if mode < self.log_level:
-            printc(
-                self._sprint(header, name, message, True),
-                getattr(self.colours, colour)
-            )
 
-    def loge(self, header, name, message, mode=0):
-        if mode < self.log_level:
-            printc(
-                self._sprint(header, name, message),
-                self.colours.RED
-            )
 class Colours(object):
     """
     NAME:           Colours
@@ -123,35 +123,59 @@ class Colours(object):
     """
     def __init__(self):
         super(Colours, self).__init__()
-        self.RED             = '\033[38;5;1m'
-        self.BLUE             = '\033[38;5;12m'
-        self.GREEN             = '\033[38;5;10m'
-        self.CORAL             = '\033[38;5;9m'
-        self.DARKBLUE        = '\033[38;5;4m'
-        self.PURPLE            = '\033[38;5;5m'
-        self.CYAN            = '\033[38;5;6m'
-        self.LIGHTBLUE        = '\033[38;5;14m'
-        self.BRED            = '\033[48;5;1m'
-        self.BBLUE            = '\033[48;5;12m'
-        self.BGREEN            = '\033[48;5;10m'
-        self.BCORAL            = '\033[48;5;9m'
-        self.BDARKBLUE        = '\033[48;5;4m'
-        self.BPURPLE        = '\033[48;5;5m'
-        self.BCYAN             = '\033[48;5;6m'
-        self.BLIGHTBLUE        = '\033[48;5;14m'
-        self.BLACK            = '\033[38;5;0m'
-        self.ENDC             = '\033[m'
+        self.RED = '\033[38;5;1m'
+        self.BLUE = '\033[38;5;12m'
+        self.GREEN = '\033[38;5;10m'
+        self.CORAL = '\033[38;5;9m'
+        self.DARKBLUE = '\033[38;5;4m'
+        self.PURPLE = '\033[38;5;5m'
+        self.CYAN = '\033[38;5;6m'
+        self.LIGHTBLUE = '\033[38;5;14m'
+        self.BRED = '\033[48;5;1m'
+        self.BBLUE = '\033[48;5;12m'
+        self.BGREEN = '\033[48;5;10m'
+        self.BCORAL = '\033[48;5;9m'
+        self.BDARKBLUE = '\033[48;5;4m'
+        self.BPURPLE = '\033[48;5;5m'
+        self.BCYAN = '\033[48;5;6m'
+        self.BLIGHTBLUE = '\033[48;5;14m'
+        self.BLACK = '\033[38;5;0m'
+        self.ENDC = '\033[m'
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+
+
 def padding(message, width):
     if len(message) < width:
         message += ' ' * (width - len(message))
     return message
 
+
 def printc(message, colour):
     endc = '\033[m'
     print('{0}{1}{2}'.format(colour, message, endc))
+
+
+def timer(logger, system, enabled=False):
+    def timer_wrapper(func):
+        @functools.wraps(func)
+        def inner_wrapper(*args, **kwargs):
+            if enabled:
+                start = time.perf_counter()
+            value = func(*args, **kwargs)
+            if enabled:
+                log_msg = {
+                    'system': system,
+                    'name': func.__name__,
+                    'message': 'perf-wrapper',
+                    'perf_time': '{:4.8f}'.format(time.perf_counter() - start)
+                }
+                logger.logd(log_msg, mode=1, colour='LIGHTBLUE')
+                logger.logw(log_msg, mode=1, file='performance.log')
+            return value
+        return inner_wrapper
+    return timer_wrapper
 
 # Main
 # ------------------------------------------------------------------------ 79->
