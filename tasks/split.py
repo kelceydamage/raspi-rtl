@@ -43,6 +43,6 @@ def task_split(kwargs):
         results.append(item.split(kwargs['delimiter']))
     return results
 
+
 # Main
 # ------------------------------------------------------------------------ 79->
-

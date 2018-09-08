@@ -42,5 +42,7 @@ def task_get_average(kwargs):
     for item in kwargs['data']:
         results.append(float(sum(item)) / float(len(item)))
     return results
+
+
 # Main
 # ------------------------------------------------------------------------ 79->

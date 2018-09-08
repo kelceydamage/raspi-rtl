@@ -105,5 +105,6 @@ def task_open_file(kwargs):
     del parts
     return results
 
+
 # Main
 # ------------------------------------------------------------------------ 79->
