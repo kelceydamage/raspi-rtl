@@ -23,7 +23,7 @@
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
-from transport.cache import Cache # pragma: no cover
+from transport.cache import Cache  # pragma: no cover
 from common.encoding import Tools
 
 # Globals
@@ -86,7 +86,88 @@ class Container(object):
     DESCRIPTION:    A class of utility functions used by the datatypes. It
                     stores a header, meta, pipeline, and data, for sending
                     between members of the transport framework.
+
+    METHODS:        ._compression()
+                    Check for compression flag or return False.
+
+                    ._flatten(obj)
+                    If compressed then uncompress.
+
+                    ._compress(obj)
+                    If not compressed then compress.
     """
+
+    __slots__ = [
+        'header',
+        'meta',
+        'pipeline',
+        'data',
+        'manifest',
+        'cached',
+        'compressed',
+        'cache',
+        'length',
+        'lifespan'
+        ]
+
+    def __init__(self, cached=False):
+        self.compressed = False
+        self.cached = cached
+        self.manifest = ['header', 'meta', 'pipeline', 'data']
+        self.cache = Cache()  # pragma: no cover
+
+    def __getattr__(self, key):
+        if self._compression() and key in self.manifest:
+            return self._compress(object.__getattribute__(self, key))
+        else:
+            return self._flatten(object.__getattribute__(self, key))
+
+    def __setattr__(self, key, value):
+        if self._compression() and key in self.manifest:
+            object.__setattr__(self, key, self._compress(value))
+        else:
+            object.__setattr__(self, key, self._flatten(value))
+
+    def __len__(self):
+        return self.length
+
+    def __getitem__(self, key):
+        if key not in self.__slots__:
+            return self.__missing__(key)
+        return self.__getattr__(key)
+
+    def __missing__(self, key):
+        return False
+
+    def __setitem__(self, key, value):
+        self.__setattr__(key, value)
+
+    def __delitem__(self, key):
+        pass
+
+    def __contains__(self, key):
+        if key in self.__slots__:
+            return True
+        return False
+
+    def _compression(self):
+        try:
+            return object.__getattribute__(self, 'compressed')
+        except AttributeError:
+            return False
+
+    def _flatten(self, obj):
+        if not isinstance(obj, bytes):
+            return obj
+        return Tools.deserialize(obj)
+
+    def _compress(self, obj):
+        if isinstance(obj, bytes):
+            return obj
+        elif isinstance(obj, Cache):
+            return obj
+        else:
+            return Tools.serialize(obj)
 
 
 class Envelope(Container):
@@ -97,16 +178,7 @@ class Envelope(Container):
                     stores a header, meta, pipeline, and data, for sending
                     between members of the transport framework.
 
-    METHODS:        ._compression()
-                    Check for compression flag or return False.
-
-                    ._flatten(obj)
-                    If compressed then uncompress.
-
-                    ._compress(obj)
-                    If not compressed then compress.
-
-                    ._set_params()
+    METHODS:        ._set_params()
                     Assign specific instance attributes from meta.
 
                     ._complete_meta
@@ -165,77 +237,9 @@ class Envelope(Container):
                     .validate()
                     Inactive.
     """
-    __slots__ = [
-        'header',
-        'meta',
-        'pipeline',
-        'data',
-        'manifest',
-        'cached',
-        'compressed',
-        'cache',
-        'length',
-        'lifespan'
-        ]
 
     def __init__(self, cached=False):
-        self.compressed = False
-        self.cached = cached
-        self.manifest = ['header', 'meta', 'pipeline', 'data']
-        self.cache = Cache()
-
-    def __getattr__(self, key):
-        if self._compression() and key in self.manifest:
-            return self._compress(object.__getattribute__(self, key))
-        else:
-            return self._flatten(object.__getattribute__(self, key))
-
-    def __setattr__(self, key, value):
-        if self._compression() and key in self.manifest:
-            object.__setattr__(self, key, self._compress(value))
-        else:
-            object.__setattr__(self, key, self._flatten(value))
-
-    def __len__(self):
-        return self.length
-
-    def __getitem__(self, key):
-        if key not in self.__slots__:
-            return self.__missing__(key)
-        return self.__getattr__(key)
-
-    def __missing__(self, key):
-        return False
-
-    def __setitem__(self, key, value):
-        self.__setattr__(key, value)
-
-    def __delitem__(self, key):
-        pass
-
-    def __contains__(self, key):
-        if key in self.__slots__:
-            return True
-        return False
-
-    def _compression(self):
-        try:
-            return object.__getattribute__(self, 'compressed')
-        except AttributeError:
-            return False
-
-    def _flatten(self, obj):
-        if not isinstance(obj, bytes):
-            return obj
-        return Tools.deserialize(obj)
-
-    def _compress(self, obj):
-        if isinstance(obj, bytes):
-            return obj
-        elif isinstance(obj, Cache):
-            return obj
-        else:
-            return Tools.serialize(obj)
+        super(Envelope, self).__init__(cached=False)
 
     def _set_params(self):
         meta = self.get_meta()
@@ -257,14 +261,14 @@ class Envelope(Container):
             self.cache_data()
         return self.open(True)
 
-    def cache_data(self): # pragma: no cover
+    def cache_data(self):  # pragma: no cover
         key = Tools.create_key(Tools.create_id())
         r = self.cache.put(key, self['data'])
         if r[1]:
             self['meta']['cache_key'] = key
             self['data'].clear()
 
-    def retrieve_cache(self): # pragma: no cover
+    def retrieve_cache(self):  # pragma: no cover
         key = self['meta']['cache_key']
         r = self.cache.get(key)
         self.update_data(r[1])
