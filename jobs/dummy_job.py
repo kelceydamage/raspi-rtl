@@ -60,6 +60,7 @@ if __name__ == '__main__':
     pipeline.tasks = ['task_sum', 'task_sum', 'task_sum', 'task_sum']
     meta.lifespan = 3
     envelope.pack(header, meta.extract(), pipeline.extract(), data)
+    print('Envelope Length:', envelope.length)
     envelope = dispatcher.send(envelope)
 
     printc('JOB COMPLETED: {0}s'.format(time.time() - s), COLOURS.GREEN)
