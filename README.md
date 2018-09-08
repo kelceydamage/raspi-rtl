@@ -109,3 +109,79 @@ from transport.dispatch import Dispatcher
 # Dispatch envelope
 envelope = dispatcher.send(envelope)
 ```
+
+## Code Performance Numbers (Incl Sum Task)
+
+Profiler adds about 12.7% overhead. Alsod the dispatcher calls are round-trip time, and node calls are dependent on chunk size.
+
+### Setup 1 (Chunk size: 10000)
+
+* Task operations: 500000
+* Job runs: 10
+* Task nodes: 4
+* Cores: 1
+* i7-7820HQ CPU @ 2.90GHz
+* Ram: 512 MB
+
+```
+RANKED
+
+Class                           Method                          per 1000 calls            count
+----------------------------------------------------------------------------------------------------
+[dispatcher]                    * send()                        4656.04377200 s           10
+[dispatcher]                    * _recieve()                    4609.08972200 s           10
+[node]                          * recv()                        193.55175365 s            2000
+[relay]                         * receive()                     40.03844415 s             2010
+[tasknode]                      * run()                         13.68467270 s             2000
+[relay]                         * chunk()                       11.73567601 s             1510
+[task_sum]                      * task_sum()                    2.50302514 s              2000
+[relay]                         * assemble()                    1.59859166 s              500
+[relay]                         * empty_cache()                 1.12340600 s              10
+[node]                          * send()                        1.00808554 s              2000
+[relay]                         * ship()                        0.85979777 s              2000
+[cache]                         * __init__()                    0.50517393 s              4040
+[dispatcher]                    * __init__()                    0.28822700 s              10
+[cache]                         * sync()                        0.21364300 s              10
+[relay]                         * create_state()                0.01066204 s              500
+[relay]                         * retrieve_state()              0.00722248 s              500
+[node]                          * consume()                     0.00535370 s              2000
+```
+
+### Setup 12(Chunk size: 10)
+
+* Task operations: 500000
+* Job runs: 1
+* Task nodes: 4
+* Cores: 1
+* i7-7820HQ CPU @ 2.90GHz
+* Ram: 512 MB
+
+```
+RANKED
+
+Class                           Method                          per 1000 calls            count
+----------------------------------------------------------------------------------------------------
+[dispatcher]                    * send()                        155771.76270909 s         11
+[dispatcher]                    * _recieve()                    155724.66497636 s         11
+[registry]                      * load_tasks()                  25.66331375 s             8
+[node]                          * recv()                        20.35494002 s             202000
+[tasknode]                      * __init__()                    18.18360750 s             8
+[cachenode]                     * __init__()                    10.41176500 s             2
+[node]                          * __init__()                    8.36317400 s              10
+[tasknode]                      * run()                         5.57752955 s              202000
+[relay]                         * chunk()                       4.46224174 s              151511
+[relay]                         * __init__()                    4.01119500 s              2
+[relay]                         * receive()                     2.44436271 s              202011
+[relay]                         * empty_cache()                 1.09168909 s              11
+[relay]                         * assemble()                    0.68624944 s              50500
+[cache]                         * __init__()                    0.50200265 s              404064
+[dispatcher]                    * __init__()                    0.28562273 s              11
+[cache]                         * sync()                        0.20734364 s              11
+[cachenode]                     * load_database()               0.15399500 s              2
+[node]                          * send()                        0.08371161 s              202000
+[relay]                         * ship()                        0.07720226 s              202000
+[task_sum]                      * task_sum()                    0.03211160 s              202000
+[relay]                         * create_state()                0.00824853 s              50500
+[node]                          * consume()                     0.00543692 s              202000
+[relay]                         * retrieve_state()              0.00506232 s              50500
+```
