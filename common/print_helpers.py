@@ -186,7 +186,7 @@ def timer(logger, system, enabled=False):
                     'message': 'perf-wrapper',
                     'perf_time': '{:4.8f}'.format(time.perf_counter() - start)
                 }
-                logger.logd(log_msg, mode=1, colour='LIGHTBLUE')
+                logger.logd(log_msg, mode=8, colour='LIGHTBLUE')
                 logger.logw(log_msg, mode=1, file='performance.log')
             return value
         return inner_wrapper
