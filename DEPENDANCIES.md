@@ -16,7 +16,7 @@ source ~/python3/bin/activate
 
 ### Required (within virtual env)
 ```
-pip install ujson
+pip install cbor
 pip install pyzmq
 pip install lmdb
 ```
@@ -38,7 +38,7 @@ source ~/python36/bin/activate
 
 ### Required (within virtual env)
 ```
-pip install ujson
+pip install cbor
 pip install pyzmq
 pip install lmdb
 ```

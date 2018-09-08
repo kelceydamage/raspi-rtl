@@ -3,5 +3,5 @@ pytest-cov
 python-coveralls
 codecov
 coverage
-ujson
 lmdb
+cbor
