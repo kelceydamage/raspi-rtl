@@ -26,6 +26,7 @@
 # ------------------------------------------------------------------------ 79->
 # Logging
 LOG_LEVEL               = 2
+PROFILE                 = False
 
 # Workers
 STARTING_PORT           = 10000
@@ -62,14 +63,16 @@ CHUNKING                = True      # Chunking determines if and how much the
                                     # RESPONSE_TIME and CHUNKING should be 
                                     # balanced to get an Optimal throughput 
                                     # and worker load balance.    
-CHUNKING_SIZE           = 500
+CHUNKING_SIZE           = 10000
 
 # Cache
 CACHE_LISTEN            = '0.0.0.0'
 CACHE_ADDR              = '127.0.0.1'
 CACHE_RECV              = 19002
 CACHE_PATH              = '/tmp/transport'
-CACHE_MAP_SIZE          = 1000000000  # ~1GB
+CACHE_MAP_SIZE          = 512*1024**2  # 512NB for embedded systems
+
+CACHED                  = False
 
 
 # Classes
