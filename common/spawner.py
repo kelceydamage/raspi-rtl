@@ -48,6 +48,8 @@ LOG = Logger(LOG_LEVEL)
 
 # Classes
 # ------------------------------------------------------------------------ 79->
+
+
 class ProcessSpawner(object):
     """
     NAME:           ProcessSpawner
@@ -75,7 +77,7 @@ class ProcessSpawner(object):
             args=[services]
             )
         p.start()
-        status = [] 
+        status = []
         for service in services:
             queue_response = self.q.get(timeout=4)
             self.status.append(queue_response)
@@ -85,12 +87,11 @@ class ProcessSpawner(object):
         def __start(self, service):
             try:
                 pid = os.getpid()
-                reply = ['success', pid, service] 
+                reply = ['success', pid, service]
                 self.q.put(reply)
                 service[0](service[1], pid)
             except Exception as e:
-                LOG.loge('SPAWNER','__start', e)
-                reply = ['FAIL: {0}'.format(e), pid, service] 
+                reply = ['FAIL: {0}'.format(e), pid, service]
                 self.q.put(reply)
 
         for service in services:
@@ -105,16 +106,16 @@ class ProcessSpawner(object):
             try:
                 os.kill(int(process[1]), signal.SIGTERM)
             except OSError as e:
-                LOG.loge('SPAWNER','kill_proc', e)
+                print(e)
             else:
-                msg = 'Sucessfully terminated process {0[1]}: {0[2][0]}'.format(process)
-                LOG.logc('SPAWNER','kill_proc', msg, 0, 'GREEN')
+                pass
+
 
 class ProcessHandler(ProcessSpawner):
     """
     NAME:           ProcessHandler
 
-    DESCRIPTION:    Handles the safe exit and cleanup of spawning multiple 
+    DESCRIPTION:    Handles the safe exit and cleanup of spawning multiple
                     processes.
 
     METHODS:        .start(standalone=True)
@@ -131,18 +132,18 @@ class ProcessHandler(ProcessSpawner):
     def start(self, standalone=True):
         if standalone:
             msg = 'Type [ctrl-c] to exit and shutdown workers'
-            LOG.logn('HANDLER', 'start', msg, 0, 'PURPLE')
+            print(msg)
         else:
             msg = 'Starting cluster of {0} service type: {1}'.format(
                 len(self.services),
                 self.services[0][1][-1]
             )
-            LOG.logn('HANDLER', 'start', msg, 0, 'PURPLE')
+            print(msg)
         self.spawn(self.services)
 
     def ctrl_c(self, signal, frame):
         msg = 'Closing application and stopping services'
-        LOG.logn('HANDLER', 'ctrl_c', msg, 0, 'PURPLE')
+        print(msg)
         self.kill_proc(self.status)
         sys.exit(0)
 
