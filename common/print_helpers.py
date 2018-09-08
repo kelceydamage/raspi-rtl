@@ -147,17 +147,32 @@ class Colours(object):
 
 
 def padding(message, width):
+    """
+    NAME:           padding
+
+    DESCRIPTION:    Pad a string ot a certain length.
+    """
     if len(message) < width:
         message += ' ' * (width - len(message))
     return message
 
 
 def printc(message, colour):
+    """
+    NAME:           printc
+
+    DESCRIPTION:    Print a line of text in a given colour.
+    """
     endc = '\033[m'
     print('{0}{1}{2}'.format(colour, message, endc))
 
 
 def timer(logger, system, enabled=False):
+    """
+    NAME:           timer
+
+    DESCRIPTION:    Decorator for logging execution time of wrapped methods.
+    """
     def timer_wrapper(func):
         @functools.wraps(func)
         def inner_wrapper(*args, **kwargs):
