@@ -26,23 +26,15 @@
 # Imports
 # ------------------------------------------------------------------------ 79->
 import os
-os.sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(
-                os.path.abspath(__file__)
-                )
-            )
-        )
-    )
+import argparse
+import time
+os.sys.path.append('{0}{1}'.format(os.getcwd().split('rtl')[0], 'rtl'))
 from transport.registry import load_tasks
 from transport.node import TaskNode, CacheNode
 from transport.relay import Relay
 from transport.conf.configuration import *
 from common.spawner import ProcessHandler
 from common.print_helpers import Logger, Colours
-import argparse
-import time
 
 # Globals
 # ------------------------------------------------------------------------ 79->
