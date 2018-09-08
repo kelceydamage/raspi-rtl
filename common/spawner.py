@@ -27,19 +27,15 @@
 # Imports
 # ------------------------------------------------------------------------ 79->
 import os
-os.sys.path.append(
-    os.path.dirname(
-        os.path.abspath(__file__)
-        )
-    )
+import signal
+import sys
 from multiprocessing import Process
 from multiprocessing import Pool
 from multiprocessing import Queue
 from multiprocessing import current_process
-from print_helpers import Logger
-import os
-import signal
-import sys
+os.sys.path.append('{0}{1}'.format(os.getcwd().split('rtl')[0], 'rtl'))
+from common.print_helpers import Logger
+
 
 # Globals
 # ------------------------------------------------------------------------ 79->
