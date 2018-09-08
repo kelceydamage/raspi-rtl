@@ -112,9 +112,9 @@ envelope = dispatcher.send(envelope)
 
 ## Code Performance Numbers (Incl Sum Task)
 
-Profiler adds about 12.7% overhead. Alsod the dispatcher calls are round-trip time, and node calls are dependent on chunk size.
+Profiler adds about 12.7% overhead. The dispatcher calls are round-trip time, all other calls are affected by chunk size.
 
-### Setup 1 (Chunk size: 10000)
+### Setup 1 (Chunk size: 10000) 0.09312 s/chunk, 10.74 chunks/s, 107,388 operations/s
 
 * Task operations: 500000
 * Job runs: 10
@@ -147,7 +147,7 @@ Class                           Method                          per 1000 calls  
 [node]                          * consume()                     0.00535370 s              2000
 ```
 
-### Setup 12(Chunk size: 10)
+### Setup 12(Chunk size: 10) 0.0031 s/chunk, 322.58 chunks/s, 3,226 operations/s
 
 * Task operations: 500000
 * Job runs: 1
