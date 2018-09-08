@@ -55,6 +55,7 @@ To stop the service:
 | Setting | Value | Description |
 |---------|-------|-------------|
 |LOG_LEVEL| 3     |             |
+|PROFILE  | False | Turn on profiler. Logs are stored in var/log/performance.log |
 |STARTING_PORT| 10000|          |
 |TASK_WORKERS | 3 | Worker processes per node (per physical server) |
 |CACHE_WORKERS | 1 |            |
@@ -66,8 +67,12 @@ To stop the service:
 |RELAY_PUBLISHER | 19300    |   |
 |CHUNKING     | True | Chunking determines if and how much the router breaks up queues in order the better balance worker loads. RESPONSE_TIME and CHUNKING should be balanced to get an Optimal throughput and worker load balance.|
 |CHUNKING_SIZE | 500 |          |
+|CACHE_LISTEN | '0.0.0.0' | |
 |CACHE_ADDR   | '127.0.0.1' |   |
 |CACHE_RECV   | 19002 |         |
+|CACHE_PATH   | '/tmp/transport' | This is where the general cache is stored. |
+|CACHE_MAP_SIZE | 512*1024**2 | 512MiB to start. |
+|CACHED       | False | Determines if the inter-task data will be cached or transmitted. Transmition is usually the fasted method. |
 
 ## Creating A Job
 ```python
