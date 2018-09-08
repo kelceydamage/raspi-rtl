@@ -21,6 +21,8 @@
 # Imports
 # ------------------------------------------------------------------------ 79->
 from common.print_helpers import Logger
+from common.print_helpers import timer
+from transport.conf.configuration import PROFILE
 from transport.conf.configuration import LOG_LEVEL
 
 # Globals
@@ -32,9 +34,10 @@ LOG = Logger(LOG_LEVEL)
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+
+
+@timer(LOG, 'task_get_average', PROFILE)
 def task_get_average(kwargs):
-    name = 'NODE-{0}'.format(kwargs['worker'])
-    LOG.logc(name, 'starting task', 'end(null)', 1, 'LIGHTBLUE')
     results = []
     for item in kwargs['data']:
         results.append(float(sum(item)) / float(len(item)))

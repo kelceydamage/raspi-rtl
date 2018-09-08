@@ -21,6 +21,8 @@
 # Imports
 # ------------------------------------------------------------------------ 79->
 from common.print_helpers import Logger
+from common.print_helpers import timer
+from transport.conf.configuration import PROFILE
 from transport.conf.configuration import LOG_LEVEL
 
 # Globals
@@ -32,9 +34,10 @@ LOG = Logger(LOG_LEVEL)
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+
+
+@timer(LOG, 'task_split', PROFILE)
 def task_split(kwargs):
-    name = 'NODE-{0}'.format(kwargs['worker'])
-    LOG.logc(name, 'starting task', 'split', 1, 'LIGHTBLUE')
     results = []
     for item in kwargs['data']:
         results.append(item.split(kwargs['delimiter']))

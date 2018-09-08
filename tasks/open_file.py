@@ -33,6 +33,8 @@
 # Imports
 # ------------------------------------------------------------------------ 79->
 from common.print_helpers import Logger
+from common.print_helpers import timer
+from transport.conf.configuration import PROFILE
 from transport.conf.configuration import LOG_LEVEL
 import zlib
 import ast
@@ -49,6 +51,7 @@ LOG = Logger(LOG_LEVEL)
 # ------------------------------------------------------------------------ 79->
 
 
+@timer(LOG, 'task_open_file', PROFILE)
 def configure(kwargs):
     keys = ['compression', 'delimiter', 'encoding']
     defaults = {'compression': False, 'delimiter': '\\n', 'encoding': False}
@@ -61,6 +64,7 @@ def configure(kwargs):
     return params
 
 
+@timer(LOG, 'task_open_file', PROFILE)
 def _open(compression, file_path, file_name):
     mode = 'r'
     if compression:
@@ -72,6 +76,7 @@ def _open(compression, file_path, file_name):
     return r
 
 
+@timer(LOG, 'task_open_file', PROFILE)
 def decode(parts, encoding):
     results = []
     for i in range(len(parts)):
@@ -83,9 +88,8 @@ def decode(parts, encoding):
     return results
 
 
+@timer(LOG, 'task_open_file', PROFILE)
 def task_open_file(kwargs):
-    name = 'NODE-{0}'.format(kwargs['worker'])
-    LOG.logc(name, 'starting task', 'open_file', 1, 'LIGHTBLUE')
     if kwargs['data'] != []:
         if kwargs['data'] == [False]:
             return [False]
