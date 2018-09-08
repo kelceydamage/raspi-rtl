@@ -28,11 +28,14 @@
 import pkgutil
 import sys
 from common.print_helpers import Logger
+from common.print_helpers import timer
 from transport.conf.configuration import LOG_LEVEL
+from transport.conf.configuration import PROFILE
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 LOG = Logger(LOG_LEVEL)
+VERSION = '0.3'
 
 # Classes
 # ------------------------------------------------------------------------ 79->
@@ -41,6 +44,7 @@ LOG = Logger(LOG_LEVEL)
 # ------------------------------------------------------------------------ 79->
 
 
+@timer(LOG, 'registry', PROFILE)
 def load_tasks(dirname):
     """
     NAME:           load_tasks
@@ -59,8 +63,7 @@ def load_tasks(dirname):
                 for member in [x for x in dir(module) if 'task_' in x]:
                     functions[member] = '{0}.{1}'.format(package_name, member)
             except Exception as e:
-                LOG.loge('REGISTRY', 'load_tasks', e)
-    LOG.logc('REGISTRY', 'load_tasks', functions, 3, 'PURPLE')
+                print('ERROR, e')
     return functions
 
 
