@@ -35,8 +35,13 @@ from transport.conf.configuration import RELAY_SEND
 from transport.conf.configuration import RELAY_RECV
 from transport.conf.configuration import CACHE_LISTEN
 from transport.conf.configuration import CACHE_RECV
+from transport.conf.configuration import CACHED
+from transport.conf.configuration import PROFILE
 from common.datatypes import *
+from common.encoding import Tools
 from common.print_helpers import Logger
+from common.print_helpers import timer
+import subprocess
 from tasks import *
 import zmq
 import lmdb
@@ -44,7 +49,7 @@ import lmdb
 # Globals
 # ------------------------------------------------------------------------ 79->
 LOG = Logger(LOG_LEVEL)
-VERSION = b'0.2'
+VERSION = '0.3'
 
 # Classes
 # ------------------------------------------------------------------------ 79->
@@ -56,40 +61,70 @@ class Node(object):
 
     DESCRIPTION:    Base class for transport nodes.
 
-    METHODS:        .recv()
+    METHODS:        .log_wrapper(msg, mode=0, colour='GREEN')
+                    Wrapper for logger to clean up code.
+
+                    .recv()
                     Receive sealed envelop from relay and returns an Envelope()
                     object.
 
                     .send(envelope)
                     Sends a sealed envelope to the relay.
 
+                    .consume(pipeline)
+                    Pull a task off the pipeline.
+
                     .start()
                     Starts the node and begins requesting sealed envelopes.
     """
 
+    @timer(LOG, 'node', PROFILE)
     def __init__(self, pid, functions=''):
         super(Node, self).__init__()
+        self.log_msg = {
+                'system': 'node-{0}'.format(pid),
+                'name': self.__init__.__name__,
+            }
         self._context = zmq.Context()
         self.version = VERSION
         self.pid = pid
         self.header = 'NODE-{0}'.format(self.pid)
         self.functions = functions
+        command = ['cat', '/proc/sys/kernel/random/boot_id']
+        self.domain_id = subprocess.check_output(command).decode().rstrip('\n')
 
+    def log_wrapper(self, msg, mode=0, colour='GREEN'):
+        self.log_msg['message'] = msg
+        self.log_msg['colour'] = colour
+        LOG.logw(self.log_msg, mode, 'machine.log')
+
+    @timer(LOG, 'node', PROFILE)
     def recv(self):
-        envelope = Envelope()
+        envelope = Envelope(cached=CACHED)
         envelope.load(self.recv_socket.recv_multipart())
         return envelope
 
+    @timer(LOG, 'node', PROFILE)
     def send(self, envelope):
-        self.send_socket.send_multipart(envelope.seal())
+        sealed = envelope.seal()
+        self.send_socket.send_multipart(sealed)
 
+    @timer(LOG, 'node', PROFILE)
+    def consume(self, pipeline):
+        current = pipeline['tasks'].pop(0)
+        pipeline['completed'].append(current)
+        return current
+
+    @timer(LOG, 'node', PROFILE)
     def start(self):
+        self.log_msg['name'] = self.start.__name__
         while True:
             envelope = self.recv()
-            LOG.logc(self.header, 'start', '<---- received', 3, 'PURPLE')
-            if envelope.lifespan > 0:
+            self.log_wrapper('<---- received', mode=2, colour='PURPLE')
+            if envelope.get_lifespan() > 0:
                 envelope = self.run(envelope)
             self.send(envelope)
+            self.log_wrapper('sent ---->', mode=2, colour='PURPLE')
 
 
 class TaskNode(Node):
@@ -104,8 +139,13 @@ class TaskNode(Node):
                     is determined by the state of the pipeline.
     """
 
+    @timer(LOG, 'tasknode', PROFILE)
     def __init__(self, pid, functions):
         super(TaskNode, self).__init__(pid=pid, functions=functions)
+        self.log_msg = {
+                'system': 'tasknode-{0}'.format(pid),
+                'name': self.__init__.__name__,
+            }
         self.recv_socket = self._context.socket(zmq.PULL)
         self.send_socket = self._context.socket(zmq.PUSH)
         pull_uri = 'tcp://{0}:{1}'.format(RELAY_ADDR, RELAY_SEND)
@@ -114,20 +154,22 @@ class TaskNode(Node):
         self.send_socket.connect(push_uri)
         self.type = 'TASK'
         self.header = 'TASK-{0}'.format(self.pid)
-        LOG.logc(self.header, 'Startup', 'Online', 0, 'GREEN')
+        msg = 'online-domain({0})'.format(self.domain_id)
+        self.log_wrapper(msg, mode=0)
 
+    @timer(LOG, 'tasknode', PROFILE)
     def run(self, envelope):
-        header, meta, pipeline, data = envelope.unpack()
-        func = pipeline.consume()
-        kwargs = pipeline.extract()
-        kwargs['data'] = data
-        kwargs['worker'] = self.pid
+        self.log_msg['name'] = self.run.__name__
+        pipeline = envelope.get_pipeline()
+        pipeline['data'] = envelope.get_data()
+        pipeline['worker'] = self.pid
+        self.log_wrapper(pipeline['tasks'][0], mode=0)
         try:
-            f = eval(self.functions[func])
-            r = f(kwargs)
+            f = eval(self.functions[self.consume(pipeline)])
+            r = f(pipeline)
         except Exception as e:
             raise Exception('TASK-EVAL: {0}'.format(e))
-        envelope.pack(header, meta.extract(), pipeline.extract(), r)
+        envelope.data = r
         return envelope
 
 
@@ -135,51 +177,14 @@ class CacheNode(Node):
     """
     NAME:           CacheNode
 
-    DESCRIPTION:    A cache variant of the node, whose role is to cache values.
+    DESCRIPTION:    A cache variant of the node, whose role is to initialize
+                    the cache databse.
 
     METHODS:        .load_database()
                     Initialize the lmdb database environment.
-
-                    .recv()
-                    Receive incoming envelopes.
-
-                    .send()
-                    Send outgoing envelope.
-
-                    .handler(func, key=None, value=None)
-                    Handle all incoming requests and run requested method.
-
-                    .store(key, value)
-                    Store a key and value in the cache.
-
-                    .retrieve(key)
-                    Retrieve a value from the cache based on its key.
-
-                    .check(key)
-                    Check if a key exists in the database.
-
-                    .sync()
-                    Force sync of the lmdb environment.
-
-                    .get_status()
-                    Return status information about the database environment.
-
-                    .get_info()
-                    Return additional information about the database.
-
-                    .get_path()
-                    Return the location of the database.
-
-                    .get_stale_readers()
-                    Return a count of stale reader connections.
-
-                    .get_reader_lock_table()
-                    Return lock table.
-
-                    .run(envelope)
-                    Run the cache request against the cache.
     """
 
+    @timer(LOG, 'cachenode', PROFILE)
     def __init__(self, pid):
         super(CacheNode, self).__init__(pid=pid)
         self.recv_socket = self._context.socket(zmq.ROUTER)
@@ -189,19 +194,8 @@ class CacheNode(Node):
         self.count = 1
         self.header = 'CACHE-{0}'.format(self.pid)
         self.load_database()
-        self.methods = {
-            'status': self.get_status,
-            'check': self.check,
-            'get': self.retrieve,
-            'put': self.store,
-            'info': self.get_info,
-            'path': self.get_path,
-            'stale_readers': self.get_stale_readers,
-            'locks': self.get_reader_lock_table,
-            'readers': self.get_readers
-        }
-        LOG.logc(self.header, 'Startup', 'Online', 0, 'GREEN')
 
+    @timer(LOG, 'cachenode', PROFILE)
     def load_database(self):
         self.lmdb = lmdb.Environment(
             path=CACHE_PATH,
@@ -209,93 +203,16 @@ class CacheNode(Node):
             subdir=True,
             readonly=False,
             metasync=True,
-            #map_async=True,
+            # map_async=True,
             sync=True,
             writemap=True,
             readahead=True,
-            max_readers=TASK_WORKERS*2,
+            max_readers=TASK_WORKERS+2,
             max_dbs=0,
-            max_spare_txns=TASK_WORKERS*2,
+            max_spare_txns=TASK_WORKERS+2,
             lock=True,
             create=True
         )
-
-    def recv(self):
-        parcel = Parcel()
-        parcel.load(self.recv_socket.recv_multipart())
-        route, envelope = parcel.unpack()
-        self.current_route = route
-        return envelope
-
-    def send(self, envelope):
-        parcel = Parcel()
-        parcel.pack(self.current_route, envelope)
-        self.recv_socket.send_multipart(parcel.seal())
-        self.current_route = ''
-
-    def handler(self, func, key=None, value=None):
-        try:
-            if value is not None:
-                return func(key.encode(), Tools.serialize(value))
-            elif key is not None:
-                return func(key.encode())
-            else:
-                return func()
-        except Exception as e:
-            LOG.loge(self.header, func.__name__, e)
-            return False
-
-    def store(self, key, value):
-        with self.lmdb.begin(write=True) as txn:
-            txn.put(key, value, overwrite=True)
-            self.count += 1
-        self.sync()
-        return True
-
-    def retrieve(self, key):
-        with self.lmdb.begin() as txn:
-            value = txn.get(key)
-        return value
-
-    def check(self, key):
-        if self.retrieve(key) is None:
-            return False
-        else:
-            return True
-
-    def sync(self):
-        self.lmdb.sync()
-
-    def get_status(self):
-        return self.lmdb.stat()
-
-    def get_info(self):
-        return self.lmdb.info()
-
-    def get_path(self):
-        return self.lmdb.path()
-
-    def get_stale_readers(self):
-        return self.lmdb.reader_check()
-
-    def get_readers(self):
-        return self.lmdb.readers()
-
-    def get_reader_lock_table(self):
-        return self.lmdb.readers()
-
-    def run(self, envelope):
-        LOG.logc(self.header, 'run', '<---- request', 3, 'PURPLE')
-        key, value = envelope.get_data()
-        response = [key]
-        request = envelope.get_raw_header()
-        value = self.handler(self.methods[request], key, value)
-        if isinstance(value, bytes):
-            value = Tools.deserialize(value)
-        envelope.update_data([key, value])
-        if self.count % 10000 == 0:
-            print('CACHE VOLUME:', self.count)
-        return envelope
 
 
 # Functions
