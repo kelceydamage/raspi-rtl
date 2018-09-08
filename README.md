@@ -2,7 +2,7 @@
 
 ![logo](https://github.com/kelceydamage/rtl/blob/master/docs/logo.png?raw=true)
 
-# RASPI Transport Layer v0.2
+# RASPI Transport Layer v0.3
 
 ## Documentation Links
 
