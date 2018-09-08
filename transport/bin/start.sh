@@ -17,11 +17,11 @@ echo -e "         R A S P I      (c) Robot OS                         -K. Damage
 
 local_home=`pwd`
 export PATH=$local_home:$PATH
-#export RASPI_HOME=/git/projects/cython/personal
+export RASPI_HOME=/git/projects/cython/personal
 #export RASPI_HOME=/opt/nvme
 #export RASPI_HOME=/opt
 PYTHON="python"
-$PYTHON $RASPI_HOME/rtl/transport/bin/start.py -m
-$PYTHON $RASPI_HOME/rtl/transport/bin/start.py ROUTER -a 0.0.0.0 &
-$PYTHON $RASPI_HOME/rtl/transport/bin/start.py CACHE -a 0.0.0.0 &
-$PYTHON $RASPI_HOME/rtl/transport/bin/start.py TASK -a 0.0.0.0 -p 19100 &
+nohup $PYTHON $RASPI_HOME/rtl/transport/bin/start.py -m 
+nohup $PYTHON $RASPI_HOME/rtl/transport/bin/start.py ROUTER -a 0.0.0.0 &
+nohup $PYTHON $RASPI_HOME/rtl/transport/bin/start.py CACHE -a 0.0.0.0 &
+nohup $PYTHON $RASPI_HOME/rtl/transport/bin/start.py TASK -a 0.0.0.0 -p 19100 &
