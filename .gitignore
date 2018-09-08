@@ -3,6 +3,8 @@
 *.c
 *.cpp
 *.h
+*.log
+*.out
 var/security
 ./build/*
 build/*
@@ -18,3 +20,4 @@ drivers
 jobs/custom*
 tasks/custom*
 ~
+
