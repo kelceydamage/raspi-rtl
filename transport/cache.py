@@ -77,8 +77,8 @@ class Cache(object):
     @timer(LOG, 'cache', PROFILE)
     def __init__(self):
         self.log_msg = {
-                'system': 'cache',
-                'name': self.__init__.__name__,
+            'system': 'cache',
+            'name': self.__init__.__name__,
             }
         context = zmq.Context()
         try:
