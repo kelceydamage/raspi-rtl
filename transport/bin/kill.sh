@@ -1,3 +1,4 @@
+rm -rf var/run/*
 FILTER='transport/bin/start.py'
 PIDS=(`ps aux|grep $FILTER|grep -v grep|awk '{print $2}'`)
 #unset 'PIDS[${#PIDS[@]}-1]'
@@ -17,3 +18,4 @@ else
     echo "-------------------------------------------------------------------------------"
     #ps aux|grep $FILTER|awk '{print $2,$11,$12,$13}'|grep -v grep
 fi
+rm -rf var/run/*
