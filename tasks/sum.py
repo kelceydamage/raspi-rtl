@@ -39,9 +39,9 @@ LOG = Logger(LOG_LEVEL)
 @timer(LOG, 'task_sum', PROFILE)
 def task_sum(kwargs):
     results = []
-    for item in kwargs['data']:
-        l = sum(item)
-        results.append([l])
+    # Fastest way to do this while maintaining the data structure.
+    while kwargs['data']:
+        results.append([sum(kwargs['data'].pop())])
     return results
 
 
