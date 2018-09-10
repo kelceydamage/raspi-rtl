@@ -28,12 +28,12 @@
 import os
 import argparse
 import time
+from multiprocessing import Process
 os.sys.path.append('{0}{1}'.format(os.getcwd().split('rtl')[0], 'rtl'))
 from transport.registry import load_tasks
 from transport.node import TaskNode, CacheNode
 from transport.relay import Relay
 from transport.conf.configuration import *
-from common.spawner import ProcessHandler
 from common.print_helpers import Logger, Colours
 
 # Globals
@@ -41,28 +41,33 @@ from common.print_helpers import Logger, Colours
 COLOURS = Colours()
 LOG_LEVEL = 1
 LOG = Logger(LOG_LEVEL)
+NODES = {
+    0: Relay,
+    1: TaskNode,
+    2: CacheNode
+}
 
 # Parser
 # ------------------------------------------------------------------------ 79->
 parser = argparse.ArgumentParser(prog="Task Engine")
-group_1 = parser.add_argument_group('Mode Of Operation')
-group_1.add_argument(
-    'mode',
-    nargs='?',
-    help='Available modes: ROUTER, TASK, CACHE'
-    )
-group_2 = parser.add_argument_group('Parameters')
+group_2 = parser.add_argument_group('Mode Of Operation')
 group_2.add_argument(
-    '-a',
-    "--address",
-    dest="address",
-    help="Specify listening ip address [ex: 0.0.0.0]"
+    '-r',
+    "--relay",
+    dest="relay",
+    help="Specify number of relays to start"
     )
 group_2.add_argument(
-    '-p',
-    "--port",
-    dest="port",
-    help="Specify listening port [ex: 10001]"
+    '-t',
+    "--task",
+    dest="task",
+    help="Specify number of tasknodes to start"
+    )
+group_2.add_argument(
+    '-c',
+    "--cache",
+    dest="cache",
+    help="Specify number of cachenodes to start"
     )
 group_3 = parser.add_argument_group('Extras')
 group_3.add_argument(
@@ -81,39 +86,6 @@ args = parser.parse_known_args()
 # ------------------------------------------------------------------------ 79->
 
 
-def start_worker(args, pid):
-    if args[-1] == 0:
-        Relay(pid=pid).start()
-    elif args[-1] == 1:
-        time.sleep(0.5)
-        TaskNode(pid=pid, functions=args[2]).start()
-    elif args[-1] == 2:
-        time.sleep(0.5)
-        CacheNode(pid=pid).start()
-
-
-def _loop(args, functions=''):
-    services = []
-    for i in range(args[0]):
-        payload = [start_worker, [args[3], args[2], functions, args[1]]]
-        services.append(payload)
-    return services
-
-
-def gen_services(host, port, mode, functions):
-    SERVICES = []
-    if mode == 'router':
-        args = [1, 0, port, host]
-        SERVICES = _loop(args)
-    elif mode == 'task':
-        args = [TASK_WORKERS, 1, port, host]
-        SERVICES = _loop(args, functions)
-    elif mode == 'cache':
-        args = [CACHE_WORKERS, 2, port, host]
-        SERVICES = _loop(args)
-    return SERVICES, functions
-
-
 def print_meta(functions):
     print('-' * 79)
     print('REGISTERED-TASKS:')
@@ -129,28 +101,70 @@ def print_meta(functions):
     print('-' * 79)
 
 
+def start_node(_type, count, functions=''):
+    for i in range(int(count)):
+        service = NODES[_type]
+        start(service, functions)
+
+
+def service_wrapper(service, functions):
+    service(functions).start()
+
+
+def start(service, functions):
+    p = Process(target=service_wrapper, args=[service, functions])
+    p.daemon = True
+    p.start()
+
+
+def validate(param):
+    if param is not None:
+        if int(param) > 0:
+            return True
+        return False
+    return True
+
+
+def select_value(arg=None, conf=0):
+    if arg is not None:
+        return arg
+    if conf > 0:
+        return conf
+    return 0
+
+
+def launcher(args, functions):
+    success = False
+    if validate(args.relay):
+        start_node(0, select_value(args.relay, 1))
+        success = True
+    if validate(args.task):
+        start_node(1, select_value(args.task, TASK_WORKERS), functions)
+        success = True
+    if validate(args.cache):
+        start_node(2, select_value(args.cache, CACHE_WORKERS))
+        success = True
+    return success
+
+
 # Main
 # ------------------------------------------------------------------------ 79->
 if __name__ == '__main__':
+    pid = os.getpid()
     try:
         functions = load_tasks('tasks')
     except Exception as e:
         print(str(e))
         quit()
     args = args[0]
-    if not args.mode or not args.address:
-        if args.meta:
-            print_meta(functions)
-            exit(0)
-        parser.print_help()
-        exit(1)
     if args.meta:
         print_meta(functions)
-    SERVICES, functions = gen_services(
-        args.address,
-        args.port,
-        args.mode.lower(),
-        functions
-        )
-    PH = ProcessHandler(SERVICES)
-    PH.start(False)
+        exit(1)
+    if not launcher(args, functions):
+        print(parser.print_help())
+        exit(1)
+    print('Starting RTL')
+    with open('var/run/{0}-{1}'.format('master', pid), 'w+') as f:
+        f.write(str(pid))
+    while True:
+        time.sleep(1000)
