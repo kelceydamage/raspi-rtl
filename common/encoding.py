@@ -25,9 +25,16 @@
 import hashlib
 import uuid
 import cbor
+import zlib
+
+from common.print_helpers import Logger
+from common.print_helpers import timer
+from transport.conf.configuration import PROFILE
+from transport.conf.configuration import LOG_LEVEL
 
 # Globals
 # ------------------------------------------------------------------------ 79->
+LOG = Logger(LOG_LEVEL)
 
 # Classes
 # ------------------------------------------------------------------------ 79->
@@ -53,22 +60,27 @@ class Tools(object):
                     Creates a bytes encoded UUID4.
     """
     @staticmethod
+    @timer(LOG, 'encoding', PROFILE)
     def serialize(obj):
         return cbor.dumps(obj)
 
     @staticmethod
+    @timer(LOG, 'encoding', PROFILE)
     def deserialize(obj):
         return cbor.loads(obj)
 
     @staticmethod
+    @timer(LOG, 'encoding', PROFILE)
     def create_header(obj):
         return hashlib.md5(cbor.dumps(obj)).hexdigest().encode()
 
     @staticmethod
+    @timer(LOG, 'encoding', PROFILE)
     def create_key(obj):
         return hashlib.sha256(cbor.dumps(obj)).hexdigest()
 
     @staticmethod
+    @timer(LOG, 'encoding', PROFILE)
     def create_id():
         return str(uuid.uuid4())
 
