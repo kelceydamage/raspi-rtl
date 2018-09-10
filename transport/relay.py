@@ -39,6 +39,7 @@ from common.encoding import Tools
 from common.print_helpers import Logger
 from common.print_helpers import timer
 import zmq
+import os
 
 # Globals
 # ------------------------------------------------------------------------ 79->
@@ -89,12 +90,15 @@ class Relay(object):
     """
 
     @timer(LOG, 'relay', PROFILE)
-    def __init__(self, pid):
+    def __init__(self, functions=''):
         super(Relay, self).__init__()
+        self.pid = os.getpid()
         self.log_msg = {
-                'system': 'relay-{0}'.format(pid),
-                'name': self.__init__.__name__,
+            'system': 'relay-{0}'.format(self.pid),
+            'name': self.__init__.__name__,
             }
+        with open('var/run/{0}'.format(self.log_msg['system']), 'w+') as f:
+            f.write(str(self.pid))
         context = zmq.Context()
         self.recv_socket = context.socket(zmq.PULL)
         self.send_socket = context.socket(zmq.PUSH)
@@ -105,11 +109,11 @@ class Relay(object):
         self.recv_socket.bind(pull_uri)
         self.send_socket.bind(push_uri)
         self.publisher.bind(publiser_uri)
-        self.pid = pid
         self.state = {}
         self.buffer = []
         self.queue = []
         self.cache_keys = []
+        self.envelope = Envelope(cached=CACHED)
         self.log_wrapper('online', mode=0)
 
     def log_wrapper(self, msg, mode=0, colour='GREEN'):
@@ -118,85 +122,84 @@ class Relay(object):
         LOG.logw(self.log_msg, mode, 'machine.log')
 
     @timer(LOG, 'relay', PROFILE)
-    def ship(self, envelope):
-        self.log_msg['name'] = self.ship.__name__
-        self.send_socket.send_multipart(envelope.seal())
+    def send(self):
+        self.log_msg['name'] = self.send.__name__
+        self.send_socket.send_multipart(self.envelope.seal())
         self.buffer = []
         self.log_wrapper('sent ---->', mode=2, colour='PURPLE')
 
-    @timer(LOG, 'relay', PROFILE)
-    def receive(self):
-        self.log_msg['name'] = self.receive.__name__
-        envelope = Envelope(cached=CACHED)
-        envelope.load(self.recv_socket.recv_multipart())
-        return envelope
+    def publish(self):
+        self.publisher.send_multipart(self.envelope.seal())
 
     @timer(LOG, 'relay', PROFILE)
-    def create_state(self, meta):
+    def recv_loop(self):
+        return self.recv_socket.recv_multipart()
+
+    @timer(LOG, 'relay', PROFILE)
+    def load_envelope(self, r):
+        self.envelope.load(r)
+
+    @timer(LOG, 'relay', PROFILE)
+    def create_state(self, header, length):
         self.log_msg['name'] = self.create_state.__name__
-        stage = meta['stage']
         self.log_wrapper(self.state, mode=3, colour='PURPLE')
-        if stage not in self.state.keys():
-            meta['stage'] = Tools.create_id()
-            self.state[meta['stage']] = 1
-            if meta['length'] % CHUNKING_SIZE != 0:
-                self.state[meta['stage']] += 1
+        if header not in self.state.keys():
+            self.state[header] = 1
+            if length % CHUNKING_SIZE != 0:
+                self.state[header] += 1
         else:
-            self.state[stage] += 1
-        return meta
+            self.state[header] += 1
 
     @timer(LOG, 'relay', PROFILE)
-    def retrieve_state(self, meta):
+    def retrieve_state(self, header):
         self.log_msg['name'] = self.retrieve_state.__name__
-        stage = meta['stage']
         self.log_wrapper(self.state, mode=3, colour='PURPLE')
-        if stage in self.state.keys():
-            self.state[stage] -= 1
-            if self.state[stage] == 0:
-                self.state.pop(stage, None)
-                return meta, True, 0
-            return meta, True, self.state[stage]
-        return meta, False, 0
+        if header in self.state.keys():
+            self.state[header] -= 1
+            if self.state[header] == 0:
+                self.state.pop(header, None)
+                return True, 0
+            return True, self.state[header]
+        return False, 0
 
     @timer(LOG, 'relay', PROFILE)
-    def assemble(self, envelope):
+    def assemble(self):
         self.log_msg['name'] = self.assemble.__name__
-        envelope.cached = False
-        meta, success, count = self.retrieve_state(envelope.get_meta())
+        self.envelope.cached = False
+        header = self.envelope.get_header()
+        success, count = self.retrieve_state(header)
         if success:
-            self.queue.extend(envelope.get_data())
+            self.queue.extend(self.envelope.get_data())
             if count == 0:
-                envelope.data = self.queue
+                self.envelope.data = self.queue
                 self.empty_cache()
-                self.publisher.send_multipart(envelope.seal())
+                self.publish()
                 self.queue = []
                 self.log_wrapper('published ---->', mode=2, colour='PURPLE')
         else:
             self.empty_cache()
-            self.publisher.send_multipart(envelope.seal())
+            self.publish()
             print('send to client single')
             self.log_wrapper('published ---->', mode=2, colour='PURPLE')
-        del envelope
 
     @timer(LOG, 'relay', PROFILE)
-    def chunk(self, envelope):
-        length = envelope.get_length()
+    def chunk(self):
+        length = self.envelope.length
         if length <= 1 or length == CHUNKING_SIZE:
-            self.ship(envelope)
+            self.send()
         else:
-            envelope.compressed = False
-            data = envelope.data
-            envelope.data = []
+            self.envelope.compressed = False
+            data = self.envelope.data
+            self.envelope.data = []
             while data:
                 self.buffer.append(data.pop())
                 if len(self.buffer) % CHUNKING_SIZE == 0:
-                    envelope.meta = self.create_state(envelope.get_meta())
-                    envelope.data = self.buffer
-                    self.ship(envelope)
+                    self.create_state(self.envelope.header, length)
+                    self.envelope.data = self.buffer
+                    self.send()
             if len(self.buffer) > 0:
-                envelope.data = self.buffer
-                self.ship(envelope)
-        del envelope
+                self.envelope.data = self.buffer
+                self.send()
 
     @timer(LOG, 'relay', PROFILE)
     def empty_cache(self):
@@ -210,7 +213,8 @@ class Relay(object):
     def start(self):
         self.log_msg['name'] = self.start.__name__
         while True:
-            envelope = self.receive()
+            r = self.recv_loop()
+            self.load_envelope(r)
             # -----------------------
             # Caching stuff
             # -----------------------
@@ -220,11 +224,11 @@ class Relay(object):
             # if len(self.cache_keys) >= 100:
             #    self.empty_cache()
             self.log_wrapper('<---- recieved', mode=2, colour='PURPLE')
-            self.log_wrapper(envelope.get_meta(), mode=4, colour='BLUE')
-            if envelope.get_lifespan() > 0:
-                self.chunk(envelope)
+            self.log_wrapper(self.envelope.get_meta(), mode=4, colour='BLUE')
+            if self.envelope.lifespan > 0:
+                self.chunk()
             else:
-                self.assemble(envelope)
+                self.assemble()
 
 # Functions
 # ------------------------------------------------------------------------ 79->

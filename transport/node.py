@@ -45,6 +45,8 @@ import subprocess
 from tasks import *
 import zmq
 import lmdb
+import time
+import os
 
 # Globals
 # ------------------------------------------------------------------------ 79->
@@ -79,19 +81,19 @@ class Node(object):
     """
 
     @timer(LOG, 'node', PROFILE)
-    def __init__(self, pid, functions=''):
+    def __init__(self):
         super(Node, self).__init__()
+        self.pid = os.getpid()
         self.log_msg = {
-                'system': 'node-{0}'.format(pid),
-                'name': self.__init__.__name__,
+            'system': 'node-{0}'.format(self.pid),
+            'name': self.__init__.__name__,
             }
         self._context = zmq.Context()
         self.version = VERSION
-        self.pid = pid
         self.header = 'NODE-{0}'.format(self.pid)
-        self.functions = functions
         command = ['cat', '/proc/sys/kernel/random/boot_id']
         self.domain_id = subprocess.check_output(command).decode().rstrip('\n')
+        self.envelope = Envelope(cached=False)
 
     def log_wrapper(self, msg, mode=0, colour='GREEN'):
         self.log_msg['message'] = msg
@@ -99,15 +101,16 @@ class Node(object):
         LOG.logw(self.log_msg, mode, 'machine.log')
 
     @timer(LOG, 'node', PROFILE)
-    def recv(self):
-        envelope = Envelope(cached=CACHED)
-        envelope.load(self.recv_socket.recv_multipart())
-        return envelope
+    def recv_loop(self):
+        return self.recv_socket.recv_multipart()
 
     @timer(LOG, 'node', PROFILE)
-    def send(self, envelope):
-        sealed = envelope.seal()
-        self.send_socket.send_multipart(sealed)
+    def load_envelope(self, r):
+        self.envelope.load(r)
+
+    @timer(LOG, 'node', PROFILE)
+    def send(self):
+        self.send_socket.send_multipart(self.envelope.seal())
 
     @timer(LOG, 'node', PROFILE)
     def consume(self, pipeline):
@@ -119,11 +122,12 @@ class Node(object):
     def start(self):
         self.log_msg['name'] = self.start.__name__
         while True:
-            envelope = self.recv()
+            r = self.recv_loop()
+            self.load_envelope(r)
             self.log_wrapper('<---- received', mode=2, colour='PURPLE')
-            if envelope.get_lifespan() > 0:
-                envelope = self.run(envelope)
-            self.send(envelope)
+            if self.envelope.get_lifespan() > 0:
+                self.run()
+            self.send()
             self.log_wrapper('sent ---->', mode=2, colour='PURPLE')
 
 
@@ -140,28 +144,31 @@ class TaskNode(Node):
     """
 
     @timer(LOG, 'tasknode', PROFILE)
-    def __init__(self, pid, functions):
-        super(TaskNode, self).__init__(pid=pid, functions=functions)
+    def __init__(self, functions=''):
+        super(TaskNode, self).__init__()
         self.log_msg = {
-                'system': 'tasknode-{0}'.format(pid),
-                'name': self.__init__.__name__,
+            'system': 'tasknode-{0}'.format(self.pid),
+            'name': self.__init__.__name__,
             }
+        with open('var/run/{0}'.format(self.log_msg['system']), 'w+') as f:
+            f.write(str(self.pid))
         self.recv_socket = self._context.socket(zmq.PULL)
         self.send_socket = self._context.socket(zmq.PUSH)
         pull_uri = 'tcp://{0}:{1}'.format(RELAY_ADDR, RELAY_SEND)
         push_uri = 'tcp://{0}:{1}'.format(RELAY_ADDR, RELAY_RECV)
         self.recv_socket.connect(pull_uri)
         self.send_socket.connect(push_uri)
+        self.functions = functions
         self.type = 'TASK'
         self.header = 'TASK-{0}'.format(self.pid)
         msg = 'online-domain({0})'.format(self.domain_id)
         self.log_wrapper(msg, mode=0)
 
     @timer(LOG, 'tasknode', PROFILE)
-    def run(self, envelope):
+    def run(self):
         self.log_msg['name'] = self.run.__name__
-        pipeline = envelope.get_pipeline()
-        pipeline['data'] = envelope.get_data()
+        pipeline = self.envelope.get_pipeline()
+        pipeline['data'] = self.envelope.get_data()
         pipeline['worker'] = self.pid
         self.log_wrapper(pipeline['tasks'][0], mode=0)
         try:
@@ -169,8 +176,7 @@ class TaskNode(Node):
             r = f(pipeline)
         except Exception as e:
             raise Exception('TASK-EVAL: {0}'.format(e))
-        envelope.data = r
-        return envelope
+        self.envelope.data = r
 
 
 class CacheNode(Node):
@@ -185,8 +191,14 @@ class CacheNode(Node):
     """
 
     @timer(LOG, 'cachenode', PROFILE)
-    def __init__(self, pid):
-        super(CacheNode, self).__init__(pid=pid)
+    def __init__(self, functions=''):
+        super(CacheNode, self).__init__()
+        self.log_msg = {
+            'system': 'cachenode-{0}'.format(self.pid),
+            'name': self.__init__.__name__,
+            }
+        with open('var/run/{0}'.format(self.log_msg['system']), 'w+') as f:
+            f.write(str(self.pid))
         self.recv_socket = self._context.socket(zmq.ROUTER)
         router_uri = 'tcp://{0}:{1}'.format(CACHE_LISTEN, CACHE_RECV)
         self.recv_socket.bind(router_uri)
