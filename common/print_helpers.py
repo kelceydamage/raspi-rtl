@@ -178,13 +178,19 @@ def timer(logger, system, enabled=False):
         def inner_wrapper(*args, **kwargs):
             if enabled:
                 start = time.perf_counter()
+                pid = 0
+                if len(args) > 0:
+                    if hasattr(args[0], 'pid'):
+                        pid = args[0].pid
             value = func(*args, **kwargs)
             if enabled:
                 log_msg = {
                     'system': system,
                     'name': func.__name__,
                     'message': 'perf-wrapper',
-                    'perf_time': '{:4.8f}'.format(time.perf_counter() - start)
+                    'perf_time': '{:4.8f}'.format(time.perf_counter() - start),
+                    'timestamp': '{:4.8f}'.format(time.perf_counter()),
+                    'pid': pid
                 }
                 logger.logd(log_msg, mode=8, colour='LIGHTBLUE')
                 logger.logw(log_msg, mode=1, file='performance.log')
