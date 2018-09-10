@@ -29,6 +29,17 @@ from common.encoding import Tools
 # Globals
 # ------------------------------------------------------------------------ 79->
 VERSION = '0.3'
+META = {
+    'length': '',
+    'lifespan': '',
+    'cache_key': None,
+    'spent_key': None,
+}
+PIPELINE = {
+    'tasks': [],
+    'completed': [],
+    'kwargs': {}
+}
 
 
 # Classes
@@ -279,7 +290,7 @@ class Envelope(Container):
         if self['meta']['cache_key'] is not None:
             self.retrieve_cache()
 
-    def pack(self, header, meta, pipeline, data):
+    def pack(self, header='', meta=META, pipeline=PIPELINE, data=[]):
         self.compressed = False
         if header == '':
             header = Tools.create_id()
@@ -326,88 +337,6 @@ class Envelope(Container):
     def validate(self):
         pass
 
-
-class Pipeline(object):
-    """
-    NAME:           Pipeline
-
-    DESCRIPTION:    A class for storing the envelopes pipeline. Tasks to be
-                    completed, tasks already completed, and task arguments
-                    are part of the pipeline object.
-
-    METHODS:        .extract()
-                    Returns a dict representation of the pipeline(obj).
-
-                    .load(pipeline)
-                    Loads a dict representation of a pipeline(obj) into a
-                    pipeline(obj).
-
-                    .consume()
-                    Pops the first item in tasks and places it in completed.
-                    Returns the popped item.
-    """
-    def __init__(self, pipeline=None):
-        self.kwargs = {}
-        self.tasks = []
-        self.completed = []
-        if pipeline is not None:
-            self.load(pipeline)
-
-    def extract(self):
-        return {
-            'tasks': self.tasks,
-            'completed': self.completed,
-            'kwargs': self.kwargs
-        }
-
-    def load(self, pipeline):
-        for k, v in pipeline.items():
-            setattr(self, k, v)
-
-    def consume(self):
-        current = self.tasks.pop(0)
-        self.completed.append(current)
-        return current
-
-
-class Meta(object):
-    """
-    NAME:           Meta
-
-    DESCRIPTION:    A class for storing the envelopes metadata. Size, length,
-                    lifespan, times, and stage, are all part of the meta
-                    object.
-
-    METHODS:        .extract()
-                    Returns a dict representation of the meta(obj).
-
-                    .load(meta)
-                    Loads a dict representation of a meta(obj) into a
-                    meta(obj).
-    """
-    def __init__(self, meta=None):
-        self.length = 0
-        self.lifespan = 0
-        self.times = {}
-        self.stage = Tools.create_id()
-        self.cache_key = None
-        self.spent_key = None
-        if meta is not None:
-            self.load(meta)
-
-    def extract(self):
-        return {
-            'length': self.length,
-            'lifespan': self.lifespan,
-            'times': self.times,
-            'stage': self.stage,
-            'cache_key': self.cache_key,
-            'spent_key': self.spent_key
-        }
-
-    def load(self, meta):
-        for k, v in meta.items():
-            setattr(self, k, v)
 
 # Functions
 # ------------------------------------------------------------------------ 79->
