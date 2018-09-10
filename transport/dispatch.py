@@ -74,8 +74,8 @@ class Dispatcher(object):
     @timer(LOG, 'dispatcher', PROFILE)
     def __init__(self):
         self.log_msg = {
-                'system': 'dispatcher',
-                'name': self.__init__.__name__,
+            'system': 'dispatcher',
+            'name': self.__init__.__name__,
             }
         context = zmq.Context()
         push_uri = 'tcp://{0}:{1}'.format(RELAY_ADDR, RELAY_RECV)
