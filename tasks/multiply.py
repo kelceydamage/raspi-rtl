@@ -20,27 +20,15 @@
 
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-os.sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.abspath(__file__)
-            )
-        )
-    )
-import zmq
-from transport.dispatch import Dispatcher
-from common.datatypes import *
-from common.print_helpers import *
-from transport.cache import Cache
-import time
 import numpy
+from common.print_helpers import Logger
+from common.print_helpers import timer
+from transport.conf.configuration import PROFILE
+from transport.conf.configuration import LOG_LEVEL
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-COLOURS = Colours()
-COUNT = 2
-CACHE = Cache()
+LOG = Logger(LOG_LEVEL)
 
 # Classes
 # ------------------------------------------------------------------------ 79->
@@ -48,26 +36,15 @@ CACHE = Cache()
 # Functions
 # ------------------------------------------------------------------------ 79->
 
+
+@timer(LOG, 'task_multiply', PROFILE)
+def task_multiply(kwargs):
+    results = []
+    while kwargs['data']:
+        x = kwargs['data'].pop()
+        results.append(numpy.multiply(x, x).tolist())
+    return results
+
+
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':
-    s = time.time()
-    dispatcher = Dispatcher()
-    pipeline = PIPELINE
-    data = [[1, 2, 3] for i in range(500000)]
-    envelope = Envelope(cached=False)
-    pipeline['tasks'] = ['task_multiply']
-    envelope.pack(pipeline=pipeline, data=data)
-    print('Envelope Length:', envelope.length)
-    envelope = dispatcher.send(envelope)
-
-    printc('JOB COMPLETED: {0}s'.format(time.time() - s), COLOURS.GREEN)
-    # Serial bench
-    s = time.time()
-    r = []
-    while data:
-        x = data.pop()
-        r.append([numpy.multiply(x, x).tolist()])
-
-    printc('{0} Sums took: {1}'.format(len(r), time.time() - s), COLOURS.GREEN)
-
