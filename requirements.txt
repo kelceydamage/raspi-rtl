@@ -6,3 +6,4 @@ coverage
 lmdb
 cbor
 ujson
+numpy
