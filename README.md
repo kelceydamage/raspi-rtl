@@ -142,7 +142,7 @@ while data:
 ### Benchmark 3 RTL workers nodes (3 core VM)
 ```
 results = []
-    while kwargs['data']:
+while kwargs['data']:
     x = kwargs['data'].pop()
     results.append(numpy.multiply(x, x).tolist())
 ```
