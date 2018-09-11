@@ -18,56 +18,25 @@
 # Doc
 # ------------------------------------------------------------------------ 79->
 # Dependancies:
-#                   pkgutil
-#                   sys
-#                   common
-#                   transport
 #
+
 # Imports
 # ------------------------------------------------------------------------ 79->
-import pkgutil
-import sys
-from common.print_helpers import Logger
-from common.print_helpers import timer
-from transport.conf.configuration import LOG_LEVEL
-from transport.conf.configuration import PROFILE
+from flask import Flask
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-LOG = Logger(LOG_LEVEL)
-VERSION = '0.4'
 
 # Classes
 # ------------------------------------------------------------------------ 79->
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-
-
-@timer(LOG, 'registry', PROFILE)
-def load_tasks(dirname):
-    """
-    NAME:           load_tasks
-
-    DESCRIPTION:    Auto loader and parser for task modules. This function is
-                    written for efficiency, so I appologize for lack of
-                    readability.
-    """
-    functions = {}
-    member_list = []
-    for importer, package_name, _ in pkgutil.iter_modules([dirname]):
-        full_package_name = 'tasks.%s' % (package_name)
-        if package_name not in sys.modules:
-            try:
-                module = importer.find_module(package_name).load_module()
-                for member in [x for x in dir(module) if 'task_' in x]:
-                    functions[member] = '{0}.{1}'.format(package_name, member)
-            except Exception as e:
-                print('ERROR, e')
-    return functions
-
+@app.route("/status")
+def status():
+    return None
 
 # Main
 # ------------------------------------------------------------------------ 79->
 if __name__ == '__main__':
-    print(load_tasks('tasks'))
+    pass

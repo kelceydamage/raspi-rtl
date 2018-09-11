@@ -44,7 +44,7 @@ import os
 # Globals
 # ------------------------------------------------------------------------ 79->
 LOG = Logger(LOG_LEVEL)
-VERSION = '0.3'
+VERSION = '0.4'
 CHUNKING = True
 CACHE = Cache()
 

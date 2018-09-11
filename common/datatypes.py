@@ -28,7 +28,7 @@ from common.encoding import Tools
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-VERSION = '0.3'
+VERSION = '0.4'
 META = {
     'length': '',
     'lifespan': '',
