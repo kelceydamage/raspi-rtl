@@ -54,7 +54,7 @@ LOG = Logger(LOG_LEVEL)
 @timer(LOG, 'task_open_file', PROFILE)
 def configure(kwargs):
     keys = ['compression', 'delimiter', 'encoding']
-    defaults = {'compression': False, 'delimiter': '\\n', 'encoding': False}
+    defaults = {'compression': False, 'delimiter': '\n', 'encoding': False}
     params = []
     for key in keys:
         if key in kwargs['kwargs']:
@@ -79,14 +79,16 @@ def _open(compression, file_path, file_name):
 @timer(LOG, 'task_open_file', PROFILE)
 def decode(parts, encoding):
     results = []
-    for i in range(len(parts)):
+    while parts:
         item = parts.pop().strip('\n')
+        if item == '':
+            continue
         if encoding:
             item = json.loads(item.rstrip())
-        if item != '':
-            results.append(item)
+        else:
+            item = item.rstrip()
+        results.append(item)
     return results
-
 
 @timer(LOG, 'task_open_file', PROFILE)
 def task_open_file(kwargs):
@@ -99,12 +101,11 @@ def task_open_file(kwargs):
     mode = 'r'
     r = _open(compression, file_path, file_name)
     parts = r.replace('][', ']\n[').split(delimiter)
-    if parts == ['']:
+    if parts == [''] or parts == '':
         return [False]
     results = decode(parts, encoding)
     del parts
     return results
-
 
 # Main
 # ------------------------------------------------------------------------ 79->
