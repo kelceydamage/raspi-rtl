@@ -20,7 +20,7 @@
 
 # Imports
 # ------------------------------------------------------------------------ 79->
-import numpy
+import numpy as np
 from common.print_helpers import Logger
 from common.print_helpers import timer
 from transport.conf.configuration import PROFILE
@@ -38,12 +38,11 @@ LOG = Logger(LOG_LEVEL)
 
 
 @timer(LOG, 'task_multiply', PROFILE)
-def task_multiply(kwargs):
-    results = []
-    while kwargs['data']:
-        x = kwargs['data'].pop()
-        results.append(numpy.multiply(x, x).tolist())
-    return results
+def task_multiply(kwargs, data):
+    data.setflags(write=1)
+    for i in range(data.shape[0]):
+        data[i] = np.multiply(data[i], data[i])
+    return data
 
 
 # Main

@@ -19,5 +19,7 @@ __pycache__
 drivers
 jobs/custom*
 tasks/custom*
+*.list
+var/run/*
 ~
 

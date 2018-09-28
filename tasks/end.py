@@ -37,8 +37,8 @@ LOG = Logger(LOG_LEVEL)
 
 
 @timer(LOG, 'task_end', PROFILE)
-def task_end(kwargs):
-    return (None)
+def task_end(kwargs, data):
+    return data
 
 
 # Main

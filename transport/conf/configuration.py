@@ -25,12 +25,12 @@
 # Globals
 # ------------------------------------------------------------------------ 79->
 # Logging
-LOG_LEVEL               = 2
+LOG_LEVEL               = 9
 PROFILE                 = False
 
 # Workers
 STARTING_PORT           = 10000
-TASK_WORKERS            = 16        # Worker processes per node (per physical
+TASK_WORKERS            = 3         # Worker processes per node (per physical
                                     # server)
 CACHE_WORKERS           = 1
 RESPONSE_TIME           = 0.005     # Controls the rate at which tasks are sent
@@ -63,7 +63,7 @@ CHUNKING                = True      # Chunking determines if and how much the
                                     # RESPONSE_TIME and CHUNKING should be
                                     # balanced to get an Optimal throughput
                                     # and worker load balance.
-CHUNKING_SIZE           = 10000
+CHUNKING_SIZE           = 5000
 
 # Cache
 CACHE_LISTEN            = '0.0.0.0'

@@ -30,7 +30,7 @@ from transport.conf.configuration import CACHE_PATH
 from transport.conf.configuration import PROFILE
 from common.print_helpers import Logger
 from common.print_helpers import timer
-from common.encoding import Tools
+from common.encoding2 import Tools
 import zmq
 import lmdb
 
@@ -98,7 +98,7 @@ class Cache(object):
     def log_wrapper(self, msg, mode=0, colour='GREEN'):
         self.log_msg['message'] = msg
         self.log_msg['colour'] = colour
-        LOG.logw(self.log_msg, mode, 'machine.log')
+        #LOG.logw(self.log_msg, mode, 'machine.log')
 
     @timer(LOG, 'cache', PROFILE)
     def get(self, key):
