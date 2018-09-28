@@ -1,3 +1,6 @@
+# setenv
+source ~/python36/bin/activate
+
 # precompile c++ modules
 cython -a --cplus common/datatypes.pyx --force
 cython -a --cplus common/encoding.pyx --force
@@ -7,5 +10,4 @@ cython -a --cplus transport/node.pyx --force
 cython -a --cplus transport/dispatch.pyx --force
 
 # general compile of project modules
-python3.6 setup.py build_ext --inplace --force
-
+python setup.py build_ext --inplace --force
