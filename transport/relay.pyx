@@ -27,37 +27,38 @@
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
+
+# Python imports
+import zmq
+import os
+import math
+from numpy import array_split
+from numpy import empty
 from transport.conf.configuration import CHUNKING_SIZE
 from transport.conf.configuration import RELAY_LISTEN
 from transport.conf.configuration import RELAY_RECV
 from transport.conf.configuration import RELAY_SEND
 from transport.conf.configuration import RELAY_PUBLISHER
 
-import zmq
-import os
-import time
-import math
-import numpy as np
-
+# Cython imports
 cimport cython
-cimport numpy as np
+from numpy cimport ndarray
 from common.datatypes cimport Envelope
-from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.unordered_map cimport unordered_map
 from libc.stdint cimport uint_fast16_t
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-VERSION = '0.4'
+
+VERSION = '2.0a'
 
 # Classes
 # ------------------------------------------------------------------------ 79->
 
-
 cdef class Relay:
     """
-    NAME:           Router
+    NAME:           Router {0}
 
     DESCRIPTION:    Routes messages to available workers.
 
@@ -84,32 +85,16 @@ cdef class Relay:
 
                     .start()
                     Start the relay and begin listening.
-    """
-
-    cdef:
-        uint_fast16_t pid
-        long chunk_size
-        list chunk_buffer
-        #np.ndarray chunk_buffer
-        bint success
-        #list assembly_buffer
-        dict assembly_buffer
-        unordered_map[string, long] state
-        object recv_socket
-        object send_socket
-        object publisher
-        Envelope envelope
-        dict index_tracker
-        np.ndarray chunk_holder
+    """.format(VERSION)
 
     def __cinit__(self, functions=''):
-        super(Relay, self).__init__()
+        self.version = VERSION.encode()
         cdef:
             str pull_uri
             str push_uri
             str publiser_uri
+
         self.chunk_size = <long>CHUNKING_SIZE
-        #self.chunk_buffer = []
         self.assembly_buffer = {}
         self.index_tracker = {}
         self.success = True
@@ -129,27 +114,19 @@ cdef class Relay:
         self.envelope = <Envelope>Envelope()
 
     cdef void send(self):
-        t = time.perf_counter()
-        #print('R send1', self.envelope.header, len(self.envelope.data))
         self.send_socket.send_multipart(self.envelope.seal())
-        #print('R send2 {0:.8f}'.format(time.perf_counter() - t))
 
     cdef void publish(self):
         self.publisher.send_multipart(self.envelope.seal())
 
-    cdef list recv_loop(self):
-        return self.recv_socket.recv_multipart()
-
-    cdef void load_envelope(self, list r):
-        self.envelope.load(r)
+    cdef void recv_loop(self):
+        self.envelope.load(self.recv_socket.recv_multipart())
 
     cdef void create_state(self, string header, long length):
         if self.state.find(header) != self.state.end():
             self.state[header] += 1
         else:
             self.state[header] = 1
-            #if length % self.chunk_size != 0:
-            #    self.state[header] += 1
 
     cdef long retrieve_state(self, string header):
         if self.state.find(header) != self.state.end():
@@ -162,82 +139,61 @@ cdef class Relay:
         return 0
 
     cdef long assemble(self) except -1:
-        #t = time.perf_counter()
-        cdef long count
-        cdef long i
-        cdef long length
-        count = self.retrieve_state(self.envelope.get_header())
-        #print('Assembly', self.envelope.header)
+        cdef:
+            long i
+            long length
+            string h = self.envelope.get_header()
+            long count = self.retrieve_state(h)
+
         if self.success:
-            #print(self.envelope.header)
-            #self.assembly_buffer.extend(self.envelope.data)
             self.chunk_holder = self.envelope.get_data()
-            #print('R a1', self.assembly_buffer)
             length = <long>len(self.chunk_holder)
-            #print('R c', self.chunk_holder[0])
-            #print('Rc2', self.assembly_buffer[self.envelope.get_header()])
-            #print('Rc2', self.assembly_buffer[self.envelope.get_header()][0])
-            #print('R i', self.index_tracker[self.envelope.get_header()], 1)
-            #print(self.envelope.header)
             for i in range(length):
-                #print('combined index', self.index_tracker[self.envelope.get_header()] + i, length)
-                self.assembly_buffer[self.envelope.get_header()][self.index_tracker[self.envelope.get_header()] + i] = self.chunk_holder[i]
-            self.index_tracker[self.envelope.get_header()] += length
-            #print('R a2', self.assembly_buffer)
-            #print('R it', self.index_tracker)
-            #np.concatenate(
-            #    (self.assembly_buffer[self.envelope.get_header()], np.frombuffer(self.envelope.data)), 
-            #    axis=0
-            #)
+                self.assembly_buffer[h][self.index_tracker[h] + i] = self.chunk_holder[i]
+            self.index_tracker[h] += length
             if count == 0:
-                self.envelope.set_data(self.assembly_buffer[self.envelope.get_header()])
+                self.envelope.set_data(self.assembly_buffer[h])
                 self.publish()
-                del self.index_tracker[self.envelope.get_header()]
-                del self.assembly_buffer[self.envelope.get_header()]
-            #print('R assembler {0:.8f}'.format(time.perf_counter() - t))
+                del self.index_tracker[h]
+                del self.assembly_buffer[h]
         else:
             self.publish()
-            #print('AR assembler {0:.8f}'.format(time.perf_counter() - t))
         return 0
 
     cdef long chunk(self) except -1:
-        #cdef double t = time.perf_counter()
-        cdef long i
-        cdef long groups = math.ceil(self.envelope.get_length() / float(self.chunk_size))
-        if self.envelope.get_length() <= 1 or self.envelope.get_length() == self.chunk_size:
+        cdef:
+            long i
+            string h = self.envelope.get_header()
+            long length = self.envelope.get_length()
+            long groups = math.ceil(
+                self.envelope.get_length() / float(self.chunk_size)
+                )
+
+        if length <= 1 or length == self.chunk_size:
             self.send()
         else:
-            #print('CC', [self.envelope.get_data()])
-            self.chunk_buffer = np.array_split(self.envelope.get_data(), groups, axis=0)
-            self.assembly_buffer[self.envelope.get_header()] = np.empty((len(self.chunk_buffer[0]) * groups, len(self.chunk_buffer[0][0])))
-            #print('assembly buff', self.assembly_buffer)
-            self.index_tracker[self.envelope.get_header()] = 0
+            self.chunk_buffer = array_split(
+                self.envelope.get_data(), 
+                groups, 
+                axis=0
+                )
+            self.assembly_buffer[h] = empty(
+                (len(self.chunk_buffer[0]) * groups, 
+                len(self.chunk_buffer[0][0]))
+                )
+            self.index_tracker[h] = 0
             for i in range(groups):
-                #if len(self.chunk_buffer) >= self.chunk_size:
-                #    self.envelope.data = self.chunk_buffer[:self.chunk_size]
-                #    del self.chunk_buffer[:self.chunk_size]
-                #else:
-                #    self.envelope.data = self.chunk_buffer
-                #    self.chunk_buffer = []
                 self.envelope.set_data(self.chunk_buffer[i])
-                self.create_state(self.envelope.get_header(), self.envelope.get_length())
-                #print('Chunker', self.envelope.header)
+                self.create_state(h, length)
                 self.send()
-                #print('AR chunk {0:.8f}'.format(time.perf_counter() - t))
-                #t = time.perf_counter()
         return 0
 
     cpdef void start(self):
-        cdef vector[string] raw_message
-        cdef long r
+        cdef: 
+            long r
+
         while True:
-            #t = time.perf_counter()
-            raw_message = self.recv_loop()
-            #print('R recv_loop {0:.8f}'.format(time.perf_counter() - t))
-            #t = time.perf_counter()
-            self.load_envelope(raw_message)
-            #print('R', self.envelope.header)
-            #print('R', np.frombuffer(self.envelope.data))
+            self.recv_loop()
             if self.envelope.get_lifespan() > 0:
                 r = self.chunk()
                 if r == -1:
@@ -246,7 +202,6 @@ cdef class Relay:
                 r = self.assemble()
                 if r == -1:
                     raise
-            #print('R start', time.perf_counter() - t)
 
 # Functions
 # ------------------------------------------------------------------------ 79->
