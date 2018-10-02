@@ -25,12 +25,22 @@
 #                   lmdb
 #                   tasks
 #                   common
+#                   numpy
+#                   libcpp.string
+#                   libcpp.uint_fast16_t
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
+
+# Python imports
+import zmq
+import lmdb
+from os import getpid
+from tasks import *
+from numpy import frombuffer
+from subprocess import check_output
+from common.datatypes cimport Envelope
 from transport.conf.configuration import TASK_WORKERS
-from transport.conf.configuration import LOG_LEVEL
 from transport.conf.configuration import CACHE_PATH
 from transport.conf.configuration import CACHE_MAP_SIZE
 from transport.conf.configuration import RELAY_ADDR
@@ -38,119 +48,59 @@ from transport.conf.configuration import RELAY_SEND
 from transport.conf.configuration import RELAY_RECV
 from transport.conf.configuration import CACHE_LISTEN
 from transport.conf.configuration import CACHE_RECV
-from transport.conf.configuration import CACHED
-from transport.conf.configuration import PROFILE
-from common.datatypes cimport Envelope, Pipeline
-from common.encoding import Tools
-from common.print_helpers import Logger
-from common.print_helpers import timer
-import subprocess
-from tasks import *
-import ast
-import zmq
-import lmdb
-import time
-import os
-import numpy as np
 
-cimport numpy as np
+# Cython imports
 cimport cython
-from libcpp.list cimport list as cpplist
-from libcpp cimport bool
-from libcpp.vector cimport vector
-from libcpp.utility cimport pair
+from numpy cimport ndarray
 from libcpp.string cimport string
-from libcpp.map cimport map
-from libcpp.unordered_map cimport unordered_map
-from libc.stdint cimport uint_fast8_t, uint_fast16_t
-from libc.stdint cimport int_fast16_t
-from libc.stdio cimport printf
-from libc.stdlib cimport atoi
-from posix cimport time as p_time
+from libc.stdint cimport uint_fast16_t
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-LOG = Logger(LOG_LEVEL)
-VERSION = b'0.4'
+
+VERSION = '2.0a'
 
 # Classes
 # ------------------------------------------------------------------------ 79->
 
 
-cdef class Node(object):
+cdef class Node:
     """
     NAME:           Node
 
     DESCRIPTION:    Base class for transport nodes.
 
-    METHODS:        .log_wrapper(msg, mode=0, colour='GREEN')
-                    Wrapper for logger to clean up code.
-
-                    .recv()
+    METHODS:        .recv()
                     Receive sealed envelop from relay and returns an Envelope()
                     object.
 
                     .send(envelope)
                     Sends a sealed envelope to the relay.
 
-                    .consume(pipeline)
-                    Pull a task off the pipeline.
-
                     .start()
                     Starts the node and begins requesting sealed envelopes.
     """
 
-    cdef:
-        uint_fast16_t pid
-        dict log_msg
-        Envelope envelope
-        object _context
-        string version
-        string header
-        string domain_id
-
     def __init__(self):
-        super(Node, self).__init__()
-        self.pid = os.getpid()
-        self.log_msg = {
-            'system': 'node-{0}'.format(self.pid),
-            'name': self.__init__.__name__,
-            }
+        self.pid = getpid()
         self._context = zmq.Context()
-        self.version = VERSION
+        self.version = VERSION.encode()
         self.header = 'NODE-{0}'.format(self.pid).encode()
         command = ['cat', '/proc/sys/kernel/random/boot_id']
-        self.domain_id = subprocess.check_output(command).decode().rstrip('\n').encode()
-        self.envelope = Envelope(cached=False)
+        self.domain_id = check_output(command).decode().rstrip('\n').encode()
+        self.envelope = Envelope()
 
-    cdef log_wrapper(self, msg, mode=0, colour='GREEN'):
-        self.log_msg['message'] = msg
-        self.log_msg['colour'] = colour
-        #LOG.logw(self.log_msg, mode, 'machine.log')
+    cdef void recv(self):
+        self.envelope.load(self.recv_socket.recv_multipart(), unseal=True)
 
-    cdef recv_loop(self):
-        return self.recv_socket.recv_multipart()
-
-    cdef load_envelope(self, r):
-        self.envelope.load(r, unseal=True)
-
-    cdef send(self):
-        #print(self.envelope.header, len(self.envelope.data))
+    cdef void send(self):
         self.send_socket.send_multipart(self.envelope.seal())
 
-    cpdef start(self):
-        self.log_msg['name'] = self.start.__name__
+    cpdef void start(self):
         while True:
-            r = self.recv_loop()
-            #print('N recv')
-            #print('N recv1', self.envelope.header, len(r))
-            self.load_envelope(r)
-            #print('N-{0} recv2'.format(self.pid), self.envelope.header)
+            self.recv()
             if self.envelope.get_lifespan() > 0:
-                #print('N run')
                 self.run()
-            #print('N send')
-            #print('N send', self.envelope.header)
             self.send()
 
 
@@ -166,18 +116,10 @@ cdef class TaskNode(Node):
                     is determined by the state of the pipeline.
     """
 
-    cdef:
-        public object recv_socket
-        public object send_socket
-        public dict functions
-
     def __init__(self, functions=''):
         super(TaskNode, self).__init__()
-        self.log_msg = {
-            'system': 'tasknode-{0}'.format(self.pid),
-            'name': self.__init__.__name__,
-            }
-        with open('var/run/{0}'.format(self.log_msg['system']), 'w+') as f:
+        self.header = 'TASK-{0}'.format(self.pid).encode()
+        with open('var/run/{0}'.format(self.header.decode()), 'w+') as f:
             f.write(str(self.pid))
         self.recv_socket = self._context.socket(zmq.PULL)
         self.send_socket = self._context.socket(zmq.PUSH)
@@ -186,28 +128,30 @@ cdef class TaskNode(Node):
         self.recv_socket.connect(pull_uri)
         self.send_socket.connect(push_uri)
         self.functions = functions
-        self.header = 'TASK-{0}'.format(self.pid).encode()
-        msg = 'online-domain({0})'.format(self.domain_id)
-        self.log_wrapper(msg, mode=0)
 
     cpdef void run(self):
-        cdef np.ndarray r
-        t = time.perf_counter()
-        self.log_msg['name'] = 'run'
-        self.log_wrapper(self.envelope.meta['tasks'][0], mode=0)
-        #print('N data', len(self.envelope.data))
+        cdef:
+            ndarray r
+            str func = self.functions[self.envelope.meta['tasks'][0]]
+            Exception msg
+
+        r = frombuffer(self.envelope.data).reshape(
+            self.envelope.get_length(), 
+            self.envelope.get_shape()
+            )
         try:
-            f = eval(self.functions[self.envelope.meta['tasks'][0]])
-            r = f(self.envelope.meta['kwargs'], np.frombuffer(self.envelope.data).reshape(self.envelope.get_length(), self.envelope.get_shape()))
-            #print('N r', len(r))
+            r = eval(func)(self.envelope.meta['kwargs'], r)
         except Exception as e:
-            print('TASK-EVAL: {0}, {1}'.format(self.envelope['completed'][-1], e))
-            raise Exception('TASK-EVAL: {0}, {1}'.format(self.envelope['completed'][-1], e))
+            msg = Exception(
+                'TASK-EVAL: {0}, {1}'.format(
+                    self.envelope['completed'][-1], e
+                    )
+                )
+            print(msg)
+            raise msg
         else:
             self.envelope.consume()
         self.envelope.set_data(r)
-        #print('N-{1} run {0:.8f}'.format(time.perf_counter() - t, self.pid))
-        #print('N len', len(self.envelope.data))
 
 
 cdef class CacheNode(Node):
@@ -221,25 +165,17 @@ cdef class CacheNode(Node):
                     Initialize the lmdb database environment.
     """
 
-    cdef:
-        public object recv_socket
-        public object lmdb
-
     def __init__(self, functions=''):
         super(CacheNode, self).__init__()
-        self.log_msg = {
-            'system': 'cachenode-{0}'.format(self.pid),
-            'name': self.__init__.__name__,
-            }
-        with open('var/run/{0}'.format(self.log_msg['system']), 'w+') as f:
+        self.header = 'CACHE-{0}'.format(self.pid).encode()
+        with open('var/run/{0}'.format(self.header.decode()), 'w+') as f:
             f.write(str(self.pid))
         self.recv_socket = self._context.socket(zmq.ROUTER)
         router_uri = 'tcp://{0}:{1}'.format(CACHE_LISTEN, CACHE_RECV)
         self.recv_socket.bind(router_uri)
-        self.header = 'CACHE-{0}'.format(self.pid).encode()
         self.load_database()
 
-    def load_database(self):
+    cpdef void load_database(self):
         self.lmdb = lmdb.Environment(
             path=CACHE_PATH,
             map_size=CACHE_MAP_SIZE,
