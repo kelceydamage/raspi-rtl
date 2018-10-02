@@ -109,9 +109,10 @@ envelope = dispatcher.send(envelope)
 
 A note on overhead and scalability, there is no benefit in parallelization of an operation optimized for a tight loop, and adding more distribution overhead to such tasks has massive repercussions. However, bundled tasks do perform better as a rule. While there will be a need to send small commands such as directional/movement controls, the real capability in in processing massive ammounts of signal data. The forthcoming DataNodes will be publishers/processors of sensor data.
 
-### Setup 1 (Chunk size: 5000) 0.0191 s/chunk, 52.36 chunks/s, 261,800 arrays/s, 1,047,200 operations/s
+### 0.00955 s/chunk, 104.71 chunks/s, 523,560 arrays/s, 2,094,240 operations/s
 
 * Data objects: 500000
+* Chunk size: 5000
 * Task operations: 4
 * Job runs: 10
 * Task nodes: 3
