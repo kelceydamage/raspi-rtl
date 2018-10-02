@@ -88,12 +88,12 @@ cdef class Relay:
     """.format(VERSION)
 
     def __cinit__(self, functions=''):
-        self.version = VERSION.encode()
         cdef:
             str pull_uri
             str push_uri
             str publiser_uri
 
+        self.version = VERSION.encode()
         self.chunk_size = <long>CHUNKING_SIZE
         self.assembly_buffer = {}
         self.index_tracker = {}
