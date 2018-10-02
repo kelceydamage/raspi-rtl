@@ -28,9 +28,9 @@ from transport.conf.configuration import LOG_LEVEL
 from transport.conf.configuration import CACHE_MAP_SIZE
 from transport.conf.configuration import CACHE_PATH
 from transport.conf.configuration import PROFILE
-from common.encoding2 import Tools
 import zmq
 import lmdb
+import cbor
 
 # Globals
 # ------------------------------------------------------------------------ 79->
@@ -96,14 +96,14 @@ class Cache(object):
             r = txn.get(key.encode())
         if r is None:
             return (key, False)
-        return (key, Tools.deserialize(r))
+        return (key, cbor.loads(r))
 
     def put(self, key, value):
         try:
             with self.lmdb.begin(write=True) as txn:
                 r = txn.put(
                     key.encode(),
-                    Tools.serialize(value),
+                    cbor.dumps(value),
                     overwrite=True
                     )
         except Exception as e:
