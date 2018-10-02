@@ -27,15 +27,10 @@
 # ------------------------------------------------------------------------ 79->
 import pkgutil
 import sys
-from common.print_helpers import Logger
-from common.print_helpers import timer
-from transport.conf.configuration import LOG_LEVEL
-from transport.conf.configuration import PROFILE
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-LOG = Logger(LOG_LEVEL)
-VERSION = '0.4'
+VERSION = '0.5'
 
 # Classes
 # ------------------------------------------------------------------------ 79->
@@ -44,7 +39,6 @@ VERSION = '0.4'
 # ------------------------------------------------------------------------ 79->
 
 
-@timer(LOG, 'registry', PROFILE)
 def load_tasks(dirname):
     """
     NAME:           load_tasks
