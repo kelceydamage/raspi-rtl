@@ -32,17 +32,13 @@
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
-from common.print_helpers import Logger
-from common.print_helpers import timer
-from transport.conf.configuration import PROFILE
-from transport.conf.configuration import LOG_LEVEL
+
 import zlib
 import ast
 import ujson as json
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-LOG = Logger(LOG_LEVEL)
 
 # Classes
 # ------------------------------------------------------------------------ 79->
@@ -51,7 +47,6 @@ LOG = Logger(LOG_LEVEL)
 # ------------------------------------------------------------------------ 79->
 
 
-@timer(LOG, 'task_open_file', PROFILE)
 def configure(kwargs):
     keys = ['compression', 'delimiter', 'encoding']
     defaults = {'compression': False, 'delimiter': '\n', 'encoding': False}
@@ -64,7 +59,6 @@ def configure(kwargs):
     return params
 
 
-@timer(LOG, 'task_open_file', PROFILE)
 def _open(compression, file_path, file_name):
     mode = 'r'
     if compression:
@@ -76,7 +70,6 @@ def _open(compression, file_path, file_name):
     return r
 
 
-@timer(LOG, 'task_open_file', PROFILE)
 def decode(parts, encoding):
     results = []
     while parts:
@@ -90,7 +83,7 @@ def decode(parts, encoding):
         results.append(item)
     return results
 
-@timer(LOG, 'task_open_file', PROFILE)
+
 def task_open_file(kwargs):
     if kwargs['data'] != []:
         if kwargs['data'] == [False]:
