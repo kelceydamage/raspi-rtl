@@ -27,55 +27,36 @@
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
+
+# Python imports
+import zmq
 from transport.conf.configuration import RELAY_ADDR
 from transport.conf.configuration import RELAY_RECV
 from transport.conf.configuration import RELAY_PUBLISHER
-from transport.conf.configuration import CACHE_ADDR
-from transport.conf.configuration import CACHE_RECV
-from transport.conf.configuration import LOG_LEVEL
-from transport.conf.configuration import CACHE_MAP_SIZE
-from transport.conf.configuration import CACHE_PATH
-from transport.conf.configuration import PROFILE
-from common.datatypes cimport Envelope
-from common.print_helpers import Logger
-from common.print_helpers import timer
-import zmq
-import lmdb
-import time
 
+# Cython imports
 cimport cython
-from libcpp.list cimport list as cpplist
-from libcpp cimport bool
-from libcpp.vector cimport vector
-from libcpp.utility cimport pair
-from libcpp.string cimport string
-from libcpp.map cimport map
-from libcpp.unordered_map cimport unordered_map
-from libc.stdint cimport uint_fast8_t
-from libc.stdint cimport int_fast16_t
-from libc.stdio cimport printf
-from libc.stdlib cimport atoi
-from posix cimport time as p_time
+from common.datatypes cimport Envelope
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-LOG = Logger(LOG_LEVEL)
-VERSION = '0.4'
+
+VERSION = '2.0a'
 
 # Classes
 # ------------------------------------------------------------------------ 79->
 
 
-cdef class Dispatcher(object):
+cdef class Dispatcher:
     """
     NAME:           Dispatcher
 
     DESCRIPTION:    Dispatches tasks to the relay.
 
-    METHODS:        .log_wrapper(msg, mode=0, colour='GREEN')
-                    Wrapper for logger to clean up code.
-
-                    .send(envelope)
+    METHODS:        .send()
+                    Python wrapper for ._send()
+                    
+                    ._send(envelope)
                     Send a type Envelope() object to the relay. This is a
                     blocking method, and will wait until the results of the
                     task are returned.
@@ -88,11 +69,6 @@ cdef class Dispatcher(object):
                     Close the connections to the relay.
     """
 
-    cdef:
-        object push_socket
-        object sub_socket
-        list results
-
     def __init__(self):
         context = zmq.Context()
         push_uri = 'tcp://{0}:{1}'.format(RELAY_ADDR, RELAY_RECV)
@@ -103,12 +79,12 @@ cdef class Dispatcher(object):
         self.sub_socket.connect(pull_uri)
         self.results = []
 
-    cpdef Envelope _recieve(self):
+    cdef Envelope _recieve(self):
         envelope = Envelope()
         envelope.load(self.sub_socket.recv_multipart(), unseal=True)
         return envelope
 
-    cpdef close(self):
+    cdef void close(self):
         self.push_socket.disconnect(self.push_addr)
         self.sub_socket.disconnect(self.sub_addr)
 
