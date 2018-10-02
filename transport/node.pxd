@@ -27,13 +27,11 @@
 # Imports
 # ------------------------------------------------------------------------ 79->
 
-# Python imports
-from common.datatypes cimport Envelope
-
 # Cython imports
 cimport cython
 from libcpp.string cimport string
 from libc.stdint cimport uint_fast16_t
+from common.datatypes cimport Envelope
 
 # Globals
 # ------------------------------------------------------------------------ 79->
@@ -53,10 +51,13 @@ cdef class Node:
         string header
         string domain_id
 
-    cdef void recv(self)
-    cdef void send(self)
+    # Python acccessible API
     cpdef void start(self)
 
+    # CPP/Cython acccessible API
+    cdef void recv(self)
+    cdef void send(self)
+    
 
 cdef class TaskNode(Node):
     cdef:
@@ -64,6 +65,7 @@ cdef class TaskNode(Node):
         public object send_socket
         public dict functions
 
+    # Python acccessible API
     cpdef void run(self)
 
 
@@ -72,6 +74,7 @@ cdef class CacheNode(Node):
         public object recv_socket
         public object lmdb
 
+    # Python acccessible API
     cpdef void load_database(self)
 
 

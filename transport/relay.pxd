@@ -42,6 +42,7 @@ from libc.stdint cimport uint_fast16_t
 # Classes
 # ------------------------------------------------------------------------ 79->
 
+
 cdef class Relay:
     cdef:
         uint_fast16_t pid
