@@ -74,24 +74,6 @@ if __name__ == '__main__':
     print('_'*79)
     pipeline = {}
 
-    t2 = time.perf_counter()
-    data3 = datatypes.dataFrame3(seed, seed2)
-    z3 = np.frombuffer(data3[0][1]).reshape(loop, 3)
-    z4 = np.frombuffer(data3[0][0], dtype=k).reshape(2, )
-    print('D3 w/ PyWrap\t {0:.8f}'.format(time.perf_counter() - t2))
-    print('-'*79)
-    t2 = time.perf_counter()
-    data3 = datatypes.dataFrame3(seed, seed2)
-    z3 = np.frombuffer(data3[0][1]).reshape(loop, 3)
-    z4 = np.frombuffer(data3[0][0], dtype=k).reshape(2, )
-    print('D3 w/ PyWrap\t {0:.8f}'.format(time.perf_counter() - t2))
-    print('-'*79)
-    t2 = time.perf_counter()
-    data = [[datatypes.dataFrame(seed2, (2,), k), datatypes.dataFrame(seed, (loop, 3), float)]]
-    z3 = np.frombuffer(data[0][1]).reshape(loop, 3)
-    z4 = np.frombuffer(data[0][0], dtype=k).reshape(2, )
-    print('D w/ PyWrap\t {0:.8f}'.format(time.perf_counter() - t2))
-
     envelope = datatypes.Envelope(cached=False)
     tasks = ['task_multiply', 'task_multiply', 'task_multiply', 'task_multiply']
     data = [[1.0, 2.0, 3.0] for i in range(loop)]
@@ -104,28 +86,18 @@ if __name__ == '__main__':
     envelope = dispatcher.send(envelope)
     printc('JOB COMPLETED: {0}s'.format(time.perf_counter() - t4), COLOURS.GREEN)
 
-    
+
     print(envelope.header)
     print('-'*79)
     r = []
     data = envelope.result()
-    t1 = time.perf_counter()
     data.setflags(write=1)
+    t1 = time.perf_counter()
     for i in range(len(tasks)):
         for i in range(data.shape[0]):
             data[i] = np.multiply(data[i], data[i])
     print('CTRL w/ PyWrap\t {0:.8f}'.format(time.perf_counter() - t1))
 
-    # Serial bench
-    '''
-    s = time.time()
-    r = []
-    while data:
-        x = np.frombuffer(np.array(data.pop()).tobytes(), dtype=float)
-        r.append(np.multiply(x, x).tolist())
-
-    printc('{0} Sums took: {1:.8f}'.format(len(r), time.time() - s), COLOURS.GREEN)
-    print('BENCH', r[:5])    '''
     print('JOB', envelope.result()[:10])
     print(envelope.header)
 
