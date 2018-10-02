@@ -91,7 +91,7 @@ class Dispatcher(object):
     def log_wrapper(self, msg, mode=0, colour='GREEN'):
         self.log_msg['message'] = msg
         self.log_msg['colour'] = colour
-        LOG.logw(self.log_msg, mode, 'machine.log')
+        #LOG.logw(self.log_msg, mode, 'machine.log')
 
     @timer(LOG, 'dispatcher', PROFILE)
     def _recieve(self):

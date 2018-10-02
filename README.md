@@ -2,7 +2,7 @@
 
 ![logo](https://github.com/kelceydamage/rtl/blob/master/docs/logo.png?raw=true)
 
-# RASPI Transport Layer v0.4
+# RASPI Transport Layer v2.0a
 
 ## Documentation Links
 
@@ -77,27 +77,22 @@ To stop the service:
 ## Creating A Job
 ```python
 # Import the datatypes
-from common.datatypes import *
+from common.datatypes import Envelope
 
 # Create envelope
 envelope = Envelope()
 
-# Create meta
-meta = Meta()
+# Determine pipeline
+tasks = ['task_multiply', 'task_multiply', 'task_multiply', 'task_multiply']
 
-# Create pipeline
-pipeline = Pipeline()
-pipeline.tasks = ['task_sum', 'task_sum', 'task_sum', 'task_sum']
+# Create meta
+meta={'tasks': tasks, 'completed': [], 'kwargs': {}}
 
 # Create data
-data = [[1, 2, 3], [2, 3 ,4], [5, 3 ,4], [1, 2, 3]]
-
-# Create header
-header = Tools.create_id()
+data = [[1.0, 2.0, 3.0] for i in range(500000)]
 
 # Pack the envelope
-envelope.pack(header, meta.extract(), pipeline.extract(), data)
-
+envelope.pack(meta, data)
 ```
 
 ## Using The Client
@@ -112,69 +107,33 @@ envelope = dispatcher.send(envelope)
 
 ## Code Performance Numbers (Incl Sum Task)
 
-Profiler adds about 12.7% overhead. The dispatcher calls are round-trip time, all other calls are affected by chunk size.
+A note on overhead and scalability, there is no benefit in parallelization of an operation optimized for a tight loop, and adding more distribution overhead to such tasks has massive repercussions. However, bundled tasks do perform better as a rule. While there will be a need to send small commands such as directional/movement controls, the real capability in in processing massive ammounts of signal data. The forthcoming DataNodes will be publishers/processors of sensor data.
 
-A note on overhead and scalability, increasing the chunk size by 1000x increased throughput by 358x. This is mainly due to the opperation performed (sum). There is no benefit in parallelization of an operation optimized for a tight loop, and adding more distribution overhead to such tasks has massive reprecutions. However, bundled tasks do perform better as a rule. While there will be a need to send small commands such as directional/movement controls, the real capability in in processing massive ammounts of signal data. The forthcoming DataNodes will be publishers/processors of sensor data.
+### 0.00955 s/chunk, 104.71 chunks/s, 523,560 arrays/s, 2,094,240 operations/s
 
-There is still a lot of optimizations I can perform based on tht results below.
-
-### Setup 1 (Chunk size: 10000) 0.0277 s/chunk, 36.10 chunks/s, 361,011 operations/s
-
-* Task operations: 500000
+* Data objects: 500000
+* Chunk size: 5000
+* Task operations: 4
 * Job runs: 10
 * Task nodes: 3
 * Cores: 3
 * i7-7820HQ CPU @ 2.90GHz
 * Ram: 2048 MB
 
-### Benchmark Linear loop main thread (3 core VM)
+### Benchmark Linear loop main thread 4 tasks (3 core VM) (2 million operations)
+```
+data.setflags(write=1)
+for i in range(len(tasks)):
+    for i in range(data.shape[0]):
+        data[i] = np.multiply(data[i], data[i])
+```
+500000 * 4 Multiplies took: 2.44180964s
 
-Envelope Length: 500000
-JOB COMPLETED: 1.543776273727417s
+### Benchmark 3 RTL workers nodes 4 tasks (3 core VM) (2 million operations)
 ```
-r = []
-while data:
-    x = data.pop()
-    r.append([numpy.multiply(x, x).tolist()])
+data.setflags(write=1)
+for i in range(data.shape[0]):
+    data[i] = np.multiply(data[i], data[i])
 ```
-500000 Multiplies took: 1.6345291137695312s
+500000 * 4 Multiplies took: 0.9547774170059711s
 
-### Benchmark 3 RTL workers nodes (3 core VM)
-```
-results = []
-while kwargs['data']:
-    x = kwargs['data'].pop()
-    results.append(numpy.multiply(x, x).tolist())
-```
-500000 Multiplies took: 1.3850457668304443s (Profiling turned off)
-
-#### Call Times (Profiling turned on):
-
-```
-RANKED
-
-Class                           Method                          per 1000 calls            count
-----------------------------------------------------------------------------------------------------
-[dispatcher]                    * send()                        1970.81692000 s           1
-[dispatcher]                    * _recieve()                    1915.37958000 s           1
-[relay]                         * chunk()                       884.88298000 s            1
-[node]                          * recv_loop()                   814.82893320 s            50
-[relay]                         * recv_loop()                   252.56732510 s            51
-[tasknode]                      * run()                         37.41902600 s             50
-[task_multiply]                 * task_multiply()               32.25967940 s             50
-[relay]                         * load_envelope()               11.49281882 s             51
-[node]                          * load_envelope()               9.22512980 s              50
-[node]                          * send()                        7.11619520 s              50
-[relay]                         * send()                        6.62053920 s              50
-[relay]                         * assemble()                    1.83960780 s              50
-[encoding]                      * deserialize()                 1.71853939 s              408
-[relay]                         * empty_cache()                 0.75265000 s              1
-[cache]                         * __init__()                    0.71184000 s              3
-[encoding]                      * serialize()                   0.45578319 s              408
-[dispatcher]                    * __init__()                    0.35906000 s              1
-[cache]                         * sync()                        0.12727000 s              1
-[encoding]                      * create_id()                   0.03023000 s              1
-[relay]                         * create_state()                0.00975420 s              50
-[relay]                         * retrieve_state()              0.00707340 s              50
-[node]                          * consume()                     0.00538760 s              50
-```

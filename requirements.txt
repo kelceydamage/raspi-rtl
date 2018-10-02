@@ -7,3 +7,4 @@ lmdb
 cbor
 ujson
 numpy
+cython

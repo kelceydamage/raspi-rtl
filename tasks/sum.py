@@ -20,14 +20,9 @@
 
 # Imports
 # ------------------------------------------------------------------------ 79->
-from common.print_helpers import Logger
-from common.print_helpers import timer
-from transport.conf.configuration import PROFILE
-from transport.conf.configuration import LOG_LEVEL
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-LOG = Logger(LOG_LEVEL)
 
 # Classes
 # ------------------------------------------------------------------------ 79->
@@ -36,7 +31,6 @@ LOG = Logger(LOG_LEVEL)
 # ------------------------------------------------------------------------ 79->
 
 
-@timer(LOG, 'task_sum', PROFILE)
 def task_sum(kwargs):
     results = []
     # Fastest way to do this while maintaining the data structure.

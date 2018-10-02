@@ -1,7 +1,10 @@
-#!/usr/bin/env python
+#!python
+#cython: language_level=3, cdivision=True
+###boundscheck=False, wraparound=False //(Disabled by default)
 # ------------------------------------------------------------------------ 79->
-# Author: ${name=Kelcey Damage}
-# Python: 3.5+
+# Author: Kelcey Damage
+# Cython: 0.28+
+# Doc
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,12 +25,22 @@
 #                   lmdb
 #                   tasks
 #                   common
+#                   numpy
+#                   libcpp.string
+#                   libcpp.uint_fast16_t
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
+
+# Python imports
+import zmq
+import lmdb
+from os import getpid
+from tasks import *
+from numpy import frombuffer
+from subprocess import check_output
+from common.datatypes cimport Envelope
 from transport.conf.configuration import TASK_WORKERS
-from transport.conf.configuration import LOG_LEVEL
 from transport.conf.configuration import CACHE_PATH
 from transport.conf.configuration import CACHE_MAP_SIZE
 from transport.conf.configuration import RELAY_ADDR
@@ -35,103 +48,63 @@ from transport.conf.configuration import RELAY_SEND
 from transport.conf.configuration import RELAY_RECV
 from transport.conf.configuration import CACHE_LISTEN
 from transport.conf.configuration import CACHE_RECV
-from transport.conf.configuration import CACHED
-from transport.conf.configuration import PROFILE
-from common.datatypes import *
-from common.encoding import Tools
-from common.print_helpers import Logger
-from common.print_helpers import timer
-import subprocess
-from tasks import *
-import zmq
-import lmdb
-import time
-import os
+
+# Cython imports
+cimport cython
+from numpy cimport ndarray
+from libcpp.string cimport string
+from libc.stdint cimport uint_fast16_t
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-LOG = Logger(LOG_LEVEL)
-VERSION = '0.4'
+
+VERSION = '2.0a'
 
 # Classes
 # ------------------------------------------------------------------------ 79->
 
 
-class Node(object):
+cdef class Node:
     """
     NAME:           Node
 
     DESCRIPTION:    Base class for transport nodes.
 
-    METHODS:        .log_wrapper(msg, mode=0, colour='GREEN')
-                    Wrapper for logger to clean up code.
-
-                    .recv()
+    METHODS:        .recv()
                     Receive sealed envelop from relay and returns an Envelope()
                     object.
 
                     .send(envelope)
                     Sends a sealed envelope to the relay.
 
-                    .consume(pipeline)
-                    Pull a task off the pipeline.
-
                     .start()
                     Starts the node and begins requesting sealed envelopes.
     """
 
-    @timer(LOG, 'node', PROFILE)
     def __init__(self):
-        super(Node, self).__init__()
-        self.pid = os.getpid()
-        self.log_msg = {
-            'system': 'node-{0}'.format(self.pid),
-            'name': self.__init__.__name__,
-            }
+        self.pid = getpid()
         self._context = zmq.Context()
-        self.version = VERSION
-        self.header = 'NODE-{0}'.format(self.pid)
+        self.version = VERSION.encode()
+        self.header = 'NODE-{0}'.format(self.pid).encode()
         command = ['cat', '/proc/sys/kernel/random/boot_id']
-        self.domain_id = subprocess.check_output(command).decode().rstrip('\n')
-        self.envelope = Envelope(cached=False)
+        self.domain_id = check_output(command).decode().rstrip('\n').encode()
+        self.envelope = Envelope()
 
-    def log_wrapper(self, msg, mode=0, colour='GREEN'):
-        self.log_msg['message'] = msg
-        self.log_msg['colour'] = colour
-        LOG.logw(self.log_msg, mode, 'machine.log')
+    cdef void recv(self):
+        self.envelope.load(self.recv_socket.recv_multipart(), unseal=True)
 
-    @timer(LOG, 'node', PROFILE)
-    def recv_loop(self):
-        return self.recv_socket.recv_multipart()
-
-    @timer(LOG, 'node', PROFILE)
-    def load_envelope(self, r):
-        self.envelope.load(r)
-
-    @timer(LOG, 'node', PROFILE)
-    def send(self):
+    cdef void send(self):
         self.send_socket.send_multipart(self.envelope.seal())
 
-    @timer(LOG, 'node', PROFILE)
-    def consume(self, pipeline):
-        current = pipeline['tasks'].pop(0)
-        pipeline['completed'].append(current)
-        return current
-
-    @timer(LOG, 'node', PROFILE)
-    def start(self):
-        self.log_msg['name'] = self.start.__name__
+    cpdef void start(self):
         while True:
-            r = self.recv_loop()
-            self.load_envelope(r)
-            self.log_wrapper('<---- received', mode=2, colour='PURPLE')
+            self.recv()
             if self.envelope.get_lifespan() > 0:
                 self.run()
             self.send()
-            self.log_wrapper('sent ---->', mode=2, colour='PURPLE')
 
 
-class TaskNode(Node):
+cdef class TaskNode(Node):
     """
     NAME:           TaskNode
 
@@ -143,14 +116,10 @@ class TaskNode(Node):
                     is determined by the state of the pipeline.
     """
 
-    @timer(LOG, 'tasknode', PROFILE)
     def __init__(self, functions=''):
         super(TaskNode, self).__init__()
-        self.log_msg = {
-            'system': 'tasknode-{0}'.format(self.pid),
-            'name': self.__init__.__name__,
-            }
-        with open('var/run/{0}'.format(self.log_msg['system']), 'w+') as f:
+        self.header = 'TASK-{0}'.format(self.pid).encode()
+        with open('var/run/{0}'.format(self.header.decode()), 'w+') as f:
             f.write(str(self.pid))
         self.recv_socket = self._context.socket(zmq.PULL)
         self.send_socket = self._context.socket(zmq.PUSH)
@@ -159,27 +128,33 @@ class TaskNode(Node):
         self.recv_socket.connect(pull_uri)
         self.send_socket.connect(push_uri)
         self.functions = functions
-        self.type = 'TASK'
-        self.header = 'TASK-{0}'.format(self.pid)
-        msg = 'online-domain({0})'.format(self.domain_id)
-        self.log_wrapper(msg, mode=0)
 
-    @timer(LOG, 'tasknode', PROFILE)
-    def run(self):
-        self.log_msg['name'] = self.run.__name__
-        pipeline = self.envelope.get_pipeline()
-        pipeline['data'] = self.envelope.get_data()
-        pipeline['worker'] = self.pid
-        self.log_wrapper(pipeline['tasks'][0], mode=0)
+    cpdef void run(self):
+        cdef:
+            ndarray r
+            str func = self.functions[self.envelope.meta['tasks'][0]]
+            Exception msg
+
+        r = frombuffer(self.envelope.data).reshape(
+            self.envelope.get_length(), 
+            self.envelope.get_shape()
+            )
         try:
-            f = eval(self.functions[self.consume(pipeline)])
-            r = f(pipeline)
+            r = eval(func)(self.envelope.meta['kwargs'], r)
         except Exception as e:
-            raise Exception('TASK-EVAL: {0}'.format(e))
-        self.envelope.data = r
+            msg = Exception(
+                'TASK-EVAL: {0}, {1}'.format(
+                    self.envelope['completed'][-1], e
+                    )
+                )
+            print(msg)
+            raise msg
+        else:
+            self.envelope.consume()
+        self.envelope.set_data(r)
 
 
-class CacheNode(Node):
+cdef class CacheNode(Node):
     """
     NAME:           CacheNode
 
@@ -190,25 +165,17 @@ class CacheNode(Node):
                     Initialize the lmdb database environment.
     """
 
-    @timer(LOG, 'cachenode', PROFILE)
     def __init__(self, functions=''):
         super(CacheNode, self).__init__()
-        self.log_msg = {
-            'system': 'cachenode-{0}'.format(self.pid),
-            'name': self.__init__.__name__,
-            }
-        with open('var/run/{0}'.format(self.log_msg['system']), 'w+') as f:
+        self.header = 'CACHE-{0}'.format(self.pid).encode()
+        with open('var/run/{0}'.format(self.header.decode()), 'w+') as f:
             f.write(str(self.pid))
         self.recv_socket = self._context.socket(zmq.ROUTER)
         router_uri = 'tcp://{0}:{1}'.format(CACHE_LISTEN, CACHE_RECV)
         self.recv_socket.bind(router_uri)
-        self.type = 'CACHE'
-        self.count = 1
-        self.header = 'CACHE-{0}'.format(self.pid)
         self.load_database()
 
-    @timer(LOG, 'cachenode', PROFILE)
-    def load_database(self):
+    cpdef void load_database(self):
         self.lmdb = lmdb.Environment(
             path=CACHE_PATH,
             map_size=CACHE_MAP_SIZE,

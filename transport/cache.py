@@ -28,15 +28,12 @@ from transport.conf.configuration import LOG_LEVEL
 from transport.conf.configuration import CACHE_MAP_SIZE
 from transport.conf.configuration import CACHE_PATH
 from transport.conf.configuration import PROFILE
-from common.print_helpers import Logger
-from common.print_helpers import timer
-from common.encoding import Tools
 import zmq
 import lmdb
+import cbor
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-LOG = Logger(LOG_LEVEL)
 VERSION = '0.4'
 
 # Classes
@@ -74,7 +71,6 @@ class Cache(object):
                     Return additional information about the database.
     """
 
-    @timer(LOG, 'cache', PROFILE)
     def __init__(self):
         self.log_msg = {
             'system': 'cache',
@@ -95,26 +91,19 @@ class Cache(object):
         except Exception as e:
             self.log_wrapper(str(e), mode=0)
 
-    def log_wrapper(self, msg, mode=0, colour='GREEN'):
-        self.log_msg['message'] = msg
-        self.log_msg['colour'] = colour
-        LOG.logw(self.log_msg, mode, 'machine.log')
-
-    @timer(LOG, 'cache', PROFILE)
     def get(self, key):
         with self.lmdb.begin() as txn:
             r = txn.get(key.encode())
         if r is None:
             return (key, False)
-        return (key, Tools.deserialize(r))
+        return (key, cbor.loads(r))
 
-    @timer(LOG, 'cache', PROFILE)
     def put(self, key, value):
         try:
             with self.lmdb.begin(write=True) as txn:
                 r = txn.put(
                     key.encode(),
-                    Tools.serialize(value),
+                    cbor.dumps(value),
                     overwrite=True
                     )
         except Exception as e:
@@ -122,26 +111,21 @@ class Cache(object):
         else:
             return (key, r)
 
-    @timer(LOG, 'cache', PROFILE)
     def delete(self, key):
         with self.lmdb.begin(write=True) as txn:
             r = txn.delete(key.encode())
         return (key, r)
 
-    @timer(LOG, 'cache', PROFILE)
     def drop(self):
         with self.lmdb.begin(write=True) as txn:
             self.lmdb.drop(self.lmdb, delete=True)
 
-    @timer(LOG, 'cache', PROFILE)
     def sync(self):
         return self.lmdb.sync()
 
-    @timer(LOG, 'cache', PROFILE)
     def status(self):
         return self.lmdb.stat()
 
-    @timer(LOG, 'cache', PROFILE)
     def info(self):
         return self.lmdb.info()
 
