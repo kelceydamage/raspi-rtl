@@ -31,7 +31,7 @@ os.sys.path.append(
 import zmq
 from transport.dispatch import Dispatcher
 from common import datatypes
-from common.print_helpers import *
+from common.print_helpers import printc, Colours
 from transport.cache import Cache
 import time
 import numpy as np

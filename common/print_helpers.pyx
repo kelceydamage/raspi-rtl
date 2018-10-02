@@ -49,7 +49,6 @@ from posix cimport time as p_time
 # Classes
 # ------------------------------------------------------------------------ 79->
 
-
 cdef class Logger(object):
     """
     NAME:           Logger
@@ -186,39 +185,6 @@ class Colours(object):
 # Functions
 # ------------------------------------------------------------------------ 79->
 
-
-cdef unordered_map[string, string] dict_to_umap(dict _dict):
-    cdef unordered_map[string, string] umap = encode(_dict)
-    return umap
-
-
-cdef dict umap_to_dict(unordered_map[string, string] umap):
-    cdef dict _dict = umap
-    return decode(_dict)
-
-
-cdef unordered_map[string, string] encode(dict data):
-    cdef type data_type
-    data_type = type(data)
-    if data_type == bytes: return data
-    elif data_type in (list, tuple): pass
-    elif data_type == type(None): return str(data).encode()
-    elif data_type == dict: data = data.items()
-    else: return str(data).encode()
-    return data_type(map(encode, data))
-
-
-cdef dict decode(dict data):
-    cdef type data_type 
-    data_type = type(data)
-    if data_type == bytes: return data.decode()
-    elif data_type in (list, tuple): pass
-    elif data_type == type(None): return str(data)
-    elif data_type == dict: data = data.items()
-    else: return str(data)
-    return data_type(map(decode, data))
-
-
 cpdef padding(message, width):
     """
     NAME:           padding
@@ -238,46 +204,6 @@ cpdef printc(message, colour):
     """
     endc = '\033[m'
     print('{0}{1}{2}'.format(colour, message, endc))
-
-
-def timer(logger, system, enabled=False):
-    """
-    NAME:           timer
-
-    DESCRIPTION:    Decorator for logging execution time of wrapped methods.
-    """
-    def timer_wrapper(func):
-        @functools.wraps(func)
-        def inner_wrapper(*args, **kwargs):
-            cdef double start
-            cdef unsigned int pid
-            cdef dict log_msg
-            cdef int_fast16_t r
-            cdef uint_fast8_t mode = 1
-            if enabled:
-                start = time.perf_counter()
-                pid = 0
-                if len(args) > 0:
-                    if hasattr(args[0], 'pid'):
-                        pid = args[0].pid
-            value = func(*args, **kwargs)
-            if enabled:
-                log_msg = {
-                    'system': system,
-                    'name': func.__name__,
-                    'message': 'perf-wrapper',
-                    'perf_time': '{:4.8f}'.format(time.perf_counter() - start),
-                    'timestamp': '{:4.8f}'.format(time.perf_counter()),
-                    'pid': pid
-                }
-                logger.logd(log_msg, mode=7, colour='LIGHTBLUE')
-                try:
-                    r = logger.logw(log_msg, mode=mode, file='performance.log')
-                except Exception as e:
-                    print('X', r, e)
-            return value
-        return inner_wrapper
-    return timer_wrapper
 
 # Main
 # ------------------------------------------------------------------------ 79->
