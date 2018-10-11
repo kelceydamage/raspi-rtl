@@ -19,8 +19,9 @@ PYX_FILES= [
     "transport.dispatch"
 ]
 
+extensions = []
 for i in PYX_FILES:
-    extentions.append(
+    extensions.append(
         Extension(
             i,
             sources=['{0}{1}'.format(i.replace('.', '/'), ext)],
@@ -41,6 +42,6 @@ if USE_CYTHON:
     extentions = cythonize(extentions)
 
 setup(
-    ext_modules = extentions,
+    ext_modules = extensions,
     include_dirs=[numpy.get_include(), zmq.get_includes()]
 )
