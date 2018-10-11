@@ -16,9 +16,7 @@ source ~/python3/bin/activate
 
 ### Required (within virtual env)
 ```
-pip install cbor
-pip install pyzmq
-pip install lmdb
+pip3 install pyzmq pytest-cov python-coveralls codecov coverage lmdb cbor ujson numpy cython
 ```
 
 # Centos7.4+
@@ -31,14 +29,12 @@ sudo yum install zeromq-devel-4.1.4-5.el7.x86_64 zeromq-4.1.4-5.el7.x86_64
 
 ### Virtual Environment
 ```bash
-pip3.6 install virtualenv
-virtualenv -p $(which python3.6) ~/python36
+pip3 install virtualenv
+virtualenv -p $(which python3.6) ~/python3
 source ~/python36/bin/activate
 ```
 
 ### Required (within virtual env)
 ```
-pip install cbor
-pip install pyzmq
-pip install lmdb
+pip3 install pyzmq pytest-cov python-coveralls codecov coverage lmdb cbor ujson numpy cython
 ```
