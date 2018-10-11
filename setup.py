@@ -39,7 +39,7 @@ if USE_CYTHON:
     Cython.Compiler.Options.cache_builtins = True
     Cython.Compiler.Options.gcc_branch_hints = True
     Cython.Compiler.Options.embed = False
-    extentions = cythonize(extentions)
+    extensions = cythonize(extensions)
 
 setup(
     ext_modules = extensions,
