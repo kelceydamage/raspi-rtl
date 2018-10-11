@@ -10,45 +10,25 @@ USE_CYTHON = True
 
 ext = '.pyx' if USE_CYTHON else '.c'
 
-extentions = [
-    Extension(
-        "common.datatypes",
-        sources=["common/datatypes{0}".format(ext)],
-        extra_compile_args=['-std=c++11'],
-        language="c++"
-        ),
-    Extension(
-        "common.encoding",
-        sources=["common/encoding{0}".format(ext)],
-        extra_compile_args=['-std=c++11'],
-        language="c++"
-        ),
-    Extension(
-        "common.print_helpers",
-        sources=["common/print_helpers{0}".format(ext)],
-        extra_compile_args=['-std=c++11'],
-        language="c++"
-        ),
-    Extension(
-        "transport.relay",
-        sources=["transport/relay{0}".format(ext)],
-        extra_compile_args=['-std=c++11'],
-        language="c++"
-        ),
-    Extension(
-        "transport.node",
-        sources=["transport/node{0}".format(ext)],
-        extra_compile_args=['-std=c++11'],
-        language="c++"
-        ),
-    Extension(
-        "transport.dispatch",
-        sources=["transport/dispatch{0}".format(ext)],
-        extra_compile_args=['-std=c++11'],
-        language="c++"
-        ),
-    ]
+PYX_FILES= [
+    "common.datatypes",
+    "common.encoding",
+    "common.print_helpers",
+    "transport.relay",
+    "transport.node",
+    "transport.dispatch"
+]
 
+for i in PYX_FILES:
+    extentions.append(
+        Extension(
+            i,
+            sources=['{0}{1}'.format(i.replace('.', '/'), ext)],
+            extra_compile_args=['-std=c++11'],
+            language="c++"
+            )
+        )
+        
 if USE_CYTHON:
     from Cython.Build import cythonize
     import Cython
