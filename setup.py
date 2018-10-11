@@ -10,7 +10,7 @@ USE_CYTHON = True
 
 ext = '.pyx' if USE_CYTHON else '.c'
 
-PYX_FILES= [
+PYX_FILES = [
     "common.datatypes",
     "common.encoding",
     "common.print_helpers",
@@ -29,7 +29,7 @@ for i in PYX_FILES:
             language="c++"
             )
         )
-        
+
 if USE_CYTHON:
     from Cython.Build import cythonize
     import Cython
@@ -43,5 +43,5 @@ if USE_CYTHON:
 
 setup(
     ext_modules = extensions,
-    include_dirs=[numpy.get_include(), zmq.get_includes()]
+    include_dirs = [numpy.get_include(), zmq.get_includes()]
 )
