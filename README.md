@@ -29,13 +29,15 @@ The cachenode was originally designed to store repetitive REST queries to extern
 
 To start the service:
 ```
-./transport/bin/start.sh
+./transport/bin/init.sh start
 ```
 
 To stop the service:
 ```
-./transport/bin/kill.sh
+./transport/bin/init.sh stop
 ```
+
+There are also `status` and `restart` commands.
 
 ## Ports
 
