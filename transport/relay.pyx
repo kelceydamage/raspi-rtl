@@ -170,7 +170,7 @@ cdef class Relay:
                 self.envelope.get_length() / float(self.chunk_size)
                 )
 
-        if length <= 1 or length == self.chunk_size:
+        if length <= 1 or length <= self.chunk_size:
             self.send()
         else:
             self.chunk_buffer = array_split(
