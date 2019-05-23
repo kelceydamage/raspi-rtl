@@ -29,3 +29,6 @@ fi
 pip install ujson
 pip install pyzmq
 pip install lmdb
+
+# Create pidlock folder
+mkdir -p var/run
