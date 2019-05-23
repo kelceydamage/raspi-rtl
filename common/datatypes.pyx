@@ -102,6 +102,7 @@ cdef class Envelope:
         'header',
         'meta',
         'data',
+        'ndata',
         'cached',
         'compressed',
         'cache',
@@ -122,7 +123,8 @@ cdef class Envelope:
     cpdef ndarray result(self):
         return self.get_data()
 
-    cpdef void pack(self, dict meta, list data):
+    # ndata is numeric types of fixed length that can be compressed into ndarrays.
+    cpdef void pack(self, dict meta={}, list ndata=[[]], dict data={'d': 'x01'}):
         cdef string _id = self.create_id()
         cdef ndarray h = ndarray(
             (1,), 
@@ -131,14 +133,14 @@ cdef class Envelope:
         self.header = h
         self.header['id'] = _id
         self.header['lifespan'] = len(meta['tasks'])
-        self.header['length'] = len(data)
-        self.header['shape'] = len(data[0])
+        self.header['length'] = len(ndata)
+        self.header['shape'] = len(ndata[0])
         self.meta = meta
-        self.data = ndarray(
+        self.ndata = ndarray(
             (self.header['length'][0], (self.header['shape'][0])), 
-            buffer=array(data), 
-            dtype=float
+            buffer=array(ndata)
             ).tobytes()
+        self.data = data
         self.unseal = True
 
     cdef string create_id(self):
@@ -146,26 +148,32 @@ cdef class Envelope:
 
     cdef void load(self, list sealed_envelope, bint unseal=False):
         self.unseal = unseal
+        print('S', sealed_envelope)
         self.header = frombuffer(
             sealed_envelope[0], 
             dtype=self.meta_dtypes
             ).reshape(1, )
         self.header.setflags(write=1)
-        self.data = <string>sealed_envelope[2]
+        self.ndata = <string>sealed_envelope[2]
         if self.unseal:
             self.meta = cbor.loads(sealed_envelope[1])
+            self.data = cbor.loads(sealed_envelope[3])
         else:
             self.sealed_meta = sealed_envelope[1]
+            self.sealed_data = sealed_envelope[3]
 
     cdef list seal(self):
         cdef: 
             string m = <string>cbor.dumps(self.meta)
+            string d = <string>cbor.dumps(self.data)
             string h = <string>self.header.tobytes()
             list l
         if self.unseal:
-            l = [h, m, self.data]
+            l = [h, m, self.ndata, d]
+            print('L1', l)
             return l
-        l = [self.header.tobytes(), self.sealed_meta, self.data]
+        l = [self.header.tobytes(), self.sealed_meta, self.ndata, self.sealed_data]
+        print('L2', l)
         return l
 
     cdef void consume(self):
@@ -185,18 +193,24 @@ cdef class Envelope:
         return self.header['id'][0]
     
     cdef string get_sealed_data(self):
-        return self.data
+        return self.ndata
 
-    cdef ndarray get_data(self):
-        return frombuffer(self.data, dtype=float).reshape(
+    cdef dict get_data(self):
+        return <dict>self.data
+
+    cdef void set_data(self, data):
+        self.data = data
+
+    cdef ndarray get_ndata(self):
+        return frombuffer(self.ndata).reshape(
             self.get_length(), 
             self.get_shape()
             )
 
-    cdef void set_data(self, ndarray data):
+    cdef void set_ndata(self, ndarray data):
         self.header['length'] = len(data)
         self.header['shape'] = len(data[0])
-        self.data = data.tobytes()
+        self.ndata = data.tobytes()
 
 # Functions
 # ------------------------------------------------------------------------ 79->

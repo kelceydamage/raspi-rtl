@@ -42,15 +42,17 @@ cdef class Envelope:
         public string version
         public ndarray header
         public dict meta
-        public string data
+        public dict data
+        public string ndata
         public bint unseal
         public string sealed_meta
+        public string sealed_data
         public list sealed_buffer
         public list meta_dtypes
 
     # Python accessible API
     cpdef ndarray result(self)
-    cpdef void pack(self, dict meta, list data)
+    cpdef void pack(self, dict meta=?, list ndata=?, dict data=?)
 
     # CPP/Cython acccessible API
     cdef string create_id(self)
@@ -62,8 +64,10 @@ cdef class Envelope:
     cdef long get_length(self)
     cdef string get_header(self)
     cdef string get_sealed_data(self)
-    cdef ndarray get_data(self)
-    cdef void set_data(self, ndarray data)
+    cdef ndarray get_ndata(self)
+    cdef dict get_data(self)
+    cdef void set_data(self, data)
+    cdef void set_ndata(self, ndarray data)
 
 # Functions
 # ------------------------------------------------------------------------ 79->
