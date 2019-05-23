@@ -30,19 +30,22 @@ os.sys.path.append(
     )
 import zmq
 from transport.dispatch import Dispatcher
-from common.datatypes import *
-from common.print_helpers import *
+from common import datatypes
+from common.print_helpers import printc, Colours
 from transport.cache import Cache
 import time
+import numpy as np
+import cbor
+import io
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 COLOURS = Colours()
-COUNT = 2
-CACHE = Cache()
+COUNT = 5
 
 # Classes
 # ------------------------------------------------------------------------ 79->
+
 
 # Functions
 # ------------------------------------------------------------------------ 79->
@@ -50,17 +53,31 @@ CACHE = Cache()
 # Main
 # ------------------------------------------------------------------------ 79->
 if __name__ == '__main__':
-    s = time.time()
+    loop = COUNT
+
     dispatcher = Dispatcher()
-    meta = Meta()
-    pipeline = Pipeline()
-    data = [[1, 2, 3] for i in range(500000)]
-    envelope = Envelope(cached=False)
-    header = Tools.create_id()
-    pipeline.tasks = ['task_sum', 'task_sum', 'task_sum', 'task_sum']
-    meta.lifespan = 3
-    envelope.pack(header, meta.extract(), pipeline.extract(), data)
-    print('Envelope Length:', envelope.length)
+
+    envelope = datatypes.Envelope(cached=False)
+
+    tasks = ['task_multiply', 'task_multiply', 'task_multiply', 'task_multiply']
+
+    data = [[1.0, 2.0, 3.0] for i in range(loop)]
+
+    envelope.pack(meta={'tasks': tasks, 'completed': [], 'kwargs': {}}, data=data)
+
+    print('Start Job')
+
+    #print(envelope.result())
+
+    t4 = time.perf_counter()
     envelope = dispatcher.send(envelope)
 
-    printc('JOB COMPLETED: {0}s'.format(time.time() - s), COLOURS.GREEN)
+    printc('JOB COMPLETED: {0}s'.format(time.perf_counter() - t4), COLOURS.GREEN)
+
+
+    print(envelope.header)
+    print('-'*79)
+
+    print('JOB', envelope.result()[:10])
+    print(envelope.header)
+
