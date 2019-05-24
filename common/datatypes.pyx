@@ -121,7 +121,7 @@ cdef class Envelope:
             ]
 
     cpdef ndarray result(self):
-        return self.get_data()
+        return self.get_ndata()
 
     # ndata is numeric types of fixed length that can be compressed into ndarrays.
     cpdef void pack(self, dict meta={}, list ndata=[[]], dict data={'d': 'x01'}):
@@ -148,7 +148,6 @@ cdef class Envelope:
 
     cdef void load(self, list sealed_envelope, bint unseal=False):
         self.unseal = unseal
-        print('S', sealed_envelope)
         self.header = frombuffer(
             sealed_envelope[0], 
             dtype=self.meta_dtypes
@@ -170,10 +169,8 @@ cdef class Envelope:
             list l
         if self.unseal:
             l = [h, m, self.ndata, d]
-            print('L1', l)
             return l
         l = [self.header.tobytes(), self.sealed_meta, self.ndata, self.sealed_data]
-        print('L2', l)
         return l
 
     cdef void consume(self):
