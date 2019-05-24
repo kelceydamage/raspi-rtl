@@ -36,69 +36,88 @@
 import zlib
 import ast
 import ujson as json
+import numpy as np
+from numpy import ndarray
+from numpy import array
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
+class Utils():
+
+    def __init__(self, kwargs):
+        self.keys = [
+            'compression', 
+            'delimiter', 
+            'encoding'
+            ]
+        self.defaults = {
+            'compression': False, 
+            'delimiter': '\n', 
+            'encoding': False
+            }
+        self.configuration = {}
+        self.fileName = kwargs['file']
+        self.filePath = kwargs['path']
+        self.mode = 'r'
+        for key in self.keys:
+            if key in kwargs:
+                self.configuration[key] = kwargs[key]
+            else:
+                self.configuration[key] = self.defaults[key]
+
+    def validate(self, ndata):
+        if ndata != [[]]:
+            if ndata[0].any() == [False]:
+                return False
+            return True
+        return True
+
+    def open(self):
+        if self.configuration['compression']:
+            self.mode = 'rb'
+        with open('{0}/{1}'.format(self.filePath, self.fileName), self.mode) as f:
+            r = f.read()
+            if self.configuration['compression']:
+                r = zlib.decompress(r).decode()
+        parts = r.replace('][', ']\n[').split('\n')
+        return parts
+
+    def decode(self, parts):
+        results = []
+        while parts:
+            item = parts.pop().strip('\n')
+            if item == '':
+                continue
+            if self.configuration['encoding']:
+                item = json.loads(item.rstrip())
+            else:
+                item = item.rstrip().split(self.configuration['delimiter'])
+            results.append(item)
+        return results
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-
-
-def configure(kwargs):
-    keys = ['compression', 'delimiter', 'encoding']
-    defaults = {'compression': False, 'delimiter': '\n', 'encoding': False}
-    params = []
-    for key in keys:
-        if key in kwargs['kwargs']:
-            params.append(kwargs['kwargs'][key])
-        else:
-            params.append(defaults[key])
-    return params
-
-
-def _open(compression, file_path, file_name):
-    mode = 'r'
-    if compression:
-        mode = 'rb'
-    with open('{0}/{1}'.format(file_path, file_name), mode) as f:
-        r = f.read()
-        if compression:
-            r = zlib.decompress(r).decode()
-    return r
-
-
-def decode(parts, encoding):
-    results = []
-    while parts:
-        item = parts.pop().strip('\n')
-        if item == '':
-            continue
-        if encoding:
-            item = json.loads(item.rstrip())
-        else:
-            item = item.rstrip()
-        results.append(item)
-    return results
-
-
-def task_open_file(kwargs):
-    if kwargs['data'] != []:
-        if kwargs['data'] == [False]:
-            return [False]
-    compression, delimiter, encoding = configure(kwargs)
-    file_name = kwargs['kwargs']['file']
-    file_path = kwargs['kwargs']['path']
-    mode = 'r'
-    r = _open(compression, file_path, file_name)
-    parts = r.replace('][', ']\n[').split(delimiter)
+def task_open_file(kwargs, ndata, data):
+    U = Utils(kwargs)
+    if not U.validate(ndata): return [[False]]
+    parts = U.open()
     if parts == [''] or parts == '':
-        return [False]
-    results = decode(parts, encoding)
+        return [[False]]
+    results = U.decode(parts)
     del parts
-    return results
+    if kwargs['mixed']:
+        data = {i: results[i] for i in range(len(results))}
+    else:
+        ndata.setflags(write=1)
+        ndata = np.ndarray(
+            (len(results), len(results[0])),
+            buffer=array(results),
+            dtype=np.dtype(int)        
+        )
+    return ndata, data
 
 # Main
 # ------------------------------------------------------------------------ 79->
