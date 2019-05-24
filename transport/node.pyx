@@ -134,16 +134,13 @@ cdef class TaskNode(Node):
             ndarray r
             str func = self.functions[self.envelope.meta['tasks'][0]]
             Exception msg
-
-        print('get r ', func)
-        print(self.envelope.get_length(), self.envelope.get_shape())
         r = frombuffer(self.envelope.ndata).reshape(
             self.envelope.get_length(), 
             self.envelope.get_shape()
             )
+        d = self.envelope.get_data()
         try:
-            r, d = eval(func)(self.envelope.meta['kwargs'], r)
-            print('R: ', type(r))
+            r, d = eval(func)(self.envelope.meta['kwargs'], r, d)
         except Exception as e:
             msg = Exception(
                 'TASK-EVAL: {0}, {1}'.format(
@@ -154,8 +151,6 @@ cdef class TaskNode(Node):
             raise msg
         else:
             self.envelope.consume()
-        print('set data')
-        print(r)
         self.envelope.set_ndata(r)
         self.envelope.set_data(d)
 
