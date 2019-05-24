@@ -118,18 +118,23 @@ cdef class Envelope:
             ('lifespan', 'i4'), 
             ('length', 'i4'),
             ('shape', 'i4')
-            ]
+        ]
 
     cpdef ndarray result(self):
         return self.get_ndata()
 
     # ndata is numeric types of fixed length that can be compressed into ndarrays.
-    cpdef void pack(self, dict meta={}, list ndata=[[]], dict data={'d': 'x01'}):
-        cdef string _id = self.create_id()
-        cdef ndarray h = ndarray(
-            (1,), 
-            dtype=self.meta_dtypes
+    cpdef void pack(self, dict meta, list ndata, dict data):
+        cdef: 
+            string _id = self.create_id()
+            ndarray h = ndarray(
+                (1,), 
+                dtype=self.meta_dtypes
             )
+        if ndata is None:
+            ndata = [[]]
+        if data is None:
+            data = {'d': 'x01'}
         self.header = h
         self.header['id'] = _id
         self.header['lifespan'] = len(meta['tasks'])
@@ -137,7 +142,7 @@ cdef class Envelope:
         self.header['shape'] = len(ndata[0])
         self.meta = meta
         self.ndata = ndarray(
-            (self.header['length'][0], (self.header['shape'][0])), 
+            (self.header['length'][0], (self.header['shape'][0])),
             buffer=array(ndata)
             ).tobytes()
         self.data = data
@@ -202,7 +207,7 @@ cdef class Envelope:
         return frombuffer(self.ndata).reshape(
             self.get_length(), 
             self.get_shape()
-            )
+        )
 
     cdef void set_ndata(self, ndarray data):
         self.header['length'] = len(data)

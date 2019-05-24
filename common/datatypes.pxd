@@ -52,7 +52,7 @@ cdef class Envelope:
 
     # Python accessible API
     cpdef ndarray result(self)
-    cpdef void pack(self, dict meta=?, list ndata=?, dict data=?)
+    cpdef void pack(self, dict meta, list ndata, dict data)
 
     # CPP/Cython acccessible API
     cdef string create_id(self)
