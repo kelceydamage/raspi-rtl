@@ -214,7 +214,7 @@ cpdef print_stage(id, tasks):
     print('-' * 79)
     printc('Running Stage: [{0}]'.format(id), C.PURPLE)
     for i in range(length):
-        printc('* {0}'.format(tasks[i]), C.BLUE)
+        printc('* {0}'.format(tasks[i]), C.LIGHTBLUE)
 
 # Main
 # ------------------------------------------------------------------------ 79->
