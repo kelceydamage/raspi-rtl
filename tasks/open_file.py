@@ -39,15 +39,18 @@ import ujson as json
 import numpy as np
 from numpy import ndarray
 from numpy import array
+from common.task import Task
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Utils():
+class OpenFile(Task):
 
-    def __init__(self, kwargs):
+    def __init__(self, kwargs, content):
+        super(OpenFile, self).__init__(kwargs, content)
+        self.ndata.setflags(write=1)
         self.keys = [
             'compression', 
             'delimiter', 
@@ -59,8 +62,6 @@ class Utils():
             'encoding': False
             }
         self.configuration = {}
-        self.fileName = kwargs['file']
-        self.filePath = kwargs['path']
         self.mode = 'r'
         for key in self.keys:
             if key in kwargs:
@@ -68,17 +69,10 @@ class Utils():
             else:
                 self.configuration[key] = self.defaults[key]
 
-    def validate(self, ndata):
-        if ndata != [[]]:
-            if ndata[0].any() == [False]:
-                return False
-            return True
-        return True
-
     def open(self):
         if self.configuration['compression']:
             self.mode = 'rb'
-        with open('{0}/{1}'.format(self.filePath, self.fileName), self.mode) as f:
+        with open('{0}/{1}'.format(self.path, self.file), self.mode) as f:
             r = f.read()
             if self.configuration['compression']:
                 r = zlib.decompress(r).decode()
@@ -98,26 +92,32 @@ class Utils():
             results.append(item)
         return results
 
+    def openFile(self):
+        parts = self.open()
+        if parts == [''] or parts == '':
+            return [[False]]
+        results = self.decode(parts)
+        del parts
+        if self.mixed:
+            self.data = {i: results[i] for i in range(len(results))}
+            self.data['headers'] = self.headers
+        else:
+            self.ndata = np.ndarray(
+                (len(results), len(results[0])),
+                buffer=array(results),
+                dtype=np.dtype(int)
+            )
+        return self
+
+
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_open_file(kwargs, ndata, data):
-    U = Utils(kwargs)
-    if not U.validate(ndata): return [[False]]
-    parts = U.open()
-    if parts == [''] or parts == '':
-        return [[False]]
-    results = U.decode(parts)
-    del parts
-    if kwargs['mixed']:
-        data = {i: results[i] for i in range(len(results))}
-    else:
-        ndata.setflags(write=1)
-        ndata = np.ndarray(
-            (len(results), len(results[0])),
-            buffer=array(results),
-            dtype=np.dtype(int)        
-        )
-    return ndata, data
+def task_open_file(kwargs, contents):
+    Task = OpenFile(
+        kwargs['task_open_file'],
+        contents
+    )
+    return Task.openFile().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->
