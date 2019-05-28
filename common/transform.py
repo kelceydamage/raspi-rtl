@@ -50,19 +50,24 @@ class Transform:
 
     @timer
     def run(self):
+        print('StageID: {0}'.format(self.envelope.header[0][0]))
         self.envelope = self.dispatcher.send(self.envelope)
-        print(self.envelope.header)
 
     def validateSchema(self, schema):
-        r = [x for x in ['tasks', 'kwargs', 'data', 'ndata'] if x not in schema.keys()]
+        r = [x for x in ['tasks', 'kwargs', 'contents'] if x not in schema.keys()]
         if len(r) > 0:
             printc('FAIL: missing key: {0} in schema'.format(r), COLOURS.RED)
             exit(1)
         if schema['tasks'] is None or not isinstance(schema['tasks'], list):
             printc('FAIL: missing/malformed task list in schema'.format(r), COLOURS.RED)
             exit(0)
+        r = [x for x in ['data', 'ndata', 'dtypes'] if x not in schema['contents'].keys()]
+        if len(r) > 0:
+            printc('FAIL: missing key: {0} in schema.contents'.format(r), COLOURS.RED)
+            exit(1)
 
     def execute(self):
+        start = time.perf_counter()
         stages = [x for x in dir(self) if 'stage' in x]
         stages.sort()
         for stage in stages:
@@ -75,11 +80,12 @@ class Transform:
                     'completed': [], 
                     'kwargs': schema['kwargs']
                     }, 
-                ndata=schema['ndata'],
-                data=schema['data']
+                contents=schema['contents'],
                 )
             print_stage(stage, schema['tasks'])
             self.run()
+        elapsed = time.perf_counter() - start
+        print('Total Elapsed Time:', elapsed)
         return self.envelope
 
 
