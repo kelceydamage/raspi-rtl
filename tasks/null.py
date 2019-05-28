@@ -29,9 +29,8 @@
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_null(kwargs, ndata, data):
-    return ndata, data
-
+def task_null(kwargs, contents):
+    return contents
 
 # Main
 # ------------------------------------------------------------------------ 79->
