@@ -100,7 +100,7 @@ cdef class Relay:
         self.index_tracker = {}
         self.success = True
         self.pid = os.getpid()
-        with open('var/run/{0}'.format('relay-{0}'.format(self.pid)), 'w+') as f:
+        with open('var/run/{0}'.format('RELAY-{0}'.format(self.pid)), 'w+') as f:
             f.write(str(self.pid))
         context = zmq.Context()
         self.recv_socket = context.socket(zmq.PULL)

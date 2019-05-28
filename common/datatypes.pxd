@@ -28,7 +28,7 @@
 # ------------------------------------------------------------------------ 79->
 
 cimport cython
-from numpy cimport ndarray
+from numpy cimport ndarray, dtype
 from libcpp.string cimport string
 
 # Globals
@@ -47,12 +47,19 @@ cdef class Envelope:
         public bint unseal
         public string sealed_meta
         public string sealed_data
+        public string sealed_dtypes
+        public string sealed_reduces
         public list sealed_buffer
         public list meta_dtypes
+        public list dtypes
+        public dict reduces
 
     # Python accessible API
-    cpdef ndarray result(self)
-    cpdef void pack(self, dict meta, list ndata, dict data)
+    cpdef dict result(self)
+    cpdef dict raw_data(self)
+    cpdef ndarray raw_ndata(self)
+    cpdef list raw_dtypes(self)
+    cpdef void pack(self, dict meta, dict contents)
 
     # CPP/Cython acccessible API
     cdef string create_id(self)
@@ -66,8 +73,11 @@ cdef class Envelope:
     cdef string get_sealed_data(self)
     cdef ndarray get_ndata(self)
     cdef dict get_data(self)
+    cdef list get_dtypes(self)
+    cdef dict get_contents(self)
     cdef void set_data(self, data)
     cdef void set_ndata(self, ndarray data)
+    cdef void set_contents(self, dict contents)
 
 # Functions
 # ------------------------------------------------------------------------ 79->
