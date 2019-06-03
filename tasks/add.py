@@ -17,18 +17,6 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-# Required Args:        'file'
-#                       Name of the file to be opened.
-#
-#                       'path'
-#                       Path to the file to be opened.
-#
-# Optional Args:        'delimiter'
-#                       Value to split the file on. Default is '\n'.
-#
-#                       'compression'
-#                       Boolean to denote zlib compression on file. Default is
-#                       False.
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
@@ -47,8 +35,8 @@ class Add(Task):
     def __init__(self, kwargs, content):
         super(Add, self).__init__(kwargs, content)
         self.ndata.setflags(write=1)
-        newColumns = [
-            ('{0}'.format(o['c']), '<f8')
+        self.newColumns = [
+            ('{0}'.format(o['column']), '<f8')
             for o in self.operations
         ]
         self.addColumns()
@@ -75,3 +63,6 @@ def task_add(kwargs, contents):
         contents
     )
     return Task.add().getContents()
+
+# Main
+# ------------------------------------------------------------------------ 79->

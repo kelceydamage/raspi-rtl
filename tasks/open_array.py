@@ -17,18 +17,6 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-# Required Args:        'file'
-#                       Name of the file to be opened.
-#
-#                       'path'
-#                       Path to the file to be opened.
-#
-# Optional Args:        'delimiter'
-#                       Value to split the file on. Default is '\n'.
-#
-#                       'compression'
-#                       Boolean to denote zlib compression on file. Default is
-#                       False.
 #
 # Imports
 # ------------------------------------------------------------------------ 79->

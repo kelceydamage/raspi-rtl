@@ -17,13 +17,12 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
 import numpy as np
 from common.task import Task
 from common.regression import Models
-#from common.print_helpers import lprint
 
 # Globals
 # ------------------------------------------------------------------------ 79->
@@ -78,7 +77,6 @@ def task_regression(kwargs, contents):
         contents
     )
     return Task.regress().getContents()
-
 
 # Main
 # ------------------------------------------------------------------------ 79->
