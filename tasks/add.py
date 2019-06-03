@@ -47,16 +47,23 @@ class Add(Task):
     def __init__(self, kwargs, content):
         super(Add, self).__init__(kwargs, content)
         self.ndata.setflags(write=1)
+        newColumns = [
+            ('{0}'.format(o['c']), '<f8')
+            for o in self.operations
+        ]
+        self.addColumns()
 
     def add(self):
-        for o in self.operations:
-            newColumns = [('{0}'.format(o['c']), '<f8')]
-            self.addColumns(newColumns)
+        for i in range(len(self.operations)):
+            o = self.operations[i]
             if not isinstance(o['b'], str):
                 b = o['b']
             else:
                 b = self.ndata[o['b']]
-            self.ndata[newColumns[0][0]] = np.add(self.ndata[o['a']], b)
+            self.setColumn(
+                i,
+                np.add(self.ndata[o['a']], b)
+            )
         return self
 
 
