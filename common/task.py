@@ -62,16 +62,10 @@ class Task():
             newrecarray[name] = self.ndata[name]
         self.ndata = newrecarray
 
-    def getLSpace(self, space, x=None, y=None):
+    def getLSpace(self, space, x=None):
         if space == 'log':
-            self.lSpace = np.logspace(
-                0.1, 5.2, 105, endpoint=True).reshape(-1, 1)
+            self.lSpace = np.logspace(0.001, 1, x.shape[0], endpoint=True).reshape(-1, 1)
         elif space == 'linear':
-            self.lSpace = np.linspace(
-                1, 
-                max(x),
-                len(y)
-            ).reshape(-1, 1)
+            self.lSpace = np.linspace(0, max(x), x.shape[0]).reshape(-1, 1)
         else:
-            print(x)
-            self.lSpace = np.sort(x, axis=0)
+            self.lSpace = np.sort(x, axis=0).reshape(-1, 1)
