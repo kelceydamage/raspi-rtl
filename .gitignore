@@ -9,7 +9,7 @@ var/security
 ./build/*
 build/*
 build/
-*,cover
+*.cover
 htmlcov
 .coverage
 .pytest_cache
@@ -24,5 +24,6 @@ var/run/*
 raw_data/
 raw_data/*
 test.py
+dsdsl/custom_*
 ~
 
