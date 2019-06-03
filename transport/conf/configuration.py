@@ -65,7 +65,7 @@ CHUNKING                = True      # Chunking determines if and how much the
                                     # RESPONSE_TIME and CHUNKING should be
                                     # balanced to get an Optimal throughput
                                     # and worker load balance.
-CHUNKING_SIZE           = 10000
+CHUNKING_SIZE           = 1000000
 
 # Cache
 CACHE_LISTEN            = '0.0.0.0'
