@@ -48,9 +48,9 @@ class Sort(Task):
 
     def sort(self):
         self.ndata.sort(
-            axis=0,
+            axis=self.axis,
             kind=self.method,
-            order='time'
+            order=self.column
         )
         return self
 
