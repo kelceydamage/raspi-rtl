@@ -40,18 +40,20 @@ from common.task import Task
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Multiply(Task):
+class Add(Task):
+
+    # IM PROG
 
     def __init__(self, kwargs, content):
-        super(Multiply, self).__init__(kwargs, content)
+        super(Add, self).__init__(kwargs, content)
         self.ndata.setflags(write=1)
-        self.newColumns = [
-            ('{0}'.format(o['column']), '<f8') 
+        newColumns = [
+            ('{0}'.format(o['c']), '<f8')
             for o in self.operations
         ]
         self.addColumns()
 
-    def multiply(self):
+    def add(self):
         for i in range(len(self.operations)):
             o = self.operations[i]
             if not isinstance(o['b'], str):
@@ -60,16 +62,16 @@ class Multiply(Task):
                 b = self.ndata[o['b']]
             self.setColumn(
                 i,
-                np.multiply(self.ndata[o['a']], b)
+                np.add(self.ndata[o['a']], b)
             )
         return self
 
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_multiply(kwargs, contents):
-    Task = Multiply(
-        kwargs['task_multiply'],
+def task_add(kwargs, contents):
+    Task = Add(
+        kwargs['task_add'],
         contents
     )
-    return Task.multiply().getContents()
+    return Task.add().getContents()

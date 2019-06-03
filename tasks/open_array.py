@@ -32,7 +32,11 @@
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
+
 import numpy as np
+import ast
+from base64 import b64decode
+import re
 from common.task import Task
 
 # Globals
@@ -40,36 +44,43 @@ from common.task import Task
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Multiply(Task):
+class OpenArray(Task):
 
     def __init__(self, kwargs, content):
-        super(Multiply, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
-        self.newColumns = [
-            ('{0}'.format(o['column']), '<f8') 
-            for o in self.operations
-        ]
-        self.addColumns()
+        super(OpenArray, self).__init__(kwargs, content)
+        self.file = "{0}/{1}".format(self.path, self.filename)
 
-    def multiply(self):
-        for i in range(len(self.operations)):
-            o = self.operations[i]
-            if not isinstance(o['b'], str):
-                b = o['b']
-            else:
-                b = self.ndata[o['b']]
-            self.setColumn(
-                i,
-                np.multiply(self.ndata[o['a']], b)
+    def decodeMeta(self, m):
+        s = b64decode(m).decode('utf-8')
+        d1 = re.compile('<@')
+        d2 = re.compile('@>')
+        s = d1.sub('(', s)
+        s = d2.sub(')', s)
+        self.dtypes = ast.literal_eval(s)
+
+    def openMeta(self):
+        with open('{0}.meta'.format(self.file), 'rb') as f:
+            self.decodeMeta(f.read())
+
+    def openArray(self):
+        self.openMeta()
+        self.ndata = np.loadtxt(
+            "{0}/{1}.{2}".format(self.path, self.filename, self.extension), 
+            delimiter=self.delimiter,
+            dtype=self.dtypes
             )
         return self
 
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_multiply(kwargs, contents):
-    Task = Multiply(
-        kwargs['task_multiply'],
+def task_open_array(kwargs, contents):
+    print(kwargs)
+    Task = OpenArray(
+        kwargs['task_open_array'],
         contents
     )
-    return Task.multiply().getContents()
+    return Task.openArray().getContents()
+
+# Main
+# ------------------------------------------------------------------------ 79->

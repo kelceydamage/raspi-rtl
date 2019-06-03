@@ -17,54 +17,59 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-# Required Args:        'file'
-#                       Name of the file to be opened.
-#
-#                       'path'
-#                       Path to the file to be opened.
-#
-# Optional Args:        'delimiter'
-#                       Value to split the file on. Default is '\n'.
-#
-#                       'compression'
-#                       Boolean to denote zlib compression on file. Default is
-#                       False.
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
 import numpy as np
-from common.task import Task
+from sklearn.linear_model import LinearRegression
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Average(Task):
+class Linear():
 
-    def __init__(self, kwargs, content):
-        super(Average, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
-        self.newColumns = [
-            ('{0}'.format(o['column']), '<f8')
-            for o in self.operations
-        ]
-        self.addColumns()
+    def __init__(self, x, y, lSpace=None, args=None):
+        self.x = x.reshape(-1, 1)
+        self.y = y
+        self.lSpace = lSpace
+        self.regress()
 
-    def average(self):
-        for i in range(len(self.operations)):
-            o = self.operations[i]
-            avg = np.mean(self.ndata[o['a']])
-            print('AVG', avg)
-            self.ndata[self.newColumns[0][0]].fill(avg)
-        return self
+    def regress(self):
+        self.model = LinearRegression().fit(self.x, self.y)
+        self.m = self.model.coef_[0]
+        self.c = self.model.intercept_
+        self.r = self.model.score(self.x, self.y)
+        if self.lSpace is None:
+            self.lSpace = np.sort(self.x, axis=0)
+        print(self.lSpace)
+        self.prediction = self.model.predict(self.lSpace)
+
+class Poly():
+
+    def __init__(self, x, y, lSpace=None, args=None):
+        self.x = x
+        self.y = y
+        self.lSpace = lSpace
+        self.d = args
+        self.regress()
+
+    def regress(self):
+        self.m = np.polyfit(self.x, self.y, self.d)
+        self.c = None
+        self.r = None
+        f = np.poly1d(self.m)
+        if self.lSpace is None:
+            self.lSpace = np.sort(self.x, axis=0)
+        print(self.lSpace)
+        self.prediction = f(self.lSpace).reshape(-1)
+
+
+class Models():
+    Linear = Linear
+    Poly = Poly
 
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_average(kwargs, contents):
-    Task = Average(
-        kwargs['task_average'],
-        contents
-    )
-    return Task.average().getContents()

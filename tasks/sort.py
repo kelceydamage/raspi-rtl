@@ -17,27 +17,49 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-
+# Required Args:        'file'
+#                       Name of the file to be opened.
+#
+#                       'path'
+#                       Path to the file to be opened.
+#
+# Optional Args:        'delimiter'
+#                       Value to split the file on. Default is '\n'.
+#
+#                       'compression'
+#                       Boolean to denote zlib compression on file. Default is
+#                       False.
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
+import numpy as np
+from common.task import Task
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
+class Sort(Task):
+
+    def __init__(self, kwargs, content):
+        super(Sort, self).__init__(kwargs, content)
+        self.ndata.setflags(write=1)
+
+    def sort(self):
+        self.ndata.sort(
+            axis=self.axis,
+            kind=self.method,
+            order=self.column
+        )
+        return self
+
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-
-
-def task_sum(kwargs):
-    results = []
-    # Fastest way to do this while maintaining the data structure.
-    while kwargs['data']:
-        results.append([sum(kwargs['data'].pop())])
-    return results
-
-
-# Main
-# ------------------------------------------------------------------------ 79->
+def task_sort(kwargs, contents):
+    Task = Sort(
+        kwargs['task_sort'], 
+        contents
+    )
+    return Task.sort().getContents()

@@ -37,39 +37,71 @@ from common.task import Task
 
 # Globals
 # ------------------------------------------------------------------------ 79->
+# filter
+# aggregate
+# 
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Multiply(Task):
+class ClassifyStatic(Task):
 
     def __init__(self, kwargs, content):
-        super(Multiply, self).__init__(kwargs, content)
+        super(ClassifyStatic, self).__init__(kwargs, content)
         self.ndata.setflags(write=1)
         self.newColumns = [
-            ('{0}'.format(o['column']), '<f8') 
+            ('{0}Class'.format(o['column']), '<i8')
+            for o in self.operations
+        ]
+        self.newColumns += [
+            ('{0}ClassCount'.format(o['column']), '<i8')
             for o in self.operations
         ]
         self.addColumns()
 
-    def multiply(self):
+    def formKey(self, keys):
+        return '-'.join([str(k) for k in keys])
+
+    def createClasses(self, combinations, counts):
+        classes = {}
+        for i in range(len(combinations)):
+            classes[self.formKey(combinations[i])] = (i, counts[i])
+        return classes
+
+    def applyClass(self, _classes, keys):
+        classes = []
+        counts = []
+        for i in self.ndata:
+            key = self.formKey(i[keys])
+            classes.append(_classes[key][0])
+            counts.append(_classes[key][1])
+        return classes, counts
+
+    def classifyStatic(self):
         for i in range(len(self.operations)):
             o = self.operations[i]
-            if not isinstance(o['b'], str):
-                b = o['b']
-            else:
-                b = self.ndata[o['b']]
+            unique, counts = np.unique(
+                self.ndata[o['a']],
+                return_counts=True,
+                axis=0
+                )
+            _classes = self.createClasses(unique, counts)
+            classes, counts = self.applyClass(_classes, o['a'])
             self.setColumn(
                 i,
-                np.multiply(self.ndata[o['a']], b)
+                classes
             )
-        return self
-
+            self.setColumn(
+                i + len(self.operations),
+                counts
+            )
+            return self
+    
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_multiply(kwargs, contents):
-    Task = Multiply(
-        kwargs['task_multiply'],
+def task_classify_static(kwargs, contents):
+    Task = ClassifyStatic(
+        kwargs['task_classify_static'],
         contents
     )
-    return Task.multiply().getContents()
+    return Task.classifyStatic().getContents()

@@ -28,55 +28,26 @@ os.sys.path.append(
             )
         )
     )
-from transport.dispatch import Cache
-from common.datatypes import Tools
-from transport.conf.configuration import CACHE_PATH
+from common.print_helpers import printc, Colours
+import time
 
-# Globals
 # ------------------------------------------------------------------------ 79->
-HEADER = Tools.create_id()  # pragma: no cover
-CACHE = Cache()  # pragma: no cover
+COLOURS = Colours()
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-
+  
 # Functions
 # ------------------------------------------------------------------------ 79->
-def test_cache_status():  # pragma: no cover
-    print('TEST: (status)')
-    r = CACHE.send('status')[1]
-    print(r)
-
-
-def test_cache_info():  # pragma: no cover
-    print('TEST: (info)')
-    r = CACHE.send('info')[1]
-    print(r)
-
-
-def test_cache_stale():  # pragma: no cover
-    print('TEST: (stale)')
-    r = CACHE.send('stale_readers')[1]
-    print(r)
-
-
-def test_cache_readers():  # pragma: no cover
-    print('TEST: (path)')
-    r = CACHE.send('path')[1]
-    print(r)
-
-
-def test_cache_locks():  # pragma: no cover
-    print('TEST: (locks)')
-    r = CACHE.send('locks')[1]
-    print(r)
+def timer(f):
+    def _timer(self):
+        start_time = time.perf_counter()
+        r = f(self)
+        end_time = time.perf_counter()
+        printc('JOB COMPLETED: {0}s'.format(end_time - start_time), COLOURS.GREEN)
+        return r
+    return _timer
 
 
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':  # pragma: no cover
-    test_cache_status()
-    test_cache_info()
-    test_cache_stale()
-    test_cache_readers()
-    test_cache_locks()

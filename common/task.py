@@ -33,43 +33,39 @@
 # Imports
 # ------------------------------------------------------------------------ 79->
 import numpy as np
-from common.task import Task
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Multiply(Task):
+class Task():
 
-    def __init__(self, kwargs, content):
-        super(Multiply, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
-        self.newColumns = [
-            ('{0}'.format(o['column']), '<f8') 
-            for o in self.operations
-        ]
-        self.addColumns()
+    def __init__(self, kwargs, contents):
+        for item in kwargs.keys():
+            setattr(self, item, kwargs[item])
+        for item in contents.keys():
+            setattr(self, item, contents[item])
 
-    def multiply(self):
-        for i in range(len(self.operations)):
-            o = self.operations[i]
-            if not isinstance(o['b'], str):
-                b = o['b']
-            else:
-                b = self.ndata[o['b']]
-            self.setColumn(
-                i,
-                np.multiply(self.ndata[o['a']], b)
-            )
-        return self
+    def getContents(self):
+        return {
+            'ndata': self.ndata,
+            'data': self.data,
+            'reduces': self.reduces,
+            'dtypes': self.dtypes
+        }
 
+    def addColumns(self, newColumns):
+        self.dtypes = self.dtypes + newColumns
+        newrecarray = np.zeros(len(self.ndata), dtype = self.dtypes)
+        for name in self.ndata.dtype.names:
+            newrecarray[name] = self.ndata[name]
+        self.ndata = newrecarray
 
-# Functions
-# ------------------------------------------------------------------------ 79->
-def task_multiply(kwargs, contents):
-    Task = Multiply(
-        kwargs['task_multiply'],
-        contents
-    )
-    return Task.multiply().getContents()
+    def getLSpace(self, space, x=None):
+        if space == 'log':
+            self.lSpace = np.logspace(0.001, 1, x.shape[0], endpoint=True).reshape(-1, 1)
+        elif space == 'linear':
+            self.lSpace = np.linspace(0, max(x), x.shape[0]).reshape(-1, 1)
+        else:
+            self.lSpace = np.sort(x, axis=0).reshape(-1, 1)

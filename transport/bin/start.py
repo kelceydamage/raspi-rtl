@@ -31,7 +31,7 @@ import time
 from multiprocessing import Process
 os.sys.path.append('{0}{1}'.format(os.getcwd().split('rtl')[0], 'rtl'))
 from transport.registry import load_tasks
-from transport.node import TaskNode, CacheNode
+from transport.node import TaskNode, CacheNode, PlotNode
 from transport.relay import Relay
 from transport.conf.configuration import *
 from common.print_helpers import Logger, Colours
@@ -44,7 +44,8 @@ LOG = Logger(LOG_LEVEL)
 NODES = {
     0: Relay,
     1: TaskNode,
-    2: CacheNode
+    2: CacheNode,
+    3: PlotNode
 }
 
 # Parser
@@ -68,6 +69,12 @@ group_2.add_argument(
     "--cache",
     dest="cache",
     help="Specify number of cachenodes to start"
+    )
+group_2.add_argument(
+    '-p',
+    "--plot",
+    dest="plot",
+    help="Specify number of plotnodes to start"
     )
 group_3 = parser.add_argument_group('Extras')
 group_3.add_argument(
@@ -136,14 +143,29 @@ def select_value(arg=None, conf=0):
 def launcher(args, functions):
     success = False
     if validate(args.relay):
-        start_node(0, select_value(args.relay, 1))
-        success = True
+        try:
+            start_node(0, select_value(args.relay, 1))
+            success = True
+        except Exception as e:
+            print(e)
     if validate(args.task):
-        start_node(1, select_value(args.task, TASK_WORKERS), functions)
-        success = True
+        try:
+            start_node(1, select_value(args.task, TASK_WORKERS), functions)
+            success = True
+        except Exception as e:
+            print(e)
     if validate(args.cache):
-        start_node(2, select_value(args.cache, CACHE_WORKERS))
-        success = True
+        try:
+            start_node(2, select_value(args.cache, CACHE_WORKERS))
+            success = True
+        except Exception as e:
+            print(e)
+    if validate(args.plot):
+        try:
+            start_node(3, select_value(args.plot, PLOT_WORKERS))
+            success = True
+        except Exception as e:
+            print(e)
     return success
 
 

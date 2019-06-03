@@ -17,26 +17,46 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-
+# Required Args:        'file'
+#                       Name of the file to be opened.
+#
+#                       'path'
+#                       Path to the file to be opened.
+#
+# Optional Args:        'delimiter'
+#                       Value to split the file on. Default is '\n'.
+#
+#                       'compression'
+#                       Boolean to denote zlib compression on file. Default is
+#                       False.
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
+import numpy as np
+from common.task import Task
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
+class Difference(Task):
+
+    def __init__(self, kwargs, content):
+        super(Difference, self).__init__(kwargs, content)
+        self.ndata.setflags(write=1)
+
+    def difference(self):
+        for o in self.operations:
+            pass
+        return self
+
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-
-
-def task_split(kwargs):
-    results = []
-    for item in kwargs['data']:
-        results.append(item.split(kwargs['delimiter']))
-    return results
-
-
-# Main
-# ------------------------------------------------------------------------ 79->
+def task_difference(kwargs, contents):
+    Task = Average(
+        kwargs['task_difference'],
+        contents
+    )
+    return Task.difference().getContents()

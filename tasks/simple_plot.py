@@ -20,64 +20,60 @@
 
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-os.sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.abspath(__file__)
-            )
-        )
-    )
-import zmq
-from transport.dispatch import Dispatcher
-from common import datatypes
-from common.print_helpers import printc, Colours
-from transport.cache import Cache
-import time
 import numpy as np
-import cbor
-import io
+from common.task import Task
+from web.plot import PLOT_QUEUE
+
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-COLOURS = Colours()
-COUNT = 5
+
 
 # Classes
 # ------------------------------------------------------------------------ 79->
+class Plot(Task):
+
+    def __init__(self, kwargs, contents):
+        super(Plot, self).__init__(kwargs, contents)
+        self.queue = PLOT_QUEUE
+
+    def getSeries(self, series):
+        if series is None:
+            return None
+        return self.ndata[series].tolist()
+
+    def plot(self):
+        for plot in self.plots.keys():
+            draws = []
+            for draw in self.plots[plot]:
+                draws.append(
+                    {
+                        'type': draw['type'], 
+                        'x': self.ndata[draw['x']].tolist(), 
+                        'y': self.ndata[draw['y']].tolist(),
+                        'series': self.getSeries(draw['series'])
+                    }
+                )
+            self.queue.put({
+                'name': plot,
+                'draws': draws,
+                'xAxis': self.plots[plot][0]['x'],
+                'yAxis': self.plots[plot][0]['y'],
+                'scale': self.plots[plot][0]['scale']
+            })
+        return self
 
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+def task_simple_plot(kwargs, contents):
+    Task = Plot(
+        kwargs['task_simple_plot'],
+        contents
+    )
+    return Task.plot().getContents()
+    
+
 
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':
-    loop = COUNT
-
-    dispatcher = Dispatcher()
-
-    envelope = datatypes.Envelope(cached=False)
-
-    tasks = ['task_multiply', 'task_multiply', 'task_multiply', 'task_multiply']
-
-    data = [[1.0, 2.0, 3.0] for i in range(loop)]
-
-    envelope.pack(meta={'tasks': tasks, 'completed': [], 'kwargs': {}}, data=data)
-
-    print('Start Job')
-
-    #print(envelope.result())
-
-    t4 = time.perf_counter()
-    envelope = dispatcher.send(envelope)
-
-    printc('JOB COMPLETED: {0}s'.format(time.perf_counter() - t4), COLOURS.GREEN)
-
-
-    print(envelope.header)
-    print('-'*79)
-
-    print('JOB', envelope.result()[:10])
-    print(envelope.header)
-

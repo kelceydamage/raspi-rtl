@@ -10,6 +10,24 @@
 * [dependancies](https://github.com/kelceydamage/rtl/blob/master/DEPENDANCIES.md)
 * [development](https://github.com/kelceydamage/rtl/blob/master/DEVELOPMENT.md)
 
+# Included Tasks
+* add
+* average
+* cross average
+* static classifier
+* column space
+* divide
+* filter
+* multiply
+* normalize
+* open
+* array open
+* regression
+* plot
+* sort
+* subtract
+* array write
+
 ## Communication Diagram
 
 ![logo](https://github.com/kelceydamage/rtl/blob/master/docs/msg-diag.png?raw=true)
@@ -27,6 +45,8 @@ The cachenode was originally designed to store repetitive REST queries to extern
 
 ## Usage
 
+#### RTL Platform
+
 To start the service:
 ```
 ./transport/bin/init.sh start
@@ -38,6 +58,35 @@ To stop the service:
 ```
 
 There are also `status` and `restart` commands.
+
+#### Sample Job Run
+```python
+-------------------------------------------------------------------------------
+Running Stage: [1]
+* task_open_file
+* task_custom_convert_to_numeric
+JOB COMPLETED: 0.04718806396704167s
+-------------------------------------------------------------------------------
+Running Stage: [2]
+* task_end
+JOB COMPLETED: 0.004064688924700022s
+[(b'd9cc2ba0-5d56-498f-8ae1-3cb2dd46ae87', 0, 1033, 9)]
+-------------------------------------------------------------------------------
+[[                  0          1557331619                   1 ...
+                  201                 505                  55]
+ [                  1          1557330853                   1 ...
+                  785               12221                 262]
+ [                  2          1557330687                   2 ...
+                  543                3647                   5]
+ ...
+ [               1030          1557256349                   1 ...
+                 2586               17974                  33]
+ [               1031          1557255192                   5 ...
+                   39                  63                   3]
+ [3546410301743260984 3471493771197290616 4195157290668535093 ...
+  3776322582150998898 7004280740711444790 4050261328960709428]]
+[(b'd9cc2ba0-5d56-498f-8ae1-3cb2dd46ae87', 0, 1033, 9)]
+```
 
 ## Ports
 
@@ -85,7 +134,7 @@ from common.datatypes import Envelope
 envelope = Envelope()
 
 # Determine pipeline
-tasks = ['task_multiply', 'task_multiply', 'task_multiply', 'task_multiply']
+tasks = ['task_multiply', 'task_multiply']
 
 # Create meta
 meta={'tasks': tasks, 'completed': [], 'kwargs': {}}
@@ -94,7 +143,7 @@ meta={'tasks': tasks, 'completed': [], 'kwargs': {}}
 data = [[1.0, 2.0, 3.0] for i in range(500000)]
 
 # Pack the envelope
-envelope.pack(meta, data)
+envelope.pack(meta=meta, ndata=data)
 ```
 
 ## Using The Client
@@ -105,6 +154,13 @@ from transport.dispatch import Dispatcher
 
 # Dispatch envelope
 envelope = dispatcher.send(envelope)
+```
+
+## Getting The Result
+
+```python
+# Result is an ndarray
+_ndarray = envelope.result()
 ```
 
 ## Code Performance Numbers (Incl Sum Task)

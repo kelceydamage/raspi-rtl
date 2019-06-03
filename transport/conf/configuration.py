@@ -33,6 +33,8 @@ STARTING_PORT           = 10000
 TASK_WORKERS            = 3         # Worker processes per node (per physical
                                     # server)
 CACHE_WORKERS           = 1
+PLOT_WORKERS            = 1
+PLOT_LISTEN             = 5006
 RESPONSE_TIME           = 0.005     # Controls the rate at which tasks are sent
                                     # to the workers,
                                     # and in doing so, the size of the queue.
@@ -63,7 +65,7 @@ CHUNKING                = True      # Chunking determines if and how much the
                                     # RESPONSE_TIME and CHUNKING should be
                                     # balanced to get an Optimal throughput
                                     # and worker load balance.
-CHUNKING_SIZE           = 5000
+CHUNKING_SIZE           = 1000000
 
 # Cache
 CACHE_LISTEN            = '0.0.0.0'

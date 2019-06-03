@@ -40,36 +40,37 @@ from common.task import Task
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Multiply(Task):
+class CrossAverage(Task):
 
     def __init__(self, kwargs, content):
-        super(Multiply, self).__init__(kwargs, content)
+        super(CrossAverage, self).__init__(kwargs, content)
         self.ndata.setflags(write=1)
         self.newColumns = [
-            ('{0}'.format(o['column']), '<f8') 
+            ('{0}'.format(o['column']), '<f8')
             for o in self.operations
         ]
         self.addColumns()
 
-    def multiply(self):
+    def crossAverage(self):
         for i in range(len(self.operations)):
             o = self.operations[i]
-            if not isinstance(o['b'], str):
-                b = o['b']
-            else:
-                b = self.ndata[o['b']]
+            dtypes = [x for x in self.dtypes if x[0] in o['columns']]
+            tempData = np.zeros(self.ndata.shape, dtypes)
+            for j in range(len(dtypes)):
+                tempData[dtypes[j][0]] = self.ndata[dtypes[j][0]]
+            
             self.setColumn(
                 i,
-                np.multiply(self.ndata[o['a']], b)
+                np.mean(np.array(tempData.tolist()), axis=1)
             )
         return self
 
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_multiply(kwargs, contents):
-    Task = Multiply(
-        kwargs['task_multiply'],
+def task_average_cross(kwargs, contents):
+    Task = CrossAverage(
+        kwargs['task_average_cross'],
         contents
     )
-    return Task.multiply().getContents()
+    return Task.crossAverage().getContents()

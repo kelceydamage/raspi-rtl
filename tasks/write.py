@@ -32,7 +32,11 @@
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
+
 import numpy as np
+from base64 import b64encode, b64decode
+import re
+import ujson as json
 from common.task import Task
 
 # Globals
@@ -40,36 +44,55 @@ from common.task import Task
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Multiply(Task):
+class Write(Task):
 
     def __init__(self, kwargs, content):
-        super(Multiply, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
-        self.newColumns = [
-            ('{0}'.format(o['column']), '<f8') 
-            for o in self.operations
-        ]
-        self.addColumns()
+        super(Write, self).__init__(kwargs, content)
+        self.file = "{0}/{1}".format(self.path, self.filename)
 
-    def multiply(self):
-        for i in range(len(self.operations)):
-            o = self.operations[i]
-            if not isinstance(o['b'], str):
-                b = o['b']
-            else:
-                b = self.ndata[o['b']]
-            self.setColumn(
-                i,
-                np.multiply(self.ndata[o['a']], b)
+    def formatColumns(self):
+        types = [x[1] for x in self.dtypes]
+        fmt = []
+        for x in types:
+            if x == '<i8':
+                fmt.append('%i')
+            if x == '<f8>':
+                fmt.append('%f')
+        return ','.join(fmt)
+
+    def encodeMeta(self):
+        s = str(self.dtypes)
+        p1 = re.compile('\)')
+        p2 = re.compile('\(')
+        s = p1.sub('@>', s)
+        s = p2.sub('<@', s)
+        b = b64encode(s.encode('utf-8'))
+        return b64encode(s.encode('utf-8'))
+
+    def writeMeta(self):
+        with open('{0}.meta'.format(self.file), 'wb') as f:
+            f.write(self.encodeMeta())
+
+    def write(self):
+        fmt = self.formatColumns()
+        np.savetxt(
+            "{0}.{1}".format(self.file, self.extension), 
+            self.ndata,
+            delimiter=self.delimiter,
+            fmt=fmt
             )
+        self.writeMeta()
         return self
 
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_multiply(kwargs, contents):
-    Task = Multiply(
-        kwargs['task_multiply'],
+def task_write(kwargs, contents):
+    Task = Write(
+        kwargs['task_write'],
         contents
     )
-    return Task.multiply().getContents()
+    return Task.write().getContents()
+
+# Main
+# ------------------------------------------------------------------------ 79->

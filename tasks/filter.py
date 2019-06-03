@@ -32,73 +32,44 @@
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
-
-import zlib
-import ast
-import ujson as json
+import numpy as np
+from common.task import Task
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
+class Filter(Task):
+
+    def __init__(self, kwargs, content):
+        super(Filter, self).__init__(kwargs, content)
+        self.ndata.setflags(write=1)
+
+    def filter(self):
+        print('FILTER', self.ndata.dtype)
+        for o in self.operations:
+            if o['method'] == 'eq':
+                self.ndata = np.extract(self.ndata[o['column']]==o['value'], self.ndata)
+            elif o['method'] == 'ne':
+                self.ndata = np.extract(self.ndata[o['column']]!=o['value'], self.ndata)
+            elif o['method'] == 'le':
+                self.ndata = np.extract(self.ndata[o['column']]>=o['value'], self.ndata)
+            elif o['method'] == 'ge':
+                self.ndata = np.extract(self.ndata[o['column']]<=o['value'], self.ndata)
+            elif o['method'] == 'lt':
+                self.ndata = np.extract(self.ndata[o['column']]>o['value'], self.ndata)
+            elif o['method'] == 'gt':
+                self.ndata = np.extract(self.ndata[o['column']]<o['value'], self.ndata)
+            print('=> Filtered Results: {0}'.format(self.ndata.shape))
+        return self
+    
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-
-
-def configure(kwargs):
-    keys = ['compression', 'delimiter', 'encoding']
-    defaults = {'compression': False, 'delimiter': '\n', 'encoding': False}
-    params = []
-    for key in keys:
-        if key in kwargs['kwargs']:
-            params.append(kwargs['kwargs'][key])
-        else:
-            params.append(defaults[key])
-    return params
-
-
-def _open(compression, file_path, file_name):
-    mode = 'r'
-    if compression:
-        mode = 'rb'
-    with open('{0}/{1}'.format(file_path, file_name), mode) as f:
-        r = f.read()
-        if compression:
-            r = zlib.decompress(r).decode()
-    return r
-
-
-def decode(parts, encoding):
-    results = []
-    while parts:
-        item = parts.pop().strip('\n')
-        if item == '':
-            continue
-        if encoding:
-            item = json.loads(item.rstrip())
-        else:
-            item = item.rstrip()
-        results.append(item)
-    return results
-
-
-def task_open_file(kwargs):
-    if kwargs['data'] != []:
-        if kwargs['data'] == [False]:
-            return [False]
-    compression, delimiter, encoding = configure(kwargs)
-    file_name = kwargs['kwargs']['file']
-    file_path = kwargs['kwargs']['path']
-    mode = 'r'
-    r = _open(compression, file_path, file_name)
-    parts = r.replace('][', ']\n[').split(delimiter)
-    if parts == [''] or parts == '':
-        return [False]
-    results = decode(parts, encoding)
-    del parts
-    return results
-
-# Main
-# ------------------------------------------------------------------------ 79->
+def task_filter(kwargs, contents):
+    Task = Filter(
+        kwargs['task_filter'],
+        contents
+    )
+    return Task.filter().getContents()

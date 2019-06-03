@@ -36,6 +36,7 @@
 import zmq
 import lmdb
 from os import getpid
+from bokeh.server.server import Server
 from tasks import *
 from numpy import frombuffer
 from subprocess import check_output
@@ -48,6 +49,9 @@ from transport.conf.configuration import RELAY_SEND
 from transport.conf.configuration import RELAY_RECV
 from transport.conf.configuration import CACHE_LISTEN
 from transport.conf.configuration import CACHE_RECV
+from transport.conf.configuration import PLOT_LISTEN
+
+from web.plot import modify_doc
 
 # Cython imports
 cimport cython
@@ -71,7 +75,7 @@ cdef class Node:
     DESCRIPTION:    Base class for transport nodes.
 
     METHODS:        .recv()
-                    Receive sealed envelop from relay and returns an Envelope()
+                    Receive sealed envelope from relay and returns an Envelope()
                     object.
 
                     .send(envelope)
@@ -131,16 +135,11 @@ cdef class TaskNode(Node):
 
     cpdef void run(self):
         cdef:
-            ndarray r
+            dict contents = self.envelope.get_contents()
             str func = self.functions[self.envelope.meta['tasks'][0]]
             Exception msg
-
-        r = frombuffer(self.envelope.data).reshape(
-            self.envelope.get_length(), 
-            self.envelope.get_shape()
-            )
         try:
-            r = eval(func)(self.envelope.meta['kwargs'], r)
+            contents = eval(func)(self.envelope.meta['kwargs'], contents)
         except Exception as e:
             msg = Exception(
                 'TASK-EVAL: {0}, {1}'.format(
@@ -151,7 +150,36 @@ cdef class TaskNode(Node):
             raise msg
         else:
             self.envelope.consume()
-        self.envelope.set_data(r)
+        self.envelope.set_contents(contents)
+
+
+cdef class PlotNode(Node):
+    """
+    NAME:           PlotNode
+
+    DESCRIPTION:    A node running a bokeh server
+
+    METHODS:        
+    """
+
+    def __init__(self, docs=''):
+        super(PlotNode, self).__init__()
+        self.header = 'PLOT-{0}'.format(self.pid).encode()
+        self.server = Server({'/': modify_doc}, num_procs=1, port=PLOT_LISTEN)
+        with open('var/run/{0}'.format(self.header.decode()), 'w+') as f:
+            f.write(str(self.pid))
+
+    cpdef void start(self):
+        self.server.io_loop.add_callback(self.server.show, "/")
+        self.server.io_loop.start()
+        try:
+            self.server.start()
+        except Exception as e:
+            msg = Exception(
+                'PLOT-ERROR: {0}'.format(e)
+                )
+            print(msg)
+            raise msg
 
 
 cdef class CacheNode(Node):

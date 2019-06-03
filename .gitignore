@@ -21,5 +21,8 @@ jobs/custom*
 tasks/custom*
 *.list
 var/run/*
+raw_data/
+raw_data/*
+test.py
 ~
 

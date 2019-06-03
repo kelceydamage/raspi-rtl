@@ -205,5 +205,16 @@ cpdef printc(message, colour):
     endc = '\033[m'
     print('{0}{1}{2}'.format(colour, message, endc))
 
+
+cpdef print_stage(id, tasks):
+    cdef:
+        long length = len(tasks)
+        object C = Colours()
+
+    print('-' * 79)
+    printc('Running Stage: [{0}]'.format(id), C.PURPLE)
+    for i in range(length):
+        printc('* {0}'.format(tasks[i]), C.LIGHTBLUE)
+
 # Main
 # ------------------------------------------------------------------------ 79->

@@ -100,7 +100,7 @@ cdef class Relay:
         self.index_tracker = {}
         self.success = True
         self.pid = os.getpid()
-        with open('var/run/{0}'.format('relay-{0}'.format(self.pid)), 'w+') as f:
+        with open('var/run/{0}'.format('RELAY-{0}'.format(self.pid)), 'w+') as f:
             f.write(str(self.pid))
         context = zmq.Context()
         self.recv_socket = context.socket(zmq.PULL)
@@ -147,13 +147,13 @@ cdef class Relay:
             long count = self.retrieve_state(h)
 
         if self.success:
-            self.chunk_holder = self.envelope.get_data()
+            self.chunk_holder = self.envelope.get_ndata()
             length = <long>len(self.chunk_holder)
             for i in range(length):
                 self.assembly_buffer[h][self.index_tracker[h] + i] = self.chunk_holder[i]
             self.index_tracker[h] += length
             if count == 0:
-                self.envelope.set_data(self.assembly_buffer[h])
+                self.envelope.set_ndata(self.assembly_buffer[h])
                 self.publish()
                 del self.index_tracker[h]
                 del self.assembly_buffer[h]
@@ -174,7 +174,7 @@ cdef class Relay:
             self.send()
         else:
             self.chunk_buffer = array_split(
-                self.envelope.get_data(), 
+                self.envelope.get_ndata(), 
                 groups, 
                 axis=0
                 )
@@ -184,7 +184,7 @@ cdef class Relay:
                 )
             self.index_tracker[h] = 0
             for i in range(groups):
-                self.envelope.set_data(self.chunk_buffer[i])
+                self.envelope.set_ndata(self.chunk_buffer[i])
                 self.create_state(h, length)
                 self.send()
         return 0

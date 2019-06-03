@@ -69,6 +69,14 @@ cdef class TaskNode(Node):
     cpdef void run(self)
 
 
+cdef class PlotNode(Node):
+    cdef:
+        public object server
+
+    # Python acccessible API
+    cpdef void start(self)
+
+
 cdef class CacheNode(Node):
     cdef:
         public object recv_socket

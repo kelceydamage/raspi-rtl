@@ -40,18 +40,18 @@ from common.task import Task
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Multiply(Task):
+class Divide(Task):
 
     def __init__(self, kwargs, content):
-        super(Multiply, self).__init__(kwargs, content)
+        super(Divide, self).__init__(kwargs, content)
         self.ndata.setflags(write=1)
         self.newColumns = [
-            ('{0}'.format(o['column']), '<f8') 
+            ('{0}'.format(o['column']), '<f8')
             for o in self.operations
         ]
         self.addColumns()
 
-    def multiply(self):
+    def divide(self):
         for i in range(len(self.operations)):
             o = self.operations[i]
             if not isinstance(o['b'], str):
@@ -60,16 +60,16 @@ class Multiply(Task):
                 b = self.ndata[o['b']]
             self.setColumn(
                 i,
-                np.multiply(self.ndata[o['a']], b)
+                np.divide(self.ndata[o['a']], b)
             )
         return self
 
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_multiply(kwargs, contents):
-    Task = Multiply(
-        kwargs['task_multiply'],
+def task_divide(kwargs, contents):
+    Task = Divide(
+        kwargs['task_divide'],
         contents
     )
-    return Task.multiply().getContents()
+    return Task.divide().getContents()

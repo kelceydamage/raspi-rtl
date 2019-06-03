@@ -34,42 +34,45 @@
 # ------------------------------------------------------------------------ 79->
 import numpy as np
 from common.task import Task
+from common.normalization import Models
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Multiply(Task):
-
+class Normalize(Task):
+    
     def __init__(self, kwargs, content):
-        super(Multiply, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
+        super(Normalize, self).__init__(kwargs, content)
         self.newColumns = [
-            ('{0}'.format(o['column']), '<f8') 
-            for o in self.operations
+            ('{0}Normal'.format(x), '<f8') 
+            for x in self.columns
         ]
         self.addColumns()
 
-    def multiply(self):
-        for i in range(len(self.operations)):
-            o = self.operations[i]
-            if not isinstance(o['b'], str):
-                b = o['b']
-            else:
-                b = self.ndata[o['b']]
+    def lookupModel(self, modelName):
+        if self.model is None: modelName = 'Null'
+        return Models.__dict__[modelName]
+
+    def normalize(self):
+        for i in range(len(self.columns)):
+            M = self.lookupModel(self.model)(
+                self.ndata[self.columns[i]].tolist(),
+                self.weight
+            )
             self.setColumn(
                 i,
-                np.multiply(self.ndata[o['a']], b)
+                M.column
             )
         return self
 
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_multiply(kwargs, contents):
-    Task = Multiply(
-        kwargs['task_multiply'],
+def task_normalize(kwargs, contents):
+    Task = Normalize(
+        kwargs['task_normalize'], 
         contents
     )
-    return Task.multiply().getContents()
+    return Task.normalize().getContents()
