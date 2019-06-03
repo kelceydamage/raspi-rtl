@@ -24,66 +24,24 @@
 # Imports
 # ------------------------------------------------------------------------ 79->
 from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, Slider
-from bokeh.plotting import figure
+from bokeh.models import ColumnDataSource, Slider, Range1d
+from bokeh.models import LinearColorMapper, BasicTicker, ColorBar
+from bokeh.plotting import figure, reset_output
 from bokeh.themes import Theme
 from multiprocessing import Queue
 from bokeh.palettes import Viridis
 from bokeh.palettes import Category10
+import numpy as np
+import time
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 LOGFILE = 'log/plot.log'
 PLOT_QUEUE = Queue()
 
-PLOTS = {
-    0: figure(
-        plot_width=900, 
-        plot_height=300,
-        x_axis_type="linear",
-        y_axis_type="linear",
-        x_minor_ticks=10,
-        y_minor_ticks=10
-    ),
-    1: figure(
-        plot_width=900, 
-        plot_height=300,
-        x_axis_type="linear",
-        y_axis_type="linear",
-        x_minor_ticks=10,
-        y_minor_ticks=10
-    ),
-    2: figure(
-        plot_width=900, 
-        plot_height=300,
-        x_axis_type="log",
-        y_axis_type="log",
-        x_minor_ticks=10,
-        y_minor_ticks=10,
-    )
-}
-SOURCES = {
-    0: {
-        'circle': {'x_values': [0], 'y_values': [0], 'color': ['#3333dd']},
-        'line': {'x_values': [0], 'y_values': [0], 'color': ['#3333dd']},
-        'series': [2]
-    },
-    1: {
-        'circle': {'x_values': [0], 'y_values': [0], 'color': ['#3333dd']},
-        'line': {'x_values': [0], 'y_values': [0], 'color': ['#3333dd']},
-        'series': [2]
-    },
-    2: {
-        'circle': {'x_values': [0], 'y_values': [0], 'color': ['#3333dd']},
-        'line': {'x_values': [0], 'y_values': [0], 'color': ['#3333dd']},
-        'line1': {'x_values': [0], 'y_values': [0], 'color': ['#3333dd']},
-        'line2': {'x_values': [0], 'y_values': [0], 'color': ['#3333dd']},
-        'line3': {'x_values': [0], 'y_values': [0], 'color': ['#3333dd']},
-        'line4': {'x_values': [0], 'y_values': [0], 'color': ['#3333dd']},
-        'series': [2]
-    }
-}
-
+PLOTS = {}
+SOURCES = {}
+STATE = {}
 COLORMAP = {
     0: 'red', 
     1: 'green', 
@@ -93,90 +51,134 @@ COLORMAP = {
     5: 'navy'
 }
 
+DEFAULT = ColumnDataSource(data={'x': [0], 'y': [0], 'color': ['#ffffff']})
+
 # Classes
 # ------------------------------------------------------------------------ 79->
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+def setState(sources):
+    if sources['name'] not in STATE.keys():
+        STATE[sources['name']] = {}
+        for i in range(len(sources['draws'])):
+            STATE[sources['name']][i] = ColumnDataSource()
+
+def getState(sources, i):
+    if sources['name'] in STATE.keys():
+        log('GETSTATE: {0} - {1}'.format(
+                sources['name'],
+                STATE[sources['name']]
+            )
+        )
+        return STATE[sources['name']][i]
+
+def isState(sources):
+    if sources['name'] in STATE.keys():
+        return True
+    return False
+
 def log(msg):
     with open(LOGFILE, 'a') as f:
         f.write(str(msg) + '\n')
 
+def convertcolor(x):
+    if x < 256:
+        a = x / 256
+    else:
+        a = 256 / x
+    b = a * 180 + 70
+    return int(b)
+
+def getColors(draw):
+    if draw['series'] is None:
+        return ['#000000' for x in range(len(draw['x']))]
+    return [Viridis[256][convertcolor(x)] for x in draw['series']]
+
 def draw(sources):
-    for i in range(len(sources.keys())):
-        if 'series' in sources[i].keys():
-            sources[i]['circle']['color'] = [Category10[6][x] for x in sources[i]['series']]
-        else:
-            sources[i]['circle']['color'] = '#3333dd'
+    c = 0
+    plot = PLOTS[sources['name']]
+    color_mapper = LinearColorMapper(
+        palette=Category10[6], 
+        low=0,
+        high=6
+    )
+    plot = PLOTS[sources['name']]
+    color_bar = ColorBar(
+        color_mapper=color_mapper, 
+        height=60, 
+        ticker=BasicTicker(),
+        label_standoff=5, 
+        border_line_color=None, 
+        location=(-10,147)
+    )
+    plot.add_layout(color_bar)
+    for draw in sources['draws']:
+        draw = sort_bad(draw)
         try:
-            PLOTS[i].xaxis.axis_label = sources[i]['x']
-            PLOTS[i].yaxis.axis_label = sources[i]['y']
-            PLOTS[i].circle(
-                x='x_values',
-                y='y_values',
-                source=ColumnDataSource(data=sources[i]['circle']),
-                size=6,
-                color='color'
-            )
-            PLOTS[i].line(
-                x='x_values',
-                y='y_values',
-                source=ColumnDataSource(data=sources[i]['line']),
-                color=Category10[6][0],
-                line_width=3 # blue
-            )
+            plot.xaxis.axis_label = sources['xAxis']
+            plot.yaxis.axis_label = sources['yAxis']
+            color = getColors(draw)
+            cds = getState(sources, c)
+            cds.data = {'x': draw['x'], 'y': draw['y'], 'color': color}
+            if draw['type'] == 'circle':
+                getattr(plot, draw['type'])(x='x', y='y', source=cds, size=2, color='color')
+            elif draw['type'] == 'line':
+                getattr(plot, draw['type'])(x='x', y='y', source=cds, line_width=2, line_color=Category10[6][c])
+            elif draw['type'] == 'vbar':
+                getattr(plot, draw['type'])(x='x', top='y', source=cds, bottom=0, width=1, fill_color='color')
         except Exception as e:
-            log('modify_doc: {0}'.format(e))
-        if 'line1' in sources[i]:
-            try:
-                PLOTS[i].line(
-                    x='x_values',
-                    y='y_values',
-                    source=ColumnDataSource(data=sources[i]['line1']),
-                    color=Category10[6][1],
-                    line_width=3 # yellow
-                )
-                PLOTS[i].line(
-                    x='x_values',
-                    y='y_values',
-                    source=ColumnDataSource(data=sources[i]['line2']),
-                    color=Category10[6][2],
-                    line_width=3 # green
-                )
-                PLOTS[i].line(
-                    x='x_values',
-                    y='y_values',
-                    source=ColumnDataSource(data=sources[i]['line3']),
-                    color=Category10[6][3],
-                    line_width=3 # red
-                )
-                PLOTS[i].line(
-                    x='x_values',
-                    y='y_values',
-                    source=ColumnDataSource(data=sources[i]['line4']),
-                    color=Category10[6][4],
-                    line_width=3 # purple
-                )
-            except Exception as e:
-                log('modify_doc: {0}'.format(e))
+            log('draw: {0}'.format(e))
+        c += 1
+
+def sort_bad(q_data):
+    dtype = [('x', '<i8'), ('y', '<f8')]
+    shape = (len(q_data['x']))
+    a = np.zeros(
+        shape,
+        dtype=dtype
+        )
+    a['x'] = q_data['x']
+    a['y'] = q_data['y']
+    a.sort(
+        axis=0,
+        kind='quicksort',
+        order='x'
+        )
+    q_data['x'] = a['x'].tolist()
+    q_data['y'] = a['y'].tolist()
+    return q_data
+
+def addFigure(sources, doc):
+    PLOTS[sources['name']] = figure(
+        title=sources['name'],
+        plot_width=900,
+        plot_height=300,
+        x_axis_type=sources['scale'],
+        y_axis_type=sources['scale'],
+        x_minor_ticks=10,
+        y_minor_ticks=10,
+        #x_range=Range1d(0, 1000000),
+        #y_range=Range1d(0, 10000)
+    )
+    doc.add_root(column(PLOTS[sources['name']]))
 
 def modify_doc(doc):
-    draw(SOURCES)
 
     def update():
         try:
             if not PLOT_QUEUE.empty():
                 q_data = PLOT_QUEUE.get()
                 if isinstance(q_data, dict):
-                    log(q_data.keys())
+                    if not isState(q_data):
+                        setState(q_data)
+                        addFigure(q_data, doc)
                     draw(q_data)
         except Exception as e:
             log('callback: {0}'.format(e))
+        reset_output()
 
     try:
-        doc.add_root(column(PLOTS[0]))
-        doc.add_root(column(PLOTS[1]))
-        doc.add_root(column(PLOTS[2]))
         doc.add_periodic_callback(update, 20)
     except Exception as e:
         log('tools: {0}'.format(e))
