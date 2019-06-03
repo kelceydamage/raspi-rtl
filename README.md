@@ -10,6 +10,24 @@
 * [dependancies](https://github.com/kelceydamage/rtl/blob/master/DEPENDANCIES.md)
 * [development](https://github.com/kelceydamage/rtl/blob/master/DEVELOPMENT.md)
 
+# Included Tasks
+* add
+* average
+* cross average
+* static classifier
+* column space
+* divide
+* filter
+* multiply
+* normalize
+* open
+* array open
+* regression
+* plot
+* sort
+* subtract
+* array write
+
 ## Communication Diagram
 
 ![logo](https://github.com/kelceydamage/rtl/blob/master/docs/msg-diag.png?raw=true)
