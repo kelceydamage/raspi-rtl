@@ -23,6 +23,7 @@
 import numpy as np
 from common.task import Task
 from common.regression import Models
+#from common.print_helpers import lprint
 
 # Globals
 # ------------------------------------------------------------------------ 79->
@@ -33,20 +34,31 @@ class LinearRegression(Task):
 
     def __init__(self, kwargs, contents):
         super(LinearRegression, self).__init__(kwargs, contents)
-        self.newColumns = [('regression', '<f8'), ('regressionX', '<i8')]
 
     def lookupModel(self, modelName):
         return Models.__dict__[modelName]
 
     def regress(self):
-        self.addColumns(self.newColumns)
-        M = self.lookupModel(self.model)(
-            self.ndata[self.x],
-            self.ndata[self.y],
-            self.getLSpace(self.space)
-        )
-        self.ndata['regression'] = M.prediction
-        self.ndata['regressionX'] = M.lSpace.reshape(1, -1)[0]
+        for o in self.operations:
+            args = None
+            if o['model'] == 'Poly':
+                args = o['d']
+            newColumns = [('{0}{1}'.format(o['y'], o['model']), '<f8')]
+            self.addColumns(newColumns)
+            self.getLSpace(o['space'], self.ndata[o['x']])
+            M = self.lookupModel(o['model'])(
+                self.ndata[o['x']],
+                self.ndata[o['y']],
+                self.lSpace,
+                args
+            )
+            self.ndata['{0}{1}'.format(o['y'], o['model'])] = M.prediction
+            print('=> Regression[{0}] Results: m={1}, c={2}, r={3}'.format(
+                o['model'],
+                M.m,
+                M.c,
+                M.r
+            ))
         return self
 
 
