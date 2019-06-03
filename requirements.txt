@@ -8,3 +8,6 @@ cbor
 ujson
 numpy
 cython
+sklearn
+bokeh
+zmq
