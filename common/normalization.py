@@ -27,6 +27,11 @@ import numpy as np
 
 # Classes
 # ------------------------------------------------------------------------ 79->
+class Null():
+
+    def __init__(self, column, weight):
+        self.column = column
+
 class DistanceFromMean():
 
     def __init__(self, column, weight):
@@ -70,8 +75,10 @@ class DistanceFromMean():
         elif self.column[i] < self.negativeRange[i]:
             self.column[i] = self.negativeRange[i]
 
+
 class Models():
     DistanceFromMean = DistanceFromMean
+    Null = Null
 
 
 # Functions
