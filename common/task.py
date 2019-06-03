@@ -55,12 +55,15 @@ class Task():
             'dtypes': self.dtypes
         }
 
-    def addColumns(self, newColumns):
-        self.dtypes = self.dtypes + newColumns
+    def addColumns(self):
+        self.dtypes = self.dtypes + self.newColumns
         newrecarray = np.zeros(len(self.ndata), dtype = self.dtypes)
         for name in self.ndata.dtype.names:
             newrecarray[name] = self.ndata[name]
         self.ndata = newrecarray
+
+    def setColumn(self, i, v):
+        self.ndata[self.newColumns[i][0]] = v
 
     def getLSpace(self, space, x=None):
         if space == 'log':
