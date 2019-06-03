@@ -17,18 +17,6 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-# Required Args:        'file'
-#                       Name of the file to be opened.
-#
-#                       'path'
-#                       Path to the file to be opened.
-#
-# Optional Args:        'delimiter'
-#                       Value to split the file on. Default is '\n'.
-#
-#                       'compression'
-#                       Boolean to denote zlib compression on file. Default is
-#                       False.
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
@@ -50,17 +38,35 @@ class Filter(Task):
         print('FILTER', self.ndata.dtype)
         for o in self.operations:
             if o['method'] == 'eq':
-                self.ndata = np.extract(self.ndata[o['column']]==o['value'], self.ndata)
+                self.ndata = np.extract(
+                    self.ndata[o['column']]==o['value'], 
+                    self.ndata
+                )
             elif o['method'] == 'ne':
-                self.ndata = np.extract(self.ndata[o['column']]!=o['value'], self.ndata)
+                self.ndata = np.extract(
+                    self.ndata[o['column']]!=o['value'], 
+                    self.ndata
+                )
             elif o['method'] == 'le':
-                self.ndata = np.extract(self.ndata[o['column']]>=o['value'], self.ndata)
+                self.ndata = np.extract(
+                    self.ndata[o['column']]>=o['value'], 
+                    self.ndata
+                )
             elif o['method'] == 'ge':
-                self.ndata = np.extract(self.ndata[o['column']]<=o['value'], self.ndata)
+                self.ndata = np.extract(
+                    self.ndata[o['column']]<=o['value'], 
+                    self.ndata
+                )
             elif o['method'] == 'lt':
-                self.ndata = np.extract(self.ndata[o['column']]>o['value'], self.ndata)
+                self.ndata = np.extract(
+                    self.ndata[o['column']]>o['value'], 
+                    self.ndata
+                )
             elif o['method'] == 'gt':
-                self.ndata = np.extract(self.ndata[o['column']]<o['value'], self.ndata)
+                self.ndata = np.extract(
+                    self.ndata[o['column']]<o['value'], 
+                    self.ndata
+                )
             print('=> Filtered Results: {0}'.format(self.ndata.shape))
         return self
     
@@ -73,3 +79,6 @@ def task_filter(kwargs, contents):
         contents
     )
     return Task.filter().getContents()
+
+# Main
+# ------------------------------------------------------------------------ 79->

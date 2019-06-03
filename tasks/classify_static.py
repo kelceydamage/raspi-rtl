@@ -17,18 +17,6 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-# Required Args:        'file'
-#                       Name of the file to be opened.
-#
-#                       'path'
-#                       Path to the file to be opened.
-#
-# Optional Args:        'delimiter'
-#                       Value to split the file on. Default is '\n'.
-#
-#                       'compression'
-#                       Boolean to denote zlib compression on file. Default is
-#                       False.
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
@@ -37,9 +25,6 @@ from common.task import Task
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-# filter
-# aggregate
-# 
 
 # Classes
 # ------------------------------------------------------------------------ 79->
@@ -105,3 +90,6 @@ def task_classify_static(kwargs, contents):
         contents
     )
     return Task.classifyStatic().getContents()
+
+# Main
+# ------------------------------------------------------------------------ 79->

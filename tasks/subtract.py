@@ -16,19 +16,7 @@
 # limitations under the License.
 #
 # Doc
-# ------------------------------------------------------------------------ 79->
-# Required Args:        'file'
-#                       Name of the file to be opened.
-#
-#                       'path'
-#                       Path to the file to be opened.
-#
-# Optional Args:        'delimiter'
-#                       Value to split the file on. Default is '\n'.
-#
-#                       'compression'
-#                       Boolean to denote zlib compression on file. Default is
-#                       False.
+# ------------------------------------------------------------------------ 79->                False.
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
@@ -73,3 +61,6 @@ def task_subtract(kwargs, contents):
         contents
     )
     return Task.subtract().getContents()
+
+# Main
+# ------------------------------------------------------------------------ 79->
