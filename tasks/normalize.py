@@ -45,9 +45,10 @@ class Normalize(Task):
     
     def __init__(self, kwargs, content):
         super(Normalize, self).__init__(kwargs, content)
-        self.newColumns = [('{0}Normal'.format(x), '<i8') for x in self.columns]
+        self.newColumns = [('{0}Normal'.format(x), '<f8') for x in self.columns]
 
     def lookupModel(self, modelName):
+        if self.model is None: modelName = 'Null'
         return Models.__dict__[modelName]
 
     def normalize(self):
