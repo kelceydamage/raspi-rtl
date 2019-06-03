@@ -30,24 +30,45 @@ from sklearn.linear_model import LinearRegression
 # ------------------------------------------------------------------------ 79->
 class Linear():
 
-    def __init__(self, xValues, yValues, lSpace=None):
-        self.xValues = xValues.reshape(-1, 1)
-        self.yValues = yValues
+    def __init__(self, x, y, lSpace=None, args=None):
+        self.x = x.reshape(-1, 1)
+        self.y = y
         self.lSpace = lSpace
         self.regress()
 
     def regress(self):
-        self.model = LinearRegression().fit(self.xValues, self.yValues)
+        self.model = LinearRegression().fit(self.x, self.y)
         self.m = self.model.coef_[0]
         self.c = self.model.intercept_
-        self.r = self.model.score(self.xValues, self.yValues)
+        self.r = self.model.score(self.x, self.y)
         if self.lSpace is None:
-            self.lSpace = self.xValues
+            self.lSpace = np.sort(self.x, axis=0)
+        print(self.lSpace)
         self.prediction = self.model.predict(self.lSpace)
+
+class Poly():
+
+    def __init__(self, x, y, lSpace=None, args=None):
+        self.x = x
+        self.y = y
+        self.lSpace = lSpace
+        self.d = args
+        self.regress()
+
+    def regress(self):
+        self.m = np.polyfit(self.x, self.y, self.d)
+        self.c = None
+        self.r = None
+        f = np.poly1d(self.m)
+        if self.lSpace is None:
+            self.lSpace = np.sort(self.x, axis=0)
+        print(self.lSpace)
+        self.prediction = f(self.lSpace).reshape(-1)
 
 
 class Models():
     Linear = Linear
+    Poly = Poly
 
 
 # Functions
