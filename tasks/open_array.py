@@ -32,47 +32,55 @@
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
+
 import numpy as np
+import ast
+from base64 import b64decode
+import re
 from common.task import Task
-from common.normalization import Models
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Normalize(Task):
-    
+class OpenArray(Task):
+
     def __init__(self, kwargs, content):
-        super(Normalize, self).__init__(kwargs, content)
-        self.newColumns = [
-            ('{0}Normal'.format(x), '<f8') 
-            for x in self.columns
-        ]
-        self.addColumns()
+        super(OpenArray, self).__init__(kwargs, content)
+        self.file = "{0}/{1}".format(self.path, self.filename)
 
-    def lookupModel(self, modelName):
-        if self.model is None: modelName = 'Null'
-        return Models.__dict__[modelName]
+    def decodeMeta(self, m):
+        s = b64decode(m).decode('utf-8')
+        d1 = re.compile('<@')
+        d2 = re.compile('@>')
+        s = d1.sub('(', s)
+        s = d2.sub(')', s)
+        self.dtypes = ast.literal_eval(s)
 
-    def normalize(self):
-        for i in range(len(self.columns)):
-            M = self.lookupModel(self.model)(
-                self.ndata[self.columns[i]].tolist(),
-                self.weight
-            )
-            self.setColumn(
-                i,
-                M.column
+    def openMeta(self):
+        with open('{0}.meta'.format(self.file), 'rb') as f:
+            self.decodeMeta(f.read())
+
+    def openArray(self):
+        self.openMeta()
+        self.ndata = np.loadtxt(
+            "{0}/{1}.{2}".format(self.path, self.filename, self.extension), 
+            delimiter=self.delimiter,
+            dtype=self.dtypes
             )
         return self
 
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_normalize(kwargs, contents):
-    Task = Normalize(
-        kwargs['task_normalize'], 
+def task_open_array(kwargs, contents):
+    print(kwargs)
+    Task = OpenArray(
+        kwargs['task_open_array'],
         contents
     )
-    return Task.normalize().getContents()
+    return Task.openArray().getContents()
+
+# Main
+# ------------------------------------------------------------------------ 79->

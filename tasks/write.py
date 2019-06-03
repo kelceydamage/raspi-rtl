@@ -32,47 +32,67 @@
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
+
 import numpy as np
+from base64 import b64encode, b64decode
+import re
+import ujson as json
 from common.task import Task
-from common.normalization import Models
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Normalize(Task):
-    
+class Write(Task):
+
     def __init__(self, kwargs, content):
-        super(Normalize, self).__init__(kwargs, content)
-        self.newColumns = [
-            ('{0}Normal'.format(x), '<f8') 
-            for x in self.columns
-        ]
-        self.addColumns()
+        super(Write, self).__init__(kwargs, content)
+        self.file = "{0}/{1}".format(self.path, self.filename)
 
-    def lookupModel(self, modelName):
-        if self.model is None: modelName = 'Null'
-        return Models.__dict__[modelName]
+    def formatColumns(self):
+        types = [x[1] for x in self.dtypes]
+        fmt = []
+        for x in types:
+            if x == '<i8':
+                fmt.append('%i')
+            if x == '<f8>':
+                fmt.append('%f')
+        return ','.join(fmt)
 
-    def normalize(self):
-        for i in range(len(self.columns)):
-            M = self.lookupModel(self.model)(
-                self.ndata[self.columns[i]].tolist(),
-                self.weight
+    def encodeMeta(self):
+        s = str(self.dtypes)
+        p1 = re.compile('\)')
+        p2 = re.compile('\(')
+        s = p1.sub('@>', s)
+        s = p2.sub('<@', s)
+        b = b64encode(s.encode('utf-8'))
+        return b64encode(s.encode('utf-8'))
+
+    def writeMeta(self):
+        with open('{0}.meta'.format(self.file), 'wb') as f:
+            f.write(self.encodeMeta())
+
+    def write(self):
+        fmt = self.formatColumns()
+        np.savetxt(
+            "{0}.{1}".format(self.file, self.extension), 
+            self.ndata,
+            delimiter=self.delimiter,
+            fmt=fmt
             )
-            self.setColumn(
-                i,
-                M.column
-            )
+        self.writeMeta()
         return self
 
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_normalize(kwargs, contents):
-    Task = Normalize(
-        kwargs['task_normalize'], 
+def task_write(kwargs, contents):
+    Task = Write(
+        kwargs['task_write'],
         contents
     )
-    return Task.normalize().getContents()
+    return Task.write().getContents()
+
+# Main
+# ------------------------------------------------------------------------ 79->

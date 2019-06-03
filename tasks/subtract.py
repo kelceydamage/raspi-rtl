@@ -17,68 +17,59 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-
+# Required Args:        'file'
+#                       Name of the file to be opened.
+#
+#                       'path'
+#                       Path to the file to be opened.
+#
+# Optional Args:        'delimiter'
+#                       Value to split the file on. Default is '\n'.
+#
+#                       'compression'
+#                       Boolean to denote zlib compression on file. Default is
+#                       False.
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
 import numpy as np
 from common.task import Task
-from common.regression import Models
-#from common.print_helpers import lprint
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class LinearRegression(Task):
+class Subtract(Task):
 
-    def __init__(self, kwargs, contents):
-        super(LinearRegression, self).__init__(kwargs, contents)
+    def __init__(self, kwargs, content):
+        super(Subtract, self).__init__(kwargs, content)
+        self.ndata.setflags(write=1)
         self.newColumns = [
-            ('{0}{1}'.format(o['y'], o['model']), '<f8') 
+            ('{0}'.format(o['column']), '<f8')
             for o in self.operations
         ]
         self.addColumns()
 
-    def lookupModel(self, modelName):
-        return Models.__dict__[modelName]
-
-    def regress(self):
+    def subtract(self):
         for i in range(len(self.operations)):
             o = self.operations[i]
-            args = None
-            if o['model'] == 'Poly':
-                args = o['d']
-            self.getLSpace(o['space'], self.ndata[o['x']])
-            M = self.lookupModel(o['model'])(
-                self.ndata[o['x']],
-                self.ndata[o['y']],
-                self.lSpace,
-                args
-            )
+            if not isinstance(o['b'], str):
+                b = o['b']
+            else:
+                b = self.ndata[o['b']]
             self.setColumn(
                 i,
-                M.prediction
+                np.subtract(self.ndata[o['a']], b)
             )
-            # temp code
-            print('=> Regression[{0}] Results: m={1}, c={2}, r={3}'.format(
-                o['model'],
-                M.m,
-                M.c,
-                M.r
-            ))
         return self
 
 
 # Functions
-# ----------------------------------------------------------------------- 79->
-def task_regression(kwargs, contents):
-    Task = LinearRegression(
-        kwargs['task_regression'],
+# ------------------------------------------------------------------------ 79->
+def task_subtract(kwargs, contents):
+    Task = Subtract(
+        kwargs['task_subtract'],
         contents
     )
-    return Task.regress().getContents()
-
-
-# Main
-# ------------------------------------------------------------------------ 79->
+    return Task.subtract().getContents()

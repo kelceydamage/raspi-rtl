@@ -23,61 +23,39 @@
 import numpy as np
 from common.task import Task
 from common.regression import Models
-#from common.print_helpers import lprint
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class LinearRegression(Task):
+class ColumnSpace(Task):
 
     def __init__(self, kwargs, contents):
-        super(LinearRegression, self).__init__(kwargs, contents)
-        self.newColumns = [
-            ('{0}{1}'.format(o['y'], o['model']), '<f8') 
-            for o in self.operations
-        ]
+        super(ColumnSpace, self).__init__(kwargs, contents)
+        self.newColumns = [('{0}Space'.format(self.column), '<i8')]
         self.addColumns()
 
-    def lookupModel(self, modelName):
-        return Models.__dict__[modelName]
-
-    def regress(self):
-        for i in range(len(self.operations)):
-            o = self.operations[i]
-            args = None
-            if o['model'] == 'Poly':
-                args = o['d']
-            self.getLSpace(o['space'], self.ndata[o['x']])
-            M = self.lookupModel(o['model'])(
-                self.ndata[o['x']],
-                self.ndata[o['y']],
-                self.lSpace,
-                args
-            )
-            self.setColumn(
-                i,
-                M.prediction
-            )
-            # temp code
-            print('=> Regression[{0}] Results: m={1}, c={2}, r={3}'.format(
-                o['model'],
-                M.m,
-                M.c,
-                M.r
-            ))
+    def columnSpace(self):
+        self.getLSpace(
+            self.space,
+            self.ndata[self.column]
+        )
+        self.setColumn(
+            0,
+            self.lSpace.reshape(-1, )
+        )
         return self
 
 
 # Functions
 # ----------------------------------------------------------------------- 79->
-def task_regression(kwargs, contents):
-    Task = LinearRegression(
-        kwargs['task_regression'],
+def task_column_space(kwargs, contents):
+    Task = ColumnSpace(
+        kwargs['task_column_space'],
         contents
     )
-    return Task.regress().getContents()
+    return Task.columnSpace().getContents()
 
 
 # Main

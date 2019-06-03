@@ -34,45 +34,74 @@
 # ------------------------------------------------------------------------ 79->
 import numpy as np
 from common.task import Task
-from common.normalization import Models
 
 # Globals
 # ------------------------------------------------------------------------ 79->
+# filter
+# aggregate
+# 
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Normalize(Task):
-    
+class ClassifyStatic(Task):
+
     def __init__(self, kwargs, content):
-        super(Normalize, self).__init__(kwargs, content)
+        super(ClassifyStatic, self).__init__(kwargs, content)
+        self.ndata.setflags(write=1)
         self.newColumns = [
-            ('{0}Normal'.format(x), '<f8') 
-            for x in self.columns
+            ('{0}Class'.format(o['column']), '<i8')
+            for o in self.operations
+        ]
+        self.newColumns += [
+            ('{0}ClassCount'.format(o['column']), '<i8')
+            for o in self.operations
         ]
         self.addColumns()
 
-    def lookupModel(self, modelName):
-        if self.model is None: modelName = 'Null'
-        return Models.__dict__[modelName]
+    def formKey(self, keys):
+        return '-'.join([str(k) for k in keys])
 
-    def normalize(self):
-        for i in range(len(self.columns)):
-            M = self.lookupModel(self.model)(
-                self.ndata[self.columns[i]].tolist(),
-                self.weight
-            )
+    def createClasses(self, combinations, counts):
+        classes = {}
+        for i in range(len(combinations)):
+            classes[self.formKey(combinations[i])] = (i, counts[i])
+        return classes
+
+    def applyClass(self, _classes, keys):
+        classes = []
+        counts = []
+        for i in self.ndata:
+            key = self.formKey(i[keys])
+            classes.append(_classes[key][0])
+            counts.append(_classes[key][1])
+        return classes, counts
+
+    def classifyStatic(self):
+        for i in range(len(self.operations)):
+            o = self.operations[i]
+            unique, counts = np.unique(
+                self.ndata[o['a']],
+                return_counts=True,
+                axis=0
+                )
+            _classes = self.createClasses(unique, counts)
+            classes, counts = self.applyClass(_classes, o['a'])
             self.setColumn(
                 i,
-                M.column
+                classes
             )
-        return self
-
+            self.setColumn(
+                i + len(self.operations),
+                counts
+            )
+            return self
+    
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_normalize(kwargs, contents):
-    Task = Normalize(
-        kwargs['task_normalize'], 
+def task_classify_static(kwargs, contents):
+    Task = ClassifyStatic(
+        kwargs['task_classify_static'],
         contents
     )
-    return Task.normalize().getContents()
+    return Task.classifyStatic().getContents()
