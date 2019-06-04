@@ -15,9 +15,15 @@ def test_add():
             {
                 'a': 'a',
                 'b': 'b',
-                'column': 'c'
+                'column': 'c1'
+            },
+            {
+                'a': 'a',
+                'b': 1,
+                'column': 'c2'
             }
         ]
     }
     r = task_add(KWARGS, CONTENTS)
-    assert r['ndata']['c'][2] == 8
+    assert r['ndata']['c1'][2] == 8
+    assert r['ndata']['c2'][2] == 5.0

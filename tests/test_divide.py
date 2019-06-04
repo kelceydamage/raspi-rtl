@@ -15,9 +15,15 @@ def test_divide():
             {
                 'a': 'a',
                 'b': 'b',
-                'column': 'c'
+                'column': 'c1'
+            },
+             {
+                'a': 'a',
+                'b': 2,
+                'column': 'c2'
             }
         ]
     }
     r = task_divide(KWARGS, CONTENTS)
-    assert r['ndata']['c'][2] == 1
+    assert r['ndata']['c1'][2] == 1
+    assert r['ndata']['c2'][2] == 2.0

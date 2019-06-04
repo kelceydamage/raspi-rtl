@@ -16,9 +16,43 @@ def test_filter():
             'column': 'a',
             'value': 2,
             'method': 'eq'
+            },
+            {
+            'column': 'a',
+            'value': 2,
+            'method': 'ne'
+            },
+        ]
+    }
+    r = task_filter(KWARGS, CONTENTS2)
+    KWARGS['task_filter'] = {
+        'operations': [
+            {
+            'column': 'a',
+            'value': 2,
+            'method': 'lt'
+            },
+            {
+            'column': 'a',
+            'value': 2,
+            'method': 'le'
+            },
+        ]
+    }
+    r = task_filter(KWARGS, CONTENTS2)
+    KWARGS['task_filter'] = {
+        'operations': [
+            {
+            'column': 'a',
+            'value': 2,
+            'method': 'gt'
+            },
+            {
+            'column': 'a',
+            'value': 2,
+            'method': 'ge'
             }
         ]
     }
     r = task_filter(KWARGS, CONTENTS2)
-    print(r)
-    assert r['ndata']['a'][0] == 2
+    assert r['ndata']['a'][0] == 0
