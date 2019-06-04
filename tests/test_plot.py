@@ -20,6 +20,13 @@ def test_plot():
                     'type': 'circle',
                     'scale': 'linear',
                     'series': None
+                },
+                {
+                    'x': 'a',
+                    'y': 'b',
+                    'type': 'circle',
+                    'scale': 'linear',
+                    'series': 'a'
                 }
             ]
         }
@@ -27,3 +34,4 @@ def test_plot():
     r = task_simple_plot(KWARGS, CONTENTS)
     q = PLOT_QUEUE.get()
     assert q['draws'][0]['x'][0] == 4
+    assert q['draws'][1]['x'][0] == 4

@@ -15,9 +15,15 @@ def test_multiply():
             {
                 'a': 'a',
                 'b': 'b',
-                'column': 'c'
+                'column': 'c1'
+            },
+            {
+                'a': 'a',
+                'b': 2,
+                'column': 'c2'
             }
         ]
     }
     r = task_multiply(KWARGS, CONTENTS)
-    assert r['ndata']['c'][2] == 16
+    assert r['ndata']['c1'][2] == 16
+    assert r['ndata']['c2'][2] == 8

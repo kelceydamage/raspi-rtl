@@ -15,9 +15,15 @@ def test_subtract():
             {
                 'a': 'a',
                 'b': 'b',
-                'column': 'c'
+                'column': 'c1'
+            },
+            {
+                'a': 'a',
+                'b': 1,
+                'column': 'c2'
             }
         ]
     }
     r = task_subtract(KWARGS, CONTENTS)
-    assert r['ndata']['c'][2] == 0
+    assert r['ndata']['c1'][2] == 0
+    assert r['ndata']['c2'][2] == 3.0
