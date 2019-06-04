@@ -43,7 +43,7 @@ class Difference(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_difference(kwargs, contents):
-    Task = Average(
+    Task = Difference(
         kwargs['task_difference'],
         contents
     )
