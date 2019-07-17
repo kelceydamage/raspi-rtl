@@ -6,7 +6,7 @@ coverage
 lmdb
 cbor
 ujson
-numpy
+numpy==1.15.4
 cython
 sklearn
 bokeh
