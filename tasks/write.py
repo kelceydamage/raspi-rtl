@@ -44,8 +44,10 @@ class Write(Task):
         for x in types:
             if x == '<i8':
                 fmt.append('%i')
-            if x == '<f8>':
+            elif x == '<f8':
                 fmt.append('%f')
+            else:
+                print('ERR', x)
         return ','.join(fmt)
 
     def encodeMeta(self):
