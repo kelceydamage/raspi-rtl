@@ -50,7 +50,7 @@ class Transform:
 
     @timer
     def run(self):
-        print('StageID: {0}'.format(self.envelope.header[0][0]))
+        #print('StageID: {0}'.format(self.envelope.header[0][0]))
         self.envelope = self.dispatcher.send(self.envelope)
 
     def validateSchema(self, schema):
@@ -82,7 +82,10 @@ class Transform:
                     }, 
                 contents=schema['contents'],
                 )
-            print_stage(stage, schema['tasks'])
+            printc(
+                'Running: {0} - {1}'.format(stage, self.envelope.header[0][0]), 
+                COLOURS.PURPLE
+            )
             self.run()
         elapsed = time.perf_counter() - start
         print('Total Elapsed Time:', elapsed)
