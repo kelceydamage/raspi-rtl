@@ -44,6 +44,9 @@ class ClassifyStatic(Task):
         self.addColumns()
 
     def formKey(self, keys):
+        if not isinstance(keys, list):
+            keys = str(keys.astype(int))
+            return keys
         return '-'.join([str(k) for k in keys])
 
     def createClasses(self, combinations, counts):
@@ -79,7 +82,7 @@ class ClassifyStatic(Task):
                 i + len(self.operations),
                 counts
             )
-            return self
+        return self
     
 
 # Functions
