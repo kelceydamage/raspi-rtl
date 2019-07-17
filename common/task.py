@@ -62,8 +62,11 @@ class Task():
             newrecarray[name] = self.ndata[name]
         self.ndata = newrecarray
 
-    def setColumn(self, i, v):
-        self.ndata[self.newColumns[i][0]] = v
+    def setColumn(self, i, v, r=None):
+        if r is None:
+            self.ndata[self.newColumns[i][0]] = v
+        else:
+            self.ndata[r][self.newColumns[i][0]] = v
 
     def getLSpace(self, space, x=None):
         if space == 'log':
