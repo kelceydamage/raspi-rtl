@@ -50,7 +50,7 @@ from transport.conf.configuration import RELAY_RECV
 from transport.conf.configuration import CACHE_LISTEN
 from transport.conf.configuration import CACHE_RECV
 from transport.conf.configuration import PLOT_LISTEN
-
+from common.print_helpers import printc, Colours
 from web.plot import modify_doc
 
 # Cython imports
@@ -61,7 +61,7 @@ from libc.stdint cimport uint_fast16_t
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-
+COLOURS = Colours()
 VERSION = '2.0a'
 
 # Classes
@@ -138,6 +138,7 @@ cdef class TaskNode(Node):
             dict contents = self.envelope.get_contents()
             str func = self.functions[self.envelope.meta['tasks'][0]]
             Exception msg
+        printc('Running: {0}'.format(func.split('.')[0]), COLOURS.LIGHTBLUE)
         try:
             contents = eval(func)(self.envelope.meta['kwargs'], contents)
         except Exception as e:
