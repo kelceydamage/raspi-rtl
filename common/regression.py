@@ -43,7 +43,6 @@ class Linear():
         self.r = self.model.score(self.x, self.y)
         if self.lSpace is None:
             self.lSpace = np.sort(self.x, axis=0)
-        print(self.lSpace)
         self.prediction = self.model.predict(self.lSpace)
 
 class Poly():
@@ -62,7 +61,6 @@ class Poly():
         f = np.poly1d(self.m)
         if self.lSpace is None:
             self.lSpace = np.sort(self.x, axis=0)
-        print(self.lSpace)
         self.prediction = f(self.lSpace).reshape(-1)
 
 
