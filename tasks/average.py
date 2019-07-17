@@ -43,8 +43,10 @@ class Average(Task):
         for i in range(len(self.operations)):
             o = self.operations[i]
             avg = np.mean(self.ndata[o['a']])
-            print('AVG', avg)
-            self.ndata[self.newColumns[0][0]].fill(avg)
+            self.setColumn(
+                i,
+                np.mean(self.ndata[o['a']])
+            )
         return self
 
 

@@ -17,72 +17,69 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-# {
-#     'x': 'columnA',
-#     'y': 'columnB',
-#     'space': None,    <- linear, log, None
-#     'model': 'Poly',  <- Linear, Poly
-#     'd': 3
-# }
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
 import numpy as np
 from common.task import Task
-from common.regression import Models
 
 # Globals
 # ------------------------------------------------------------------------ 79->
+'''
+(array([23, 29,  9,  7,  1,  0, 15,  0,  0,  0,  0,  0,  1,  0,  0,  0,  3,
+       11,  0,  1]), array([  61.  ,  163.85,  266.7 ,  369.55,  472.4 ,  575.25,  678.1 ,
+        780.95,  883.8 ,  986.65, 1089.5 , 1192.35, 1295.2 , 1398.05,
+       1500.9 , 1603.75, 1706.6 , 1809.45, 1912.3 , 2015.15, 2118.  ]))
+'''
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class LinearRegression(Task):
+class Histogram(Task):
 
-    def __init__(self, kwargs, contents):
-        super(LinearRegression, self).__init__(kwargs, contents)
+    def __init__(self, kwargs, content):
+        super(Histogram, self).__init__(kwargs, content)
+        self.ndata.setflags(write=1)
         self.newColumns = [
-            ('{0}{1}'.format(o['y'], o['model']), '<f8') 
+            ('{0}'.format(o['column']), '<f8')
             for o in self.operations
         ]
         self.addColumns()
 
-    def lookupModel(self, modelName):
-        return Models.__dict__[modelName]
+    def getBucket(self, value):
+        for i in range(len(self.buckets)):
+            if self.buckets[i] >= value:
+                return self.buckets[i]
 
-    def regress(self):
+    def tagRows(self, array):
+        values = []
+        for i in range(len(array)):
+            values.append(self.getBucket(array[i]))
+        return values
+
+    def histogram(self):
         for i in range(len(self.operations)):
             o = self.operations[i]
-            args = None
-            if o['model'] == 'Poly':
-                args = o['d']
-            self.getLSpace(o['space'], self.ndata[o['x']])
-            M = self.lookupModel(o['model'])(
-                self.ndata[o['x']],
-                self.ndata[o['y']],
-                self.lSpace,
-                args
-            )
+            avg = np.mean(self.ndata[o['a']])
+            histogram = np.histogram(
+                    self.ndata[o['a']], 
+                    o['bins']
+                )
+            self.buckets = histogram[1]
             self.setColumn(
                 i,
-                M.prediction
+                self.tagRows(self.ndata[o['a']])
             )
-            # temp code
-            print('=> Regression[{0}] Results: m={1}, c={2}, r={3}'.format(
-                o['model'],
-                M.m,
-                M.c,
-                M.r
-            ))
         return self
 
 
 # Functions
-# ----------------------------------------------------------------------- 79->
-def task_regression(kwargs, contents):
-    Task = LinearRegression(
-        kwargs['task_regression'],
+# ------------------------------------------------------------------------ 79->
+def task_histogram(kwargs, contents):
+    Task = Histogram(
+        kwargs['task_histogram'],
         contents
     )
-    return Task.regress().getContents()
+    return Task.histogram().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

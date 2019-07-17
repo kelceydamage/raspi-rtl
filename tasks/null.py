@@ -30,6 +30,7 @@
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_null(kwargs, contents):
+    print(contents['ndata'].dtype)
     return contents
 
 # Main

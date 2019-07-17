@@ -18,12 +18,6 @@
 # Doc
 # ------------------------------------------------------------------------ 79->
 #
-# {
-#     'column': 'columnA',
-#     'method': 'quicksort',
-#     'axis': 0
-# }
-#
 # Imports
 # ------------------------------------------------------------------------ 79->
 import numpy as np
@@ -34,29 +28,32 @@ from common.task import Task
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Sort(Task):
+class Unique(Task):
+
+    # IM PROG
 
     def __init__(self, kwargs, content):
-        super(Sort, self).__init__(kwargs, content)
+        super(Unique, self).__init__(kwargs, content)
         self.ndata.setflags(write=1)
 
-    def sort(self):
-        self.ndata.sort(
-            axis=self.axis,
-            kind=self.method,
-            order=self.column
-        )
+    def unique(self):
+        keys = np.unique(self.ndata[self.a]).tolist()
+        t = np.ndarray((len(keys), ), dtype=self.ndata.dtype)
+        for i in range(len(keys)):
+            for r in self.ndata:
+                if keys[i] == r[self.a]:
+                    t[i] = r
+        self.ndata = t
         return self
-
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_sort(kwargs, contents):
-    Task = Sort(
-        kwargs['task_sort'], 
+def task_unique(kwargs, contents):
+    Task = Unique(
+        kwargs['task_unique'],
         contents
     )
-    return Task.sort().getContents()
+    return Task.unique().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

@@ -18,12 +18,6 @@
 # Doc
 # ------------------------------------------------------------------------ 79->
 #
-# {
-#     'column': 'columnA',
-#     'method': 'quicksort',
-#     'axis': 0
-# }
-#
 # Imports
 # ------------------------------------------------------------------------ 79->
 import numpy as np
@@ -34,29 +28,40 @@ from common.task import Task
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Sort(Task):
+class CrossMax(Task):
 
     def __init__(self, kwargs, content):
-        super(Sort, self).__init__(kwargs, content)
+        super(CrossMax, self).__init__(kwargs, content)
         self.ndata.setflags(write=1)
+        self.newColumns = [
+            ('{0}'.format(o['column']), '<f8')
+            for o in self.operations
+        ]
+        self.addColumns()
 
-    def sort(self):
-        self.ndata.sort(
-            axis=self.axis,
-            kind=self.method,
-            order=self.column
-        )
+    def crossMax(self):
+        for i in range(len(self.operations)):
+            o = self.operations[i]
+            dtypes = [x for x in self.dtypes if x[0] in o['columns']]
+            tempData = np.zeros(self.ndata.shape, dtypes)
+            for j in range(len(dtypes)):
+                tempData[dtypes[j][0]] = self.ndata[dtypes[j][0]]
+            
+            self.setColumn(
+                i,
+                np.max(np.array(tempData.tolist()), axis=1)
+            )
         return self
 
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_sort(kwargs, contents):
-    Task = Sort(
-        kwargs['task_sort'], 
+def task_max_cross(kwargs, contents):
+    Task = CrossMax(
+        kwargs['task_max_cross'],
         contents
     )
-    return Task.sort().getContents()
+    return Task.crossMax().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

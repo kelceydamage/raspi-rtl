@@ -152,7 +152,7 @@ def sort_bad(q_data):
 def addFigure(sources, doc):
     PLOTS[sources['name']] = figure(
         title=sources['name'],
-        plot_width=900,
+        plot_width=1200,
         plot_height=300,
         x_axis_type=sources['scale'],
         y_axis_type=sources['scale'],

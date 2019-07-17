@@ -18,12 +18,6 @@
 # Doc
 # ------------------------------------------------------------------------ 79->
 #
-# {
-#     'column': 'columnA',
-#     'method': 'quicksort',
-#     'axis': 0
-# }
-#
 # Imports
 # ------------------------------------------------------------------------ 79->
 import numpy as np
@@ -34,29 +28,40 @@ from common.task import Task
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Sort(Task):
+class Aggregate(Task):
 
     def __init__(self, kwargs, content):
-        super(Sort, self).__init__(kwargs, content)
+        super(Aggregate, self).__init__(kwargs, content)
         self.ndata.setflags(write=1)
+        self.newColumns = [
+            ('{0}'.format(o['column']), '<f8')
+            for o in self.operations
+        ]
+        self.addColumns()
 
-    def sort(self):
-        self.ndata.sort(
-            axis=self.axis,
-            kind=self.method,
-            order=self.column
-        )
+    def aggregate(self):
+        for i in range(len(self.operations)):
+            o = self.operations[i]
+            dtypes = [x for x in self.dtypes if x[0] in o['columns']]
+            tempData = np.zeros(self.ndata.shape, dtypes)
+            for j in range(len(dtypes)):
+                tempData[dtypes[j][0]] = self.ndata[dtypes[j][0]]
+
+            self.setColumn(
+                i,
+                np.mean(np.array(tempData.tolist()), axis=1)
+            )
         return self
 
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_sort(kwargs, contents):
-    Task = Sort(
-        kwargs['task_sort'], 
+def task_aggregate(kwargs, contents):
+    Task = Aggregate(
+        kwargs['task_aggregate'],
         contents
     )
-    return Task.sort().getContents()
+    return Task.aggregate().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

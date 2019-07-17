@@ -18,12 +18,6 @@
 # Doc
 # ------------------------------------------------------------------------ 79->
 #
-# {
-#     'column': 'columnA',
-#     'method': 'quicksort',
-#     'axis': 0
-# }
-#
 # Imports
 # ------------------------------------------------------------------------ 79->
 import numpy as np
@@ -34,29 +28,37 @@ from common.task import Task
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Sort(Task):
+class Log(Task):
+
+    # IM PROG
 
     def __init__(self, kwargs, content):
-        super(Sort, self).__init__(kwargs, content)
+        super(Log, self).__init__(kwargs, content)
         self.ndata.setflags(write=1)
+        self.newColumns = [
+            ('{0}'.format(o['column']), '<f8')
+            for o in self.operations
+        ]
+        self.addColumns()
 
-    def sort(self):
-        self.ndata.sort(
-            axis=self.axis,
-            kind=self.method,
-            order=self.column
-        )
+    def log(self):
+        for i in range(len(self.operations)):
+            o = self.operations[i]
+            self.setColumn(
+                i,
+                np.log(self.ndata[o['a']])
+            )
         return self
 
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def task_sort(kwargs, contents):
-    Task = Sort(
-        kwargs['task_sort'], 
+def task_log(kwargs, contents):
+    Task = Log(
+        kwargs['task_log'],
         contents
     )
-    return Task.sort().getContents()
+    return Task.log().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

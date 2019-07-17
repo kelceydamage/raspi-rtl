@@ -76,9 +76,52 @@ class DistanceFromMean():
             self.column[i] = self.negativeRange[i]
 
 
+class PercentOfMax():
+
+    def __init__(self, column, weight):
+        self.column = column
+        self.weight = min(self.column)
+        self.max = max(self.column) - self.weight
+        self.count = len(self.column)
+        self.normalize()
+
+    def normalize(self):
+        print('MAX', self.max, 'MIN', self.weight)
+        for i in range(self.count):
+            n = ((self.column[i] - self.weight) / self.max) * 100
+            self.column[i] = n
+
+
+class Squash():
+
+    def __init__(self, column, weight):
+        self.column = column
+        self.weight = min(self.column)
+        self.max = max(self.column) - self.weight
+        self.count = len(self.column)
+        self.avg = sum(self.column) / self.count
+        self.normalize()
+
+    def countOutliers(self):
+        temp = []
+        for i in range(self.count):
+            if self.column[i] > self.avg * 2:
+                temp.append(self.column[i])
+                self.column[i] = self.avg * 2
+        self.max = max(self.column)
+
+    def normalize(self):
+        self.countOutliers()
+        print('MAX', self.max, 'MIN', self.weight, 'AVG', self.avg, 'COUNT', self.count)
+        for i in range(self.count):
+            n = ((self.column[i] - self.weight) / self.max) * 100
+            self.column[i] = n
+
+
 class Models():
     DistanceFromMean = DistanceFromMean
-    Null = Null
+    PercentOfMax = PercentOfMax
+    Squash = Squash
 
 
 # Functions
