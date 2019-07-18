@@ -20,6 +20,11 @@ pip3 install pyzmq pytest-cov python-coveralls codecov coverage lmdb cbor
 ujson numpy==1.15.4 cython bokeh sklearn zmq
 ```
 
+### Optional (for CUDA)
+```
+pip3 install fastrlock cupy
+```
+
 # Centos7.4+
 
 ### Development Environment & Core
@@ -39,4 +44,9 @@ source ~/python36/bin/activate
 ```
 pip3 install pyzmq pytest-cov python-coveralls codecov coverage lmdb cbor 
 ujson numpy==1.15.4 cython bokeh sklearn zmq
+```
+
+### Optional (for CUDA)
+```
+pip3 install fastrlock cupy
 ```
