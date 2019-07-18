@@ -34,7 +34,6 @@ class Add(Task):
 
     def __init__(self, kwargs, content):
         super(Add, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
         self.newColumns = [
             ('{0}'.format(o['column']), '<f8')
             for o in self.operations

@@ -32,7 +32,6 @@ class ClassifyStatic(Task):
 
     def __init__(self, kwargs, content):
         super(ClassifyStatic, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
         self.newColumns = [
             ('{0}Class'.format(o['column']), '<i8')
             for o in self.operations

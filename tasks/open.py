@@ -38,7 +38,6 @@ class Open(Task):
 
     def __init__(self, kwargs, content):
         super(Open, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
         self.keys = [
             'compression', 
             'delimiter', 

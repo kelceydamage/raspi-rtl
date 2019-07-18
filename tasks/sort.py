@@ -38,7 +38,6 @@ class Sort(Task):
 
     def __init__(self, kwargs, content):
         super(Sort, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
 
     def sort(self):
         self.ndata.sort(

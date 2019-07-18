@@ -34,7 +34,6 @@ class Unique(Task):
 
     def __init__(self, kwargs, content):
         super(Unique, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
 
     def unique(self):
         keys = np.unique(self.ndata[self.a]).tolist()

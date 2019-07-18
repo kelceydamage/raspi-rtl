@@ -32,7 +32,6 @@ class Difference(Task):
 
     def __init__(self, kwargs, content):
         super(Difference, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
 
     def difference(self):
         for o in self.operations:

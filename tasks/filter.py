@@ -32,7 +32,7 @@ class Filter(Task):
 
     def __init__(self, kwargs, content):
         super(Filter, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
+        #self.ndata.setflags(write=1)
 
     def filter(self):
         print('FILTER', self.ndata.dtype)
