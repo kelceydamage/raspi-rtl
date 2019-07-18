@@ -50,6 +50,7 @@ from transport.conf.configuration import RELAY_RECV
 from transport.conf.configuration import CACHE_LISTEN
 from transport.conf.configuration import CACHE_RECV
 from transport.conf.configuration import PLOT_LISTEN
+from transport.conf.configuration import PLOT_ADDR
 from common.print_helpers import printc, Colours
 from web.plot import modify_doc
 
@@ -166,7 +167,13 @@ cdef class PlotNode(Node):
     def __init__(self, docs=''):
         super(PlotNode, self).__init__()
         self.header = 'PLOT-{0}'.format(self.pid).encode()
-        self.server = Server({'/': modify_doc}, num_procs=1, port=PLOT_LISTEN)
+        self.server = Server(
+            {'/': modify_doc}, 
+            num_procs=1, 
+            address=PLOT_ADDR,
+            port=PLOT_LISTEN,
+            allow_websocket_origin=["*"]
+            )
         with open('var/run/{0}'.format(self.header.decode()), 'w+') as f:
             f.write(str(self.pid))
 

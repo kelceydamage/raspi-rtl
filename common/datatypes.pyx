@@ -174,7 +174,7 @@ cdef class Envelope:
             sealed_envelope[0], 
             dtype=self.meta_dtypes
             ).reshape(1, )
-        self.header.setflags(write=1)
+        #self.header.setflags(write=1)
         self.ndata = <string>sealed_envelope[2]
         if self.unseal:
             self.meta = cbor.loads(sealed_envelope[1])
@@ -210,6 +210,7 @@ cdef class Envelope:
 
     cdef void consume(self):
         self.meta['completed'].append(self.meta['tasks'].pop(0))
+        self.header = array(self.header)
         self.header['lifespan'][0] -= 1
 
     cdef long get_shape(self):
