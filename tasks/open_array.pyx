@@ -73,16 +73,29 @@ cdef class OpenArray(Task):
         with open(filemeta.append(self.file).append(b'.meta'), 'rb') as f:
             self.decodeMeta(f.read())
 
-    cdef OpenArray openArray(OpenArray self):
+    cdef void openCSV(OpenArray self):
         cdef:
             string filedata
             list _b = []
 
-        self.openMeta()
         with open(filedata.append(self.file).append(b'.').append(self.extension), 'rb') as f:
             _b = [tuple(line.split(self.delimiter)) for line in f]
             self.ndata = np.asarray(_b, dtype=self.dtypes)
-            return self
+
+    cdef void openNPBinary(OpenArray self):
+        cdef:
+            string filedata
+
+        with open(filedata.append(self.file).append(b'.').append(self.extension), 'rb') as f:
+            self.ndata = np.frombuffer(f.read(), dtype=self.dtypes)
+
+    cdef OpenArray openArray(OpenArray self):
+        self.openMeta()
+        if self.extension == b'csv':
+            self.openCSV()
+        elif self.extension == b'dat':
+            self.openNPBinary()
+        return self
 
 
 # Functions
