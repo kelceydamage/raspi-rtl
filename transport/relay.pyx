@@ -27,13 +27,19 @@
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
+DEF GPU = 0
 
 # Python imports
 import zmq
 import os
 import math
-from numpy import array_split
-from numpy import empty
+IF GPU == 1:
+    from cupy import array_split, empty
+ELSE:
+    print('Failed to load CuPy falling back to Numpy')
+    from numpy import array_split, empty
+#from numpy import array_split
+#from numpy import empty
 from transport.conf.configuration import CHUNKING_SIZE
 from transport.conf.configuration import RELAY_LISTEN
 from transport.conf.configuration import RELAY_RECV

@@ -28,7 +28,8 @@
 # ------------------------------------------------------------------------ 79->
 
 cimport cython
-from numpy cimport ndarray, dtype
+from numpy cimport ndarray
+from numpy cimport dtype
 from libcpp.string cimport string
 
 # Globals
@@ -66,6 +67,7 @@ cdef class Envelope:
     cdef void load(self, list sealed_envelope, bint unseal=?)
     cdef list seal(self)
     cdef void consume(self)
+    #cdef void modify_meta(self, dict meta)
     cdef long get_shape(self)
     cdef long get_lifespan(self)
     cdef long get_length(self)
@@ -78,6 +80,7 @@ cdef class Envelope:
     cdef void set_data(self, data)
     cdef void set_ndata(self, ndarray data)
     cdef void set_contents(self, dict contents)
+    cdef void modify_meta(self, dict meta)
 
 # Functions
 # ------------------------------------------------------------------------ 79->

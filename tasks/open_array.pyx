@@ -29,9 +29,13 @@ from base64 import b64decode
 import re
 from common.task import Task
 import csv
+import mmap
+import time
 
 cimport numpy as np
 from libcpp.string cimport string
+from libc.stdio cimport fopen, FILE, fclose
+from posix.stdio cimport fileno
 from common.task cimport Task
 from numpy cimport ndarray
 
@@ -57,6 +61,7 @@ cdef class OpenArray(Task):
             string s
             object d1
             object d2
+            double t
         
         s = b64decode(m)
         d1 = re.compile(b'<@')
@@ -86,8 +91,11 @@ cdef class OpenArray(Task):
         cdef:
             string filedata
 
-        with open(filedata.append(self.file).append(b'.').append(self.extension), 'rb') as f:
-            self.ndata = np.frombuffer(f.read(), dtype=self.dtypes)
+        self.ndata = np.memmap(
+            filedata.append(self.file).append(b'.').append(self.extension), 
+            mode='r',
+            dtype=self.dtypes
+        )
 
     cdef OpenArray openArray(OpenArray self):
         self.openMeta()

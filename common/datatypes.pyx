@@ -29,12 +29,19 @@
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
+DEF GPU = 0
 
 # Python imports
 import cbor
 from uuid import uuid4
 from ast import literal_eval
-from numpy import array, frombuffer, dtype
+IF GPU == 1:
+    from cupy import array
+    from numpy import frombuffer, dtype
+ELSE:
+    print('Failed to load CuPy falling back to Numpy')
+    from numpy import array, frombuffer, dtype
+#from numpy import array, frombuffer, dtype
 
 # Cython imports
 cimport cython
@@ -174,7 +181,6 @@ cdef class Envelope:
             sealed_envelope[0], 
             dtype=self.meta_dtypes
             ).reshape(1, )
-        #self.header.setflags(write=1)
         self.ndata = <string>sealed_envelope[2]
         if self.unseal:
             self.meta = cbor.loads(sealed_envelope[1])
@@ -212,6 +218,15 @@ cdef class Envelope:
         self.meta['completed'].append(self.meta['tasks'].pop(0))
         self.header = array(self.header)
         self.header['lifespan'][0] -= 1
+
+    cdef void modify_meta(self, dict meta):
+        cdef:
+            ndarray h
+        
+        h = array(self.header)
+        h['lifespan'] = len(meta['tasks'])
+        self.header = h
+        self.meta = meta
 
     cdef long get_shape(self):
         return self.header['shape'][0]

@@ -31,8 +31,13 @@
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
+DEF GPU = 0
 
 # Python imports
+IF GPU == 1:
+    import cupy as p
+ELSE:
+    import numpy as p
 import zmq
 import lmdb
 from os import getpid
@@ -53,9 +58,10 @@ from transport.conf.configuration import PLOT_LISTEN
 from transport.conf.configuration import PLOT_ADDR
 from common.print_helpers import printc, Colours
 from web.plot import modify_doc
+import time
 
-# Cython imports
 cimport cython
+# Cython imports
 from numpy cimport ndarray
 from libcpp.string cimport string
 from libc.stdint cimport uint_fast16_t
@@ -139,6 +145,9 @@ cdef class TaskNode(Node):
             dict contents = self.envelope.get_contents()
             str func = self.functions[self.envelope.meta['tasks'][0]]
             Exception msg
+            double t
+
+        t = time.perf_counter()
         printc('Running: {0}'.format(func.split('.')[0]), COLOURS.LIGHTBLUE)
         try:
             contents = eval(func)(self.envelope.meta['kwargs'], contents)
@@ -148,11 +157,15 @@ cdef class TaskNode(Node):
                     self.envelope['completed'][-1], e
                     )
                 )
-            print(msg)
+            (msg)
             raise msg
         else:
             self.envelope.consume()
         self.envelope.set_contents(contents)
+        printc('Completed: {0} {1}'.format(
+            convert_time(time.perf_counter() - t), func.split('.')[0]), 
+            COLOURS.GREEN
+        )
 
 
 cdef class PlotNode(Node):
@@ -186,7 +199,7 @@ cdef class PlotNode(Node):
             msg = Exception(
                 'PLOT-ERROR: {0}'.format(e)
                 )
-            print(msg)
+            (msg)
             raise msg
 
 
@@ -232,6 +245,9 @@ cdef class CacheNode(Node):
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+cdef str convert_time(number):
+    number = number * 1000
+    return '{0:.2f} ms'.format(number)
 
 # Main
 # ------------------------------------------------------------------------ 79->
