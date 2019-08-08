@@ -77,7 +77,7 @@ setup(
         "cython",
         "sklearn",
         "bokeh",
-        "cupy"
+        #"cupy" for systems with nvcc and CUDA
     ],
     py_modules=[
         'transport.cache',
