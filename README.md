@@ -8,14 +8,14 @@
 ![logo](https://github.com/kelceydamage/rtl/blob/master/docs/logo.png?raw=true)
 
 # RASPI Transport Layer v3-experimental
-
 ## Documentation Links
 
 * [datatypes](https://github.com/kelceydamage/rtl/blob/master/DATATYPES.md)
 * [dependancies](https://github.com/kelceydamage/rtl/blob/master/DEPENDANCIES.md)
 * [development](https://github.com/kelceydamage/rtl/blob/master/DEVELOPMENT.md)
 
-# Included Tasks
+## Functionality
+### Included Tasks
 * add
 * aggregate
 * average
@@ -40,24 +40,8 @@
 * unique
 * array write
 
-## Communication Diagram
-
-![logo](https://github.com/kelceydamage/rtl/blob/master/docs/msg-diag.png?raw=true)
-
-The transport layer is comprised of 3 main components:
-
-#### Relay
-The relay is the primary coordinator for forwarding, splitting, and assembling work requests. The role of the relay is to ensure pipeline stages are assigned to tasknodes, and completed pipelines are returned to the requestor.
-
-#### TaskNode
-The tasknode processes a given stage in the pipeline. If a stage exists in the task library, it is executed over the accompanying data, and the result is returned to the relay.
-
-#### PlotNode
-The plotnode runs a bokeh server and allows you to create visualizations right from the DSDSL.
-
 ## Usage
-
-#### RTL Platform
+### RTL Platform
 
 To start the service:
 ```
@@ -71,7 +55,7 @@ To stop the service:
 
 There are also `status` and `restart` commands.
 
-## Using The Built-in Client
+### Using The Built-in Client
 
 ```python
 # Import the Transform engine
@@ -95,7 +79,7 @@ DSDSL = {
 r = Transform().execute(DSDSL).result()
 ```
 
-## Creating A Client ()
+### Creating A Client ()
 ```python
 # Import the datatypes, dispatcher, and cache
 from common.datatypes import Envelope
@@ -135,7 +119,7 @@ cache.put(envelope.getId(), cbor.dumps(DSDSL[0]))
 result = dispatcher.send(envelope)
 ```
 
-## Sample Job Run
+### Sample Job Run
 ```python
 (python3) [vagrant@localhost rtl]$ python dsdsl/dev.py
 Failed to load CuPy falling back to Numpy
@@ -168,7 +152,23 @@ Completed: 0.10 ms simple_plot
 Total Elapsed Time: 0.03805337700032396
 ```
 
-## Ports
+## Architecture
+### Communication Diagram
+
+![logo](https://github.com/kelceydamage/rtl/blob/master/docs/msg-diag.png?raw=true)
+
+The transport layer is comprised of 3 main components:
+
+#### Relay
+The relay is the primary coordinator for forwarding, splitting, and assembling work requests. The role of the relay is to ensure pipeline stages are assigned to tasknodes, and completed pipelines are returned to the requestor.
+
+#### TaskNode
+The tasknode processes a given stage in the pipeline. If a stage exists in the task library, it is executed over the accompanying data, and the result is returned to the relay.
+
+#### PlotNode
+The plotnode runs a bokeh server and allows you to create visualizations right from the DSDSL.
+
+### Ports
 
 | Service   | Function    | Port  |
 |-----------|-------------|-------|
@@ -181,7 +181,8 @@ Total Elapsed Time: 0.03805337700032396
 |           | Send        |*      |
 |PlotNode   | Router      | 5006  |
 
-## Settings (configuration.py)
+## Configuration
+### Settings (configuration.py)
 
 | Setting | Value | Description |
 |---------|-------|-------------|
@@ -204,7 +205,8 @@ Total Elapsed Time: 0.03805337700032396
 |CACHE_PATH   | '/tmp/transport' | This is where the general cache is stored. |
 |CACHE_MAP_SIZE | 512*1024**2 | 512MiB to start. |
 
-## Code Performance Numbers
+## Performance
+### Code Performance Numbers
 
 A note on overhead and scalability, there is no benefit in parallelization of an operation optimized for a tight loop, and adding more distribution overhead to such tasks has massive repercussions. However, bundled tasks do perform better as a rule. While there will be a need to send small commands such as directional/movement controls, the real capability is in processing massive ammounts of signal data. The forthcoming DataNodes will be publishers/processors of sensor data.
 
