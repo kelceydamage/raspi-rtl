@@ -57,6 +57,7 @@ There are also `status` and `restart` commands.
 
 ### Using The Built-in Client
 
+The built in client work great for loading numpy binaries off the disk and processing them, as well as general tasks.
 ```python
 # Import the Transform engine
 from common.transform import Transform
@@ -80,6 +81,8 @@ r = Transform().execute(DSDSL).result()
 ```
 
 ### Creating A Client ()
+
+At some point I will make alternate functions to the built in client for different use cases. In the mean time you can make your own s follows:
 ```python
 # Import the datatypes, dispatcher, and cache
 from common.datatypes import Envelope
@@ -108,6 +111,11 @@ DSDSL = {
 
 # init the envelope
 envelope.pack(1)
+
+# with a custom client you can pass a local numpy array, instead 
+# of loading one off the disk. This is useful when processing sensor
+# or other streaming data.
+envelope.setContents(nparray)
 
 # Stash the schema wo the worker nodes can access it. We use the 
 # envelopes ID since it is a UUID and unique, we also encode the 
