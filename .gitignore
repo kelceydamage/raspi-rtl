@@ -25,5 +25,6 @@ raw_data/
 raw_data/*
 test.py
 dsdsl/custom_*
+*copy*
 ~
 
