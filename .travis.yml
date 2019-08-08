@@ -10,10 +10,13 @@ before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
+  - ./transport/bin/init.sh start
 script:
   - pytest -v --cov=tasks --cov-report=term-missing
+  - ./platformTest.py
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+  - ./transport/bin/init.sh stop
 after_success:
   - coveralls
   - codecov
