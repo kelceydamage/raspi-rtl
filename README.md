@@ -82,7 +82,7 @@ r = Transform().execute(DSDSL).result()
 
 ### Creating A Client ()
 
-At some point I will make alternate functions to the built in client for different use cases. In the mean time you can make your own s follows:
+At some point I will make alternate functions to the built in client for different use cases. In the mean time you can make your own as follows:
 ```python
 # Import the datatypes, dispatcher, and cache
 from common.datatypes import Envelope
