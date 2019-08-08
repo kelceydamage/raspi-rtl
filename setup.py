@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
-
-from distutils.core import setup
+from setuptools import setup
+#from distutils.core import setup
 from distutils.extension import Extension
 from os.path import dirname
 import platform
@@ -69,6 +69,16 @@ setup(
     url='https://github.com/kelceydamage/rtl.git',
     download_url='https://github.com/kelceydamage/rtl.git',
     license='http://www.apache.org/licenses/LICENSE-2.0',
+    install_requires=[
+        "pyzmq",
+        "lmdb",
+        "cbor",
+        "numpy",
+        "cython",
+        "sklearn",
+        "bokeh",
+        "cupy"
+    ],
     py_modules=[
         'transport.cache',
         'transport.registry',
@@ -81,7 +91,6 @@ setup(
     ],
     ext_modules=extensions,
     include_dirs=[numpy.get_include(), zmq.get_includes()],
-    dependency_links=['git+https://github.com/kelceydamage/rtl.git@master#egg=rtl']
 )
 
 '''
