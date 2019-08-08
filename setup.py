@@ -66,7 +66,7 @@ setup(
     description='Raspi Transport Layer',
     author='Kelcey Jamison-Damage',
     author_email='',
-    url='https://github.com/kelceydamage/rtl.git'
+    url='https://github.com/kelceydamage/rtl.git',
     ext_modules = extensions,
     include_dirs = [numpy.get_include(), zmq.get_includes()]
 )
