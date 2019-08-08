@@ -10,7 +10,7 @@ from tasks.regression import task_regression
 from dummy_data import KWARGS, CONTENTS3
 
 def test_linear_regression():
-    KWARGS['task_regression'] = {
+    KWARGS = {
         'operations': [
             {
                 'x': 'a',
@@ -21,12 +21,12 @@ def test_linear_regression():
         ]
     }
     r = task_regression(KWARGS, CONTENTS3)
-    assert r['ndata']['bLinear'].tolist() == [
+    assert r['bLinear'].tolist() == [
         10.500000000000002, 11.000000000000002, 11.5, 12.0
     ]
 
 def test_poly_regression():
-    KWARGS['task_regression'] = {
+    KWARGS = {
         'operations': [
             {
                 'x': 'a',
@@ -38,6 +38,8 @@ def test_poly_regression():
         ]
     }
     r = task_regression(KWARGS, CONTENTS3)
-    assert r['ndata']['bPoly'].tolist() == [
+    assert r['bPoly'].tolist() == [
         2.000000000000078, 23.000000000000068, 13.000000000000064, 7.000000000000071
     ]
+    #[2.000000000000078, 23.000000000000046, 13.000000000000021, 6.999999999999964]
+    # Precision is system dependant and often this test will fail.

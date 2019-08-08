@@ -21,17 +21,25 @@
 # Doc
 # ------------------------------------------------------------------------ 79->
 # Dependancies:
-#                   numpy
-#                   libcpp.string
 #
+
 # Imports
 # ------------------------------------------------------------------------ 79->
-
 cimport cython
-from cpython cimport Py_buffer
-from numpy cimport ndarray
-from numpy cimport dtype
+from libcpp.list cimport list as cpplist
+from libcpp cimport bool
+from libcpp.vector cimport vector
+from libcpp.utility cimport pair
 from libcpp.string cimport string
+from libcpp.map cimport map
+from libcpp.unordered_map cimport unordered_map
+from libc.stdint cimport uint_fast8_t
+from libc.stdint cimport int_fast16_t
+from libc.stdio cimport printf
+from libc.stdlib cimport atoi
+from posix cimport time as p_time
+
+from numpy cimport ndarray
 
 # Globals
 # ------------------------------------------------------------------------ 79->
@@ -39,36 +47,47 @@ from libcpp.string cimport string
 # Classes
 # ------------------------------------------------------------------------ 79->
 
-cdef class Envelope:
+cdef class Squash:
+    """
+    NAME:           Squash
+
+    DESCRIPTION:    A class of utility functions used by the datatypes.
+
+    METHODS:        .countOutliers()
+                    Sets the array values for the outliers exceeding the mean 
+                    times two, to be equal to the mean times two.
+
+                    .normalize()
+                    Executes the normalization algorithm
+    """
     cdef:
-        public string version
-        list sealed_buffer
-        object dtypes
-        long lifespan
-        long length
-        long width
-        string id
-        object ndataBuffer
-        ndarray ndata
+        public ndarray column
+        float weight
+        float max
+        uint_fast8_t count
+        float avg
+        str _id
 
-    # Python accessible API
-    cpdef ndarray result(self)
-    cpdef void pack(self, long lifespan, list dtypes=?, ndarray ndata=?)
+    cdef void countOutliers(self)
+    cdef void normalize(self)
 
-    # CPP/Cython acccessible API
-    cdef void load(self, list sealed_envelope)
-    cdef list seal(self)
-    cdef string getId(self)
-    cdef void createId(self)
-    cdef long getLength(self)
-    cdef long getWidth(self)
-    cdef long getLifespan(self)
-    cdef void setLifespan(self, long i)
-    cdef dtype getDtypes(self)
-    cdef ndarray getContents(self)
-    cdef void setContents(self, ndarray ndata)
-    cdef void consume(self)
+cdef class PercentOfMax:
+    """
+    NAME:           PercentOfMax
 
+    DESCRIPTION:    A class of utility functions used by the datatypes.
+
+    METHODS:        .normalize()
+                    Executes the normalization algorithm
+    """
+    cdef:
+        public ndarray column
+        float weight
+        float max
+        uint_fast8_t count
+        str _id
+
+    cdef void normalize(self)
 
 # Functions
 # ------------------------------------------------------------------------ 79->

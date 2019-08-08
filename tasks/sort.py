@@ -38,13 +38,12 @@ class Sort(Task):
 
     def __init__(self, kwargs, content):
         super(Sort, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
 
     def sort(self):
         self.ndata.sort(
             axis=self.axis,
             kind=self.method,
-            order=self.column
+            order=self.column.decode()
         )
         return self
 
@@ -52,11 +51,7 @@ class Sort(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_sort(kwargs, contents):
-    Task = Sort(
-        kwargs['task_sort'], 
-        contents
-    )
-    return Task.sort().getContents()
+    return Sort(kwargs, contents).sort().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

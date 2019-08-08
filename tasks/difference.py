@@ -32,7 +32,6 @@ class Difference(Task):
 
     def __init__(self, kwargs, content):
         super(Difference, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
 
     def difference(self):
         for o in self.operations:
@@ -43,11 +42,7 @@ class Difference(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_difference(kwargs, contents):
-    Task = Difference(
-        kwargs['task_difference'],
-        contents
-    )
-    return Task.difference().getContents()
+    return Difference(kwargs, contents).difference().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

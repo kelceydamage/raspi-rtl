@@ -10,7 +10,7 @@ from tasks.multiply import task_multiply
 from dummy_data import KWARGS, CONTENTS
 
 def test_multiply():
-    KWARGS['task_multiply'] = {
+    KWARGS = {
         'operations': [
             {
                 'a': 'a',
@@ -25,5 +25,5 @@ def test_multiply():
         ]
     }
     r = task_multiply(KWARGS, CONTENTS)
-    assert r['ndata']['c1'][2] == 16
-    assert r['ndata']['c2'][2] == 8
+    assert r['c1'][2] == 16
+    assert r['c2'][2] == 8

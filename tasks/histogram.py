@@ -38,7 +38,6 @@ class Histogram(Task):
 
     def __init__(self, kwargs, content):
         super(Histogram, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
         self.newColumns = [
             ('{0}'.format(o['column']), '<f8')
             for o in self.operations
@@ -75,11 +74,7 @@ class Histogram(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_histogram(kwargs, contents):
-    Task = Histogram(
-        kwargs['task_histogram'],
-        contents
-    )
-    return Task.histogram().getContents()
+    return Histogram(kwargs, contents).histogram().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

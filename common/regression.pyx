@@ -1,4 +1,6 @@
-#!/usr/bin/env python3
+#!python
+#cython: language_level=3, cdivision=True
+###boundscheck=False, wraparound=False //(Disabled by default)
 # ------------------------------------------------------------------------ 79->
 # Author: ${name=Kelcey Damage}
 # Python: 3.5+

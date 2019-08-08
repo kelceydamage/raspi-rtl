@@ -17,26 +17,36 @@ source ~/python3/bin/activate
 ### Required (within virtual env)
 ```
 pip3 install pyzmq pytest-cov python-coveralls codecov coverage lmdb cbor 
-ujson numpy cython bokeh sklearn zmq
+pip3 install ujson numpy cython bokeh sklearn zmq
+```
+
+### Optional (for CUDA)
+```
+pip3 install fastrlock cupy
 ```
 
 # Centos7.4+
 
 ### Development Environment & Core
 ```
-sudo yum install python36u-pip python36u-devel python36u-setuptools
-sudo yum install zeromq-devel-4.1.4-5.el7.x86_64 zeromq-4.1.4-5.el7.x86_64
+sudo yum install centos-release-scl rh-python36
+sudo yum install zeromq-devel zeromq
 ```
 
 ### Virtual Environment
 ```bash
 pip3 install virtualenv
 virtualenv -p $(which python3.6) ~/python3
-source ~/python36/bin/activate
+source ~/python3/bin/activate
 ```
 
 ### Required (within virtual env)
 ```
 pip3 install pyzmq pytest-cov python-coveralls codecov coverage lmdb cbor 
-ujson numpy cython bokeh sklearn zmq
+pip3 install ujson numpy cython bokeh sklearn zmq
+```
+
+### Optional (for CUDA)
+```
+pip3 install fastrlock cupy
 ```

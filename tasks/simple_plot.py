@@ -67,11 +67,7 @@ class Plot(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_simple_plot(kwargs, contents):
-    Task = Plot(
-        kwargs['task_simple_plot'],
-        contents
-    )
-    return Task.plot().getContents()
+    return Plot(kwargs, contents).plot().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

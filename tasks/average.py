@@ -32,7 +32,6 @@ class Average(Task):
 
     def __init__(self, kwargs, content):
         super(Average, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
         self.newColumns = [
             ('{0}'.format(o['column']), '<f8')
             for o in self.operations
@@ -45,7 +44,7 @@ class Average(Task):
             avg = np.mean(self.ndata[o['a']])
             self.setColumn(
                 i,
-                np.mean(self.ndata[o['a']])
+                np.array(np.mean(self.ndata[o['a']]))
             )
         return self
 
@@ -53,11 +52,7 @@ class Average(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_average(kwargs, contents):
-    Task = Average(
-        kwargs['task_average'],
-        contents
-    )
-    return Task.average().getContents()
+    return Average(kwargs, contents).average().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

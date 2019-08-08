@@ -10,7 +10,7 @@ from tasks.add import task_add
 from dummy_data import KWARGS, CONTENTS
 
 def test_add():
-    KWARGS['task_add'] = {
+    KWARGS = {
         'operations': [
             {
                 'a': 'a',
@@ -25,5 +25,5 @@ def test_add():
         ]
     }
     r = task_add(KWARGS, CONTENTS)
-    assert r['ndata']['c1'][2] == 8
-    assert r['ndata']['c2'][2] == 5.0
+    assert r['c1'][2] == 8
+    assert r['c2'][2] == 5.0

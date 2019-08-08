@@ -16,6 +16,12 @@
 # limitations under the License.
 #
 # Doc
+# (D -> RR 0.5) (RR -> RS 1) (RS -> TR 1) (TR -> TS 4.3) (TS -> RR 12.2) (RR -> RP 4) 
+# (RA 7) = 36 | 23
+#                 
+# (DS -> RR 0.5) (RR -> RS 1) (RS -> TR 1) (TR -> TS 4.3) (TS -> RR 12.2) (RR -> RP 4) (RP -> DR )
+#      4
+# 23.4 <-> 26.4
 # ------------------------------------------------------------------------ 79->
 # Dependancies:
 #
@@ -25,7 +31,7 @@
 # Globals
 # ------------------------------------------------------------------------ 79->
 # Logging
-LOG_LEVEL               = 9
+DEBUG                   = False
 PROFILE                 = False
 
 # Workers
@@ -35,6 +41,8 @@ TASK_WORKERS            = 3         # Worker processes per node (per physical
 CACHE_WORKERS           = 1
 PLOT_WORKERS            = 1
 PLOT_LISTEN             = 5006
+PLOT_ADDR               = '0.0.0.0'
+
 RESPONSE_TIME           = 0.005     # Controls the rate at which tasks are sent
                                     # to the workers,
                                     # and in doing so, the size of the queue.

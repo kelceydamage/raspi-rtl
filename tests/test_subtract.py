@@ -10,7 +10,7 @@ from tasks.subtract import task_subtract
 from dummy_data import KWARGS, CONTENTS
 
 def test_subtract():
-    KWARGS['task_subtract'] = {
+    KWARGS = {
         'operations': [
             {
                 'a': 'a',
@@ -25,5 +25,5 @@ def test_subtract():
         ]
     }
     r = task_subtract(KWARGS, CONTENTS)
-    assert r['ndata']['c1'][2] == 0
-    assert r['ndata']['c2'][2] == 3.0
+    assert r['c1'][2] == 0
+    assert r['c2'][2] == 3.0

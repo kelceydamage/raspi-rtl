@@ -32,7 +32,6 @@ class Subtract(Task):
 
     def __init__(self, kwargs, content):
         super(Subtract, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
         self.newColumns = [
             ('{0}'.format(o['column']), '<f8')
             for o in self.operations
@@ -56,11 +55,7 @@ class Subtract(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_subtract(kwargs, contents):
-    Task = Subtract(
-        kwargs['task_subtract'],
-        contents
-    )
-    return Task.subtract().getContents()
+    return Subtract(kwargs, contents).subtract().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

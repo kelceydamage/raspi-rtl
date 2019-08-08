@@ -34,7 +34,6 @@ class Log(Task):
 
     def __init__(self, kwargs, content):
         super(Log, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
         self.newColumns = [
             ('{0}'.format(o['column']), '<f8')
             for o in self.operations
@@ -54,11 +53,7 @@ class Log(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_log(kwargs, contents):
-    Task = Log(
-        kwargs['task_log'],
-        contents
-    )
-    return Task.log().getContents()
+    return Log(kwargs, contents).log().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

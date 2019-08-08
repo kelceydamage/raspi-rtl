@@ -10,7 +10,7 @@ from tasks.average_cross import task_average_cross
 from dummy_data import KWARGS, CONTENTS3
 
 def test_average_cross():
-    KWARGS['task_average_cross'] = {
+    KWARGS = {
         'operations': [
             {
                 'column': 'c',
@@ -22,4 +22,4 @@ def test_average_cross():
         ]
     }
     r = task_average_cross(KWARGS, CONTENTS3)
-    assert r['ndata']['c'][2] == 7.5
+    assert r['c'][2] == 7.5

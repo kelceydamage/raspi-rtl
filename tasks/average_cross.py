@@ -32,7 +32,6 @@ class CrossAverage(Task):
 
     def __init__(self, kwargs, content):
         super(CrossAverage, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
         self.newColumns = [
             ('{0}'.format(o['column']), '<f8')
             for o in self.operations
@@ -42,7 +41,7 @@ class CrossAverage(Task):
     def crossAverage(self):
         for i in range(len(self.operations)):
             o = self.operations[i]
-            dtypes = [x for x in self.dtypes if x[0] in o['columns']]
+            dtypes = [x for x in self.dtypes.descr if x[0] in o['columns']]
             tempData = np.zeros(self.ndata.shape, dtypes)
             for j in range(len(dtypes)):
                 tempData[dtypes[j][0]] = self.ndata[dtypes[j][0]]
@@ -57,11 +56,7 @@ class CrossAverage(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_average_cross(kwargs, contents):
-    Task = CrossAverage(
-        kwargs['task_average_cross'],
-        contents
-    )
-    return Task.crossAverage().getContents()
+    return CrossAverage(kwargs, contents).crossAverage().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

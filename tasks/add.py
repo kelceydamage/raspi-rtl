@@ -34,7 +34,6 @@ class Add(Task):
 
     def __init__(self, kwargs, content):
         super(Add, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
         self.newColumns = [
             ('{0}'.format(o['column']), '<f8')
             for o in self.operations
@@ -58,11 +57,7 @@ class Add(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_add(kwargs, contents):
-    Task = Add(
-        kwargs['task_add'],
-        contents
-    )
-    return Task.add().getContents()
+    return Add(kwargs, contents).add().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

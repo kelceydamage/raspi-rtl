@@ -6,18 +6,17 @@ os.sys.path.append(
             )
         )
     )
-from tasks.difference import task_difference
-from dummy_data import KWARGS, CONTENTS2
+from tasks.log import task_log
+from dummy_data import KWARGS, CONTENTS3
 
-def test_difference():
+def test_log():
     KWARGS = {
         'operations': [
             {
-                'a': 'a',
-                'b': 'b',
+                'a': 'b',
                 'column': 'c'
             }
         ]
     }
-    r = task_difference(KWARGS, CONTENTS2)
-    assert r['a'][2] == 2
+    r = task_log(KWARGS, CONTENTS3)
+    assert r['c'][2] == 2.5649493574615367

@@ -32,7 +32,6 @@ class Aggregate(Task):
 
     def __init__(self, kwargs, content):
         super(Aggregate, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
         self.newColumns = [
             ('{0}'.format(o['column']), '<f8')
             for o in self.operations
@@ -57,11 +56,7 @@ class Aggregate(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_aggregate(kwargs, contents):
-    Task = Aggregate(
-        kwargs['task_aggregate'],
-        contents
-    )
-    return Task.aggregate().getContents()
+    return Aggregate(kwargs, contents).aggregate().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

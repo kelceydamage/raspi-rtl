@@ -11,7 +11,7 @@ from web.plot import PLOT_QUEUE
 from dummy_data import KWARGS, CONTENTS
 
 def test_plot():
-    KWARGS['task_simple_plot'] = {
+    KWARGS = {
         'plots': {
             'test': [
                 {

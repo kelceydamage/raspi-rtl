@@ -33,13 +33,13 @@ class ColumnSpace(Task):
 
     def __init__(self, kwargs, contents):
         super(ColumnSpace, self).__init__(kwargs, contents)
-        self.newColumns = [('{0}Space'.format(self.column), '<i8')]
+        self.newColumns = [('{0}Space'.format(self.column.decode()), '<i8')]
         self.addColumns()
 
     def columnSpace(self):
         self.getLSpace(
             self.space,
-            self.ndata[self.column]
+            self.ndata[self.column.decode()]
         )
         self.setColumn(
             0,
@@ -51,11 +51,7 @@ class ColumnSpace(Task):
 # Functions
 # ----------------------------------------------------------------------- 79->
 def task_column_space(kwargs, contents):
-    Task = ColumnSpace(
-        kwargs['task_column_space'],
-        contents
-    )
-    return Task.columnSpace().getContents()
+    return ColumnSpace(kwargs, contents).columnSpace().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

@@ -1,6 +1,8 @@
 
-RASPI_HOME=/git/projects/cython/personal
+RASPI_HOME=$(pwd)
+SCRIPT=/transport/bin/start.py
 PIDFILES=var/run/
+DEFAULT_IFS=$IFS
 
 function print_header() {
     echo -en "\n   +  "
@@ -20,8 +22,7 @@ function print_header() {
 }
 
 function setup_env() {
-    local_home=`pwd`
-    export PATH=$local_home:$PATH
+    export PATH=$RASPI_HOME:$PATH
     export RASPI_HOME
     PYTHON="python"
 }
@@ -32,7 +33,7 @@ function split() {
 }
 
 function print_plugins() {
-    $PYTHON $RASPI_HOME/rtl/transport/bin/start.py -m
+    $PYTHON $RASPI_HOME$SCRIPT -m
 }
 
 function print_terminal_lines() {
@@ -54,7 +55,7 @@ function start() {
     if [ -z "$(ls -A var/run)" ]; then
         print_header
         print_plugins
-        $PYTHON $RASPI_HOME/rtl/transport/bin/start.py &
+        $PYTHON $RASPI_HOME$SCRIPT &
     else
         echo -e "RTL is already running:"
         print_running_services
@@ -64,19 +65,28 @@ function start() {
 function stop() {
     echo -e "\nHalting the fallowing services:"
     print_running_services
-    IFS='
-    '
-    pidfiles=(`ls $PIDFILES`)
     IFS=''
+    pidfiles=(`ls $PIDFILES`)
+    IFS=$DEFAULT_IFS
+    PIDS=(`ps aux|grep start.py|grep -v grep|awk '{print $2}'`)
     for i in ${pidfiles[@]}; do
-        kill `cat $PIDFILES$i` 
+        for j in ${!PIDS[@]}; do
+            if [[ "${PIDS[$j]}" == `cat $PIDFILES$i` ]]; then
+                INDEX=$j
+            fi
+        done
+        kill `cat $PIDFILES$i`
         if [ $? -eq 0 ]; then
             rm -rf $PIDFILES$i
         else
-            echo -e "Error shutting down $PIDFILES$i, exiting script\n"
-            exit 1
+            kill -9 ${PIDS[$INDEX]}
+            echo -e "Error shutting down $PIDFILES$i, used force shutdown"
+            force=1
         fi
     done
+    if [[ $force -eq 1 ]]; then 
+        rm -rf var/run/*
+    fi
     echo -e "RTL has been shut down"
 }
 

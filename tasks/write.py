@@ -36,7 +36,7 @@ class Write(Task):
 
     def __init__(self, kwargs, content):
         super(Write, self).__init__(kwargs, content)
-        self.file = "{0}/{1}".format(self.path, self.filename)
+        self.file = "{0}/{1}".format(self.path.decode('utf-8'), self.filename.decode('utf-8'))
 
     def formatColumns(self):
         types = [x[1] for x in self.dtypes]
@@ -64,6 +64,20 @@ class Write(Task):
             f.write(self.encodeMeta())
 
     def write(self):
+        print(self.extension)
+        if self.extension == b'csv':
+            self.writeCSV()
+        elif self.extension == b'dat':
+            self.writeNPBinary()
+        return self
+
+    def writeNPBinary(self):
+        fmt = self.formatColumns()
+        with open("{0}.{1}".format(self.file, self.extension.decode('utf-8')), 'wb') as f:
+            f.write(self.ndata.tobytes())
+        self.writeMeta()
+
+    def writeCSV(self):
         fmt = self.formatColumns()
         np.savetxt(
             "{0}.{1}".format(self.file, self.extension), 
@@ -72,17 +86,12 @@ class Write(Task):
             fmt=fmt
             )
         self.writeMeta()
-        return self
 
 
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_write(kwargs, contents):
-    Task = Write(
-        kwargs['task_write'],
-        contents
-    )
-    return Task.write().getContents()
+    return Write(kwargs, contents).write().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

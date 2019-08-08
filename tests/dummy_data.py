@@ -12,23 +12,6 @@ NDATA3['a'] = np.arange(4)
 NDATA3['b'] = [2, 23, 13, 7]
 
 KWARGS = {}
-CONTENTS = {
-    'data': {},
-    'ndata': NDATA,
-    'dtypes': DTYPE,
-    'reduces': {}
-}
-
-CONTENTS2 = {
-    'data': {},
-    'ndata': NDATA2,
-    'dtypes': DTYPE,
-    'reduces': {}
-}
-
-CONTENTS3 = {
-    'data': {},
-    'ndata': NDATA3,
-    'dtypes': DTYPE,
-    'reduces': {}
-}
+CONTENTS = NDATA
+CONTENTS2 = NDATA2
+CONTENTS3 = NDATA3

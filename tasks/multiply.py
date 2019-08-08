@@ -32,7 +32,6 @@ class Multiply(Task):
 
     def __init__(self, kwargs, content):
         super(Multiply, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
         self.newColumns = [
             ('{0}'.format(o['column']), '<f8') 
             for o in self.operations
@@ -56,11 +55,7 @@ class Multiply(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_multiply(kwargs, contents):
-    Task = Multiply(
-        kwargs['task_multiply'],
-        contents
-    )
-    return Task.multiply().getContents()
+    return Multiply(kwargs, contents).multiply().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

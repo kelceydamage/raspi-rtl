@@ -58,6 +58,7 @@ cdef class Relay:
         dict index_tracker
         ndarray chunk_holder
         string version
+        object recv_poller
 
     # Python accessible API
     cpdef void start(self)

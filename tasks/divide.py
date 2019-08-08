@@ -32,7 +32,6 @@ class Divide(Task):
 
     def __init__(self, kwargs, content):
         super(Divide, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
         self.newColumns = [
             ('{0}'.format(o['column']), '<f8')
             for o in self.operations
@@ -56,11 +55,7 @@ class Divide(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_divide(kwargs, contents):
-    Task = Divide(
-        kwargs['task_divide'],
-        contents
-    )
-    return Task.divide().getContents()
+    return Divide(kwargs, contents).divide().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

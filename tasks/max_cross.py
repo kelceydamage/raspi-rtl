@@ -32,7 +32,6 @@ class CrossMax(Task):
 
     def __init__(self, kwargs, content):
         super(CrossMax, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
         self.newColumns = [
             ('{0}'.format(o['column']), '<f8')
             for o in self.operations
@@ -57,11 +56,7 @@ class CrossMax(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_max_cross(kwargs, contents):
-    Task = CrossMax(
-        kwargs['task_max_cross'],
-        contents
-    )
-    return Task.crossMax().getContents()
+    return CrossMax(kwargs, contents).crossMax().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

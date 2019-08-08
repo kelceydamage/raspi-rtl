@@ -1,4 +1,6 @@
-#!/usr/bin/env python3
+#!python
+#cython: language_level=3, cdivision=True
+###boundscheck=False, wraparound=False //(Disabled by default)
 # ------------------------------------------------------------------------ 79->
 # Author: ${name=Kelcey Damage}
 # Python: 3.5+
@@ -21,20 +23,18 @@
 # Imports
 # ------------------------------------------------------------------------ 79->
 import numpy as np
+from numpy cimport ndarray
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-class Null():
-
-    def __init__(self, column, weight):
-        self.column = column
 
 class DistanceFromMean():
 
-    def __init__(self, column, weight):
+    def __init__(self, column, weight, _id):
+        self._id = _id
         self.column = column
         self.weight = weight
         self.positiveRange = []
@@ -76,25 +76,27 @@ class DistanceFromMean():
             self.column[i] = self.negativeRange[i]
 
 
-class PercentOfMax():
+cdef class PercentOfMax:
 
-    def __init__(self, column, weight):
+    def __init__(self, column, weight, _id):
+        self._id = _id
         self.column = column
         self.weight = min(self.column)
         self.max = max(self.column) - self.weight
         self.count = len(self.column)
         self.normalize()
 
-    def normalize(self):
+    cdef void normalize(self):
         print('MAX', self.max, 'MIN', self.weight)
         for i in range(self.count):
             n = ((self.column[i] - self.weight) / self.max) * 100
             self.column[i] = n
 
 
-class Squash():
+cdef class Squash:
 
-    def __init__(self, column, weight):
+    def __init__(self, column, weight, _id):
+        self._id = _id
         self.column = column
         self.weight = min(self.column)
         self.max = max(self.column) - self.weight
@@ -102,17 +104,19 @@ class Squash():
         self.avg = sum(self.column) / self.count
         self.normalize()
 
-    def countOutliers(self):
-        temp = []
+    cdef void countOutliers(self):
+        cdef:
+            list temp = []
+
         for i in range(self.count):
             if self.column[i] > self.avg * 2:
                 temp.append(self.column[i])
                 self.column[i] = self.avg * 2
         self.max = max(self.column)
 
-    def normalize(self):
+    cdef void normalize(self):
         self.countOutliers()
-        print('MAX', self.max, 'MIN', self.weight, 'AVG', self.avg, 'COUNT', self.count)
+        print('=>', self._id, ':', 'MAX', self.max, 'MIN', self.weight, 'AVG', self.avg, 'COUNT', self.count)
         for i in range(self.count):
             n = ((self.column[i] - self.weight) / self.max) * 100
             self.column[i] = n

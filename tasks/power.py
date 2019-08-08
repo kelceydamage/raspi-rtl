@@ -34,7 +34,6 @@ class Power(Task):
 
     def __init__(self, kwargs, content):
         super(Power, self).__init__(kwargs, content)
-        self.ndata.setflags(write=1)
         self.newColumns = [
             ('{0}'.format(o['column']), '<f8')
             for o in self.operations
@@ -58,11 +57,7 @@ class Power(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_power(kwargs, contents):
-    Task = Power(
-        kwargs['task_power'],
-        contents
-    )
-    return Task.power().getContents()
+    return Power(kwargs, contents).power().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->
