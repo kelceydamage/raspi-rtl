@@ -1,8 +1,9 @@
 # setenv
-source ~/python3/bin/activate
+#source ~/python3/bin/activate
 
 # If GIT_HOME is not set to the root location of your git folder globally, you can set here.
 # GIT_HOME=~/git
+GIT_HOME=/git/projects/personal
 
 # Project/repo folder within your git home dir.
 PROJECT_DIR=rtl
@@ -16,9 +17,15 @@ PYX_FILES=(
     common/datatypes.pyx
     common/encoding.pyx
     common/print_helpers.pyx
+    common/normalization.pyx
+    common/regression.pyx
+    common/transform.pyx
+    common/task.pyx
     transport/relay.pyx
     transport/node.pyx
     transport/dispatch.pyx
+    tasks/open_array.pyx
+    tasks/normalize.pyx
     )
 
 # precompile c++ modules
