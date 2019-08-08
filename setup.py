@@ -61,12 +61,38 @@ if USE_CYTHON:
     extensions = cythonize(extensions)
 
 setup(
-    name='RTL',
-    version='3-experimental',
-    description='Raspi Transport Layer',
+    name='RTL3',
+    version='3.0.0.dev1',
+    description='Raspi Transport Layer 3',
     author='Kelcey Jamison-Damage',
     author_email='',
     url='https://github.com/kelceydamage/rtl.git',
-    ext_modules = extensions,
-    include_dirs = [numpy.get_include(), zmq.get_includes()]
+    download_url='https://github.com/kelceydamage/rtl.git',
+    license='http://www.apache.org/licenses/LICENSE-2.0',
+    py_modules=[
+        'transport.cache',
+        'transport.registry',
+        'transport.conf.configuration',
+        'transport.bin.start'
+    ],
+    packages=[
+        'tasks',
+        'web'
+    ],
+    ext_modules=extensions,
+    include_dirs=[numpy.get_include(), zmq.get_includes()],
+    dependency_links=['git+https://github.com/kelceydamage/rtl.git@master#egg=rtl']
 )
+
+'''
+
+'''
+
+'''
+    package_dir={
+        '': 'common',
+        '': 'tasks',
+        '': 'dsdsl',
+        '': 'transport'
+    },
+'''
