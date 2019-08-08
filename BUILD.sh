@@ -1,3 +1,5 @@
+ROOT=rtl/
+
 # setenv
 #source ~/python3/bin/activate
 
@@ -6,7 +8,7 @@
 GIT_HOME=/git/projects/personal
 
 # Project/repo folder within your git home dir.
-PROJECT_DIR=rtl
+PROJECT_DIR=rtl/
 
 # Pre compile function for writing clean cpp file.
 function pre_compile() {
@@ -14,18 +16,18 @@ function pre_compile() {
 }
 
 PYX_FILES=(
-    common/datatypes.pyx
-    common/encoding.pyx
-    common/print_helpers.pyx
-    common/normalization.pyx
-    common/regression.pyx
-    common/transform.pyx
-    common/task.pyx
-    transport/relay.pyx
-    transport/node.pyx
-    transport/dispatch.pyx
-    tasks/open_array.pyx
-    tasks/normalize.pyx
+    "${PROJECT_DIR}common/datatypes.pyx"
+    "${PROJECT_DIR}common/encoding.pyx"
+    "${PROJECT_DIR}common/print_helpers.pyx"
+    "${PROJECT_DIR}common/normalization.pyx"
+    "${PROJECT_DIR}common/regression.pyx"
+    "${PROJECT_DIR}common/transform.pyx"
+    "${PROJECT_DIR}common/task.pyx"
+    "${PROJECT_DIR}transport/relay.pyx"
+    "${PROJECT_DIR}transport/node.pyx"
+    "${PROJECT_DIR}transport/dispatch.pyx"
+    "${PROJECT_DIR}tasks/open_array.pyx"
+    "${PROJECT_DIR}tasks/normalize.pyx"
     )
 
 # precompile c++ modules

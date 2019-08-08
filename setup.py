@@ -24,18 +24,18 @@ USE_CYTHON = True
 ext = '.pyx' if USE_CYTHON else '.c'
 
 PYX_FILES = [
-    "common.datatypes",
-    "common.encoding",
-    "common.print_helpers",
-    "common.normalization",
-    "common.regression",
-    "common.transform",
-    "common.task",
-    "transport.relay",
-    "transport.node",
-    "transport.dispatch",
-    "tasks.open_array",
-    "tasks.normalize"
+    "rtl.common.datatypes",
+    "rtl.common.encoding",
+    "rtl.common.print_helpers",
+    "rtl.common.normalization",
+    "rtl.common.regression",
+    "rtl.common.transform",
+    "rtl.common.task",
+    "rtl.transport.relay",
+    "rtl.transport.node",
+    "rtl.transport.dispatch",
+    "rtl.tasks.open_array",
+    "rtl.tasks.normalize"
 ]
 
 extensions = []
@@ -80,28 +80,21 @@ setup(
         #"cupy" for systems with nvcc and CUDA
     ],
     py_modules=[
-        'transport.cache',
-        'transport.registry',
-        'transport.conf.configuration',
-        'transport.bin.start'
+        'rtl.transport.cache',
+        'rtl.transport.registry',
+        'rtl.transport.conf.configuration',
+        'rtl.transport.bin.start'
     ],
     packages=[
-        'tasks',
-        'web'
+        'rtl.tasks',
+        'rtl.web'
     ],
     ext_modules=extensions,
-    include_dirs=[numpy.get_include(), zmq.get_includes()],
+    include_dirs=[
+        numpy.get_include(), 
+        zmq.get_includes()
+    ],
+    scripts=[
+        'rtl/transport/bin/raspi-rtl'
+    ]
 )
-
-'''
-
-'''
-
-'''
-    package_dir={
-        '': 'common',
-        '': 'tasks',
-        '': 'dsdsl',
-        '': 'transport'
-    },
-'''

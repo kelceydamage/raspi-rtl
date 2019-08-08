@@ -53,15 +53,33 @@ Or run: `pip install --upgrade git+https://github.com/kelceydamage/rtl.git@3-exp
 
 To start the service:
 ```
-./transport/bin/init.sh start
+raspi-rtl start
 ```
 
 To stop the service:
 ```
-./transport/bin/init.sh stop
+raspi-rtl stop
 ```
 
 There are also `status` and `restart` commands.
+
+### Using from interactive python
+`(myenv)$ python`
+```
+>>> from rtl.common.transform import Transform
+>>> DSDSL = {0: {'tasks': {'task_null': {}}}}
+>>> Transform().execute(DSDSL).result()
+```
+
+Response
+```
+Running: 0 - b'a928f828-7619-4560-8637-730b52ae9034'
+Running: null
+[('1', '<i8')]
+Completed: 0.40 ms null
+Total Elapsed Time: 0.007911043001513463
+array([(0,)], dtype=[('1', '<i8')])
+```
 
 ### Using The Built-in Client
 
