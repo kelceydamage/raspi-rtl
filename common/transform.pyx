@@ -32,8 +32,12 @@ os.sys.path.append(
     )
 
 import time
+import cbor
+from libcpp.string cimport string
 from common.print_helpers import printc, Colours, print_stage
 from common.decorators import timer
+from transport.cache import ExperimentalCache
+from transport.conf.configuration import DEBUG
 
 from common.datatypes cimport Envelope
 from transport.dispatch cimport Dispatcher
@@ -56,19 +60,23 @@ cdef class Transform:
     cdef:
         Dispatcher dispatcher
         Envelope envelope
+        object cache
 
     def __init__(self):
         self.dispatcher = Dispatcher()
         self.envelope = Envelope(cached=False)
+        self.cache = ExperimentalCache()
 
     cdef void run(self, long i):
+        if DEBUG: print('TRANSFORM: run')
         printc(
-            'Running: {0} - {1}'.format(i, self.envelope.header[0][0]), 
+            'Running: {0} - {1}'.format(i, self.envelope.getId()), 
             COLOURS.PURPLE
         )
         self.envelope = self.dispatcher.send(self.envelope)
 
     cdef void validateSchema(self, dict schema):
+        if DEBUG: print('TRANSFORM: validateSchema')
         if 'tasks' not in schema.keys():
             printc('FAIL: missing key: {0} in schema'.format('tasks'), COLOURS.RED)
             exit(1)
@@ -76,45 +84,34 @@ cdef class Transform:
             printc('FAIL: missing/malformed task dict in schema', COLOURS.RED)
             exit(0)
 
-    cdef void setup(self, dict schema):
+    cdef void storeSchema(self, dict schema, bytes _id):
+        if DEBUG: print('TRANSFORM: storeSchema')
+        self.cache.put(_id, cbor.dumps(schema['tasks']))
+
+    cdef void setup(self, dict schema, bytes _id):
+        if DEBUG: print('TRANSFORM: setup')
         self.validateSchema(schema)
-
-    cdef void pack(self, dict stage, long id):
-        cdef:
-            dict content
-
+        self.storeSchema(schema, _id)
+        
+    cdef void pack(self, dict schema, long id):
+        if DEBUG: print('TRANSFORM: pack')
         if id == 0:
-            content = self.envelope.get_contents()
-            content['ndata'] = None
-            self.envelope.pack(
-                meta={
-                    'tasks': list(stage['tasks'].keys()),
-                    'completed': [],
-                    'kwargs': stage['tasks']
-                },
-                contents=content
-            )
+            self.envelope.pack(1)
         else:
-            self.envelope.modify_meta(
-                meta={
-                    'tasks': list(stage['tasks'].keys()),
-                    'completed': [],
-                    'kwargs': stage['tasks']
-                }
-            )
-
+            self.envelope.createId()
+            self.envelope.setLifespan(1)
+        self.setup(schema, self.envelope.getId())
+        
     cpdef Envelope execute(self, dict dsdsl):
+        if DEBUG: print('TRANSFORM: execute')
         cdef:
             long i
             long l = len(dsdsl.keys())
 
         start = time.perf_counter()
         for i in range(l):
-            self.setup(dsdsl[i])
             self.pack(dsdsl[i], i)
-            t = time.perf_counter()
             self.run(i)
-            print('RUNTIME', time.perf_counter() - t)
         elapsed = time.perf_counter() - start
         print('Total Elapsed Time:', elapsed)
         return self.envelope
