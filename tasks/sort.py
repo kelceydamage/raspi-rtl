@@ -43,7 +43,7 @@ class Sort(Task):
         self.ndata.sort(
             axis=self.axis,
             kind=self.method,
-            order=self.column
+            order=self.column.decode()
         )
         return self
 

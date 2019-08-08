@@ -41,7 +41,7 @@ class CrossAverage(Task):
     def crossAverage(self):
         for i in range(len(self.operations)):
             o = self.operations[i]
-            dtypes = [x for x in self.dtypes if x[0] in o['columns']]
+            dtypes = [x for x in self.dtypes.descr if x[0] in o['columns']]
             tempData = np.zeros(self.ndata.shape, dtypes)
             for j in range(len(dtypes)):
                 tempData[dtypes[j][0]] = self.ndata[dtypes[j][0]]

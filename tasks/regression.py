@@ -54,7 +54,7 @@ class LinearRegression(Task):
             args = None
             if o['model'] == 'Poly':
                 args = o['d']
-            self.getLSpace(o['space'], self.ndata[o['x']])
+            self.getLSpace(o['space'].encode(), self.ndata[o['x']])
             M = self.lookupModel(o['model'])(
                 self.ndata[o['x']],
                 self.ndata[o['y']],
