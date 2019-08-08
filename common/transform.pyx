@@ -35,7 +35,6 @@ import time
 import cbor
 from libcpp.string cimport string
 from common.print_helpers import printc, Colours, print_stage
-from common.decorators import timer
 from transport.cache import ExperimentalCache
 from transport.conf.configuration import DEBUG
 
