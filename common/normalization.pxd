@@ -66,6 +66,7 @@ cdef class Squash:
         float max
         uint_fast8_t count
         float avg
+        str _id
 
     cdef void countOutliers(self)
     cdef void normalize(self)
@@ -84,6 +85,7 @@ cdef class PercentOfMax:
         float weight
         float max
         uint_fast8_t count
+        str _id
 
     cdef void normalize(self)
 

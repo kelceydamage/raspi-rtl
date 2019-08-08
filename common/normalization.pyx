@@ -33,7 +33,8 @@ from numpy cimport ndarray
 
 class DistanceFromMean():
 
-    def __init__(self, column, weight):
+    def __init__(self, column, weight, _id):
+        self._id = _id
         self.column = column
         self.weight = weight
         self.positiveRange = []
@@ -77,7 +78,8 @@ class DistanceFromMean():
 
 cdef class PercentOfMax:
 
-    def __init__(self, column, weight):
+    def __init__(self, column, weight, _id):
+        self._id = _id
         self.column = column
         self.weight = min(self.column)
         self.max = max(self.column) - self.weight
@@ -93,7 +95,8 @@ cdef class PercentOfMax:
 
 cdef class Squash:
 
-    def __init__(self, column, weight):
+    def __init__(self, column, weight, _id):
+        self._id = _id
         self.column = column
         self.weight = min(self.column)
         self.max = max(self.column) - self.weight
@@ -113,7 +116,7 @@ cdef class Squash:
 
     cdef void normalize(self):
         self.countOutliers()
-        print('MAX', self.max, 'MIN', self.weight, 'AVG', self.avg, 'COUNT', self.count)
+        print('=>', self._id, ':', 'MAX', self.max, 'MIN', self.weight, 'AVG', self.avg, 'COUNT', self.count)
         for i in range(self.count):
             n = ((self.column[i] - self.weight) / self.max) * 100
             self.column[i] = n
