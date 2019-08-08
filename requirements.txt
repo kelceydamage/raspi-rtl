@@ -11,4 +11,3 @@ cython
 sklearn
 bokeh
 zmq
-cupy
