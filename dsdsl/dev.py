@@ -202,6 +202,7 @@ DSDSL = {
 if __name__ == '__main__':  # pragma: no cover
     envelope = Transform().execute(DSDSL)
     r = envelope.result()
+    #print(r)
     #print(r['ndata'].shape)
     #print(r['ndata'].dtype)
     #print('A1', r['ndata']['alphaAvg1'][-1:])
