@@ -38,6 +38,7 @@ from libc.stdio cimport fopen, FILE, fclose
 from posix.stdio cimport fileno
 from common.task cimport Task
 from numpy cimport ndarray
+from numpy cimport dtype
 
 # Globals
 # ------------------------------------------------------------------------ 79->
@@ -52,7 +53,7 @@ cdef class OpenArray(Task):
         public string delimiter
         public string extension
 
-    def __init__(OpenArray self, dict kwargs, dict content):
+    def __init__(OpenArray self, dict kwargs, ndarray content):
         super(OpenArray, self).__init__(kwargs, content)
         self.file = self.path.append(b'/').append(self.filename)
 
@@ -69,7 +70,7 @@ cdef class OpenArray(Task):
         s = d1.sub(b'(', s)
         s = d2.sub(b')', s)
 
-        self.dtypes = ast.literal_eval(s.decode('utf-8'))
+        self.dtypes = dtype(ast.literal_eval(s.decode('utf-8')))
 
     cdef void openMeta(OpenArray self):
         cdef:
@@ -108,15 +109,8 @@ cdef class OpenArray(Task):
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-cpdef dict task_open_array(dict kwargs, dict contents):
-    cdef:
-        OpenArray Task
-
-    Task = OpenArray(
-        kwargs['task_open_array'],
-        contents
-    )
-    return Task.openArray().getContents()
+cpdef ndarray task_open_array(dict kwargs, ndarray contents):
+    return OpenArray(kwargs, contents).openArray().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

@@ -53,11 +53,7 @@ class SquareRoot(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_square_root(kwargs, contents):
-    Task = SquareRoot(
-        kwargs['task_square_root'],
-        contents
-    )
-    return Task.squareRoot().getContents()
+    return SquareRoot(kwargs, contents).squareRoot().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

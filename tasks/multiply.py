@@ -55,11 +55,7 @@ class Multiply(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_multiply(kwargs, contents):
-    Task = Multiply(
-        kwargs['task_multiply'],
-        contents
-    )
-    return Task.multiply().getContents()
+    return Multiply(kwargs, contents).multiply().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

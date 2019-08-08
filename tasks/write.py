@@ -91,11 +91,7 @@ class Write(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_write(kwargs, contents):
-    Task = Write(
-        kwargs['task_write'],
-        contents
-    )
-    return Task.write().getContents()
+    return Write(kwargs, contents).write().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

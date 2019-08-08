@@ -56,11 +56,7 @@ class CrossAverage(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_average_cross(kwargs, contents):
-    Task = CrossAverage(
-        kwargs['task_average_cross'],
-        contents
-    )
-    return Task.crossAverage().getContents()
+    return CrossAverage(kwargs, contents).crossAverage().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

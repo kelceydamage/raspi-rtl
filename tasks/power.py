@@ -57,11 +57,7 @@ class Power(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_power(kwargs, contents):
-    Task = Power(
-        kwargs['task_power'],
-        contents
-    )
-    return Task.power().getContents()
+    return Power(kwargs, contents).power().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

@@ -56,11 +56,7 @@ class CrossMax(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_max_cross(kwargs, contents):
-    Task = CrossMax(
-        kwargs['task_max_cross'],
-        contents
-    )
-    return Task.crossMax().getContents()
+    return CrossMax(kwargs, contents).crossMax().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

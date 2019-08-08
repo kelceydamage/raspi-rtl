@@ -49,7 +49,8 @@ class Normalize(Task):
         for i in range(len(self.columns)):
             M = self.lookupModel(self.model)(
                 self.ndata[self.columns[i]],
-                self.weight
+                self.weight,
+                self.columns[i]
             )
             self.setColumn(
                 i,
@@ -61,11 +62,7 @@ class Normalize(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_normalize(kwargs, contents):
-    Task = Normalize(
-        kwargs['task_normalize'], 
-        contents
-    )
-    return Task.normalize().getContents()
+    return Normalize(kwargs, contents).normalize().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

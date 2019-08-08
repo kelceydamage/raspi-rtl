@@ -57,11 +57,7 @@ class Add(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_add(kwargs, contents):
-    Task = Add(
-        kwargs['task_add'],
-        contents
-    )
-    return Task.add().getContents()
+    return Add(kwargs, contents).add().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

@@ -51,11 +51,7 @@ class Sort(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_sort(kwargs, contents):
-    Task = Sort(
-        kwargs['task_sort'], 
-        contents
-    )
-    return Task.sort().getContents()
+    return Sort(kwargs, contents).sort().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

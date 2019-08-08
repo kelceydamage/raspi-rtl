@@ -56,11 +56,7 @@ class Aggregate(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_aggregate(kwargs, contents):
-    Task = Aggregate(
-        kwargs['task_aggregate'],
-        contents
-    )
-    return Task.aggregate().getContents()
+    return Aggregate(kwargs, contents).aggregate().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

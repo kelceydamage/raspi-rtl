@@ -51,11 +51,7 @@ class ColumnSpace(Task):
 # Functions
 # ----------------------------------------------------------------------- 79->
 def task_column_space(kwargs, contents):
-    Task = ColumnSpace(
-        kwargs['task_column_space'],
-        contents
-    )
-    return Task.columnSpace().getContents()
+    return ColumnSpace(kwargs, contents).columnSpace().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

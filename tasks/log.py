@@ -53,11 +53,7 @@ class Log(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_log(kwargs, contents):
-    Task = Log(
-        kwargs['task_log'],
-        contents
-    )
-    return Task.log().getContents()
+    return Log(kwargs, contents).log().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

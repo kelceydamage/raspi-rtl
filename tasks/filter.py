@@ -32,10 +32,8 @@ class Filter(Task):
 
     def __init__(self, kwargs, content):
         super(Filter, self).__init__(kwargs, content)
-        #self.ndata.setflags(write=1)
 
     def filter(self):
-        print('FILTER', self.ndata.dtype)
         for o in self.operations:
             if o['method'] == 'eq':
                 self.ndata = np.extract(
@@ -74,11 +72,7 @@ class Filter(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_filter(kwargs, contents):
-    Task = Filter(
-        kwargs['task_filter'],
-        contents
-    )
-    return Task.filter().getContents()
+    return Filter(kwargs, contents).filter().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

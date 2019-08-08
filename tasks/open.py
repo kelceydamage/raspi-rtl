@@ -100,11 +100,7 @@ class Open(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_open(kwargs, contents):
-    Task = Open(
-        kwargs['task_open'],
-        contents
-    )
-    return Task.open().getContents()
+    return Open(kwargs, contents).open().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

@@ -74,11 +74,7 @@ class Histogram(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_histogram(kwargs, contents):
-    Task = Histogram(
-        kwargs['task_histogram'],
-        contents
-    )
-    return Task.histogram().getContents()
+    return Histogram(kwargs, contents).histogram().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

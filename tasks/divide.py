@@ -55,11 +55,7 @@ class Divide(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_divide(kwargs, contents):
-    Task = Divide(
-        kwargs['task_divide'],
-        contents
-    )
-    return Task.divide().getContents()
+    return Divide(kwargs, contents).divide().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

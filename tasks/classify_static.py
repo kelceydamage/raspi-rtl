@@ -87,11 +87,7 @@ class ClassifyStatic(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_classify_static(kwargs, contents):
-    Task = ClassifyStatic(
-        kwargs['task_classify_static'],
-        contents
-    )
-    return Task.classifyStatic().getContents()
+    return ClassifyStatic(kwargs, contents).classifyStatic().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

@@ -55,11 +55,7 @@ class Subtract(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_subtract(kwargs, contents):
-    Task = Subtract(
-        kwargs['task_subtract'],
-        contents
-    )
-    return Task.subtract().getContents()
+    return Subtract(kwargs, contents).subtract().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

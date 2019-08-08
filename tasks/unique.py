@@ -48,11 +48,7 @@ class Unique(Task):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def task_unique(kwargs, contents):
-    Task = Unique(
-        kwargs['task_unique'],
-        contents
-    )
-    return Task.unique().getContents()
+    return Unique(kwargs, contents).unique().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->

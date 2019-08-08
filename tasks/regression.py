@@ -78,11 +78,7 @@ class LinearRegression(Task):
 # Functions
 # ----------------------------------------------------------------------- 79->
 def task_regression(kwargs, contents):
-    Task = LinearRegression(
-        kwargs['task_regression'],
-        contents
-    )
-    return Task.regress().getContents()
+    return LinearRegression(kwargs, contents).regress().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->
