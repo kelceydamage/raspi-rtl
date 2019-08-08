@@ -28,6 +28,7 @@
 # ------------------------------------------------------------------------ 79->
 
 cimport cython
+from cpython cimport Py_buffer
 from numpy cimport ndarray
 from numpy cimport dtype
 from libcpp.string cimport string
@@ -41,46 +42,33 @@ from libcpp.string cimport string
 cdef class Envelope:
     cdef:
         public string version
-        public ndarray header
-        public dict meta
-        public dict data
-        public string ndata
-        public bint unseal
-        public string sealed_meta
-        public string sealed_data
-        public string sealed_dtypes
-        public string sealed_reduces
-        public list sealed_buffer
-        public list meta_dtypes
-        public list dtypes
-        public dict reduces
+        list sealed_buffer
+        object dtypes
+        long lifespan
+        long length
+        long width
+        string id
+        object ndataBuffer
+        ndarray ndata
 
     # Python accessible API
-    cpdef dict result(self)
-    cpdef dict raw_data(self)
-    cpdef ndarray raw_ndata(self)
-    cpdef list raw_dtypes(self)
-    cpdef void pack(self, dict meta, dict contents)
+    cpdef ndarray result(self)
+    cpdef void pack(self, long lifespan, list dtypes=?, ndarray ndata=?)
 
     # CPP/Cython acccessible API
-    cdef string create_id(self)
-    cdef void load(self, list sealed_envelope, bint unseal=?)
+    cdef void load(self, list sealed_envelope)
     cdef list seal(self)
+    cdef string getId(self)
+    cdef void createId(self)
+    cdef long getLength(self)
+    cdef long getWidth(self)
+    cdef long getLifespan(self)
+    cdef void setLifespan(self, long i)
+    cdef dtype getDtypes(self)
+    cdef ndarray getContents(self)
+    cdef void setContents(self, ndarray ndata)
     cdef void consume(self)
-    #cdef void modify_meta(self, dict meta)
-    cdef long get_shape(self)
-    cdef long get_lifespan(self)
-    cdef long get_length(self)
-    cdef string get_header(self)
-    cdef string get_sealed_data(self)
-    cdef ndarray get_ndata(self)
-    cdef dict get_data(self)
-    cdef list get_dtypes(self)
-    cdef dict get_contents(self)
-    cdef void set_data(self, data)
-    cdef void set_ndata(self, ndarray data)
-    cdef void set_contents(self, dict contents)
-    cdef void modify_meta(self, dict meta)
+
 
 # Functions
 # ------------------------------------------------------------------------ 79->
