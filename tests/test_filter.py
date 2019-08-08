@@ -10,7 +10,7 @@ from tasks.filter import task_filter
 from dummy_data import KWARGS, CONTENTS2
 
 def test_filter():
-    KWARGS['task_filter'] = {
+    KWARGS = {
         'operations': [
             {
             'column': 'a',
@@ -25,7 +25,7 @@ def test_filter():
         ]
     }
     r = task_filter(KWARGS, CONTENTS2)
-    KWARGS['task_filter'] = {
+    KWARGS = {
         'operations': [
             {
             'column': 'a',
@@ -40,7 +40,7 @@ def test_filter():
         ]
     }
     r = task_filter(KWARGS, CONTENTS2)
-    KWARGS['task_filter'] = {
+    KWARGS = {
         'operations': [
             {
             'column': 'a',
@@ -55,4 +55,4 @@ def test_filter():
         ]
     }
     r = task_filter(KWARGS, CONTENTS2)
-    assert r['ndata']['a'][0] == 0
+    assert r['a'][0] == 0

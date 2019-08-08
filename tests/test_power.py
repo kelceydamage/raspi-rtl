@@ -10,7 +10,7 @@ from tasks.power import task_power
 from dummy_data import KWARGS, CONTENTS3
 
 def test_power():
-    KWARGS['task_power'] = {
+    KWARGS = {
         'operations': [
             {
                 'a': 'b',
@@ -20,4 +20,4 @@ def test_power():
         ]
     }
     r = task_power(KWARGS, CONTENTS3)
-    assert r['ndata']['c'][2] == 169.0
+    assert r['c'][2] == 169.0

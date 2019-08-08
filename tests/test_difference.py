@@ -10,7 +10,7 @@ from tasks.difference import task_difference
 from dummy_data import KWARGS, CONTENTS2
 
 def test_difference():
-    KWARGS['task_difference'] = {
+    KWARGS = {
         'operations': [
             {
                 'a': 'a',
@@ -20,4 +20,4 @@ def test_difference():
         ]
     }
     r = task_difference(KWARGS, CONTENTS2)
-    assert r['ndata']['a'][2] == 2
+    assert r['a'][2] == 2

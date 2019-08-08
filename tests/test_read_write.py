@@ -11,13 +11,13 @@ from tasks.write import task_write
 from dummy_data import KWARGS, CONTENTS
 
 def test_read_write():
-    KWARGS['task_write'] = {
+    KWARGS = {
         'filename': 'test',
         'path': 'raw_data',
         'extension': 'csv',
         'delimiter': ','
     }
-    KWARGS['task_open_array'] = {
+    KWARGS = {
         'filename': 'test',
         'path': 'raw_data',
         'extension': 'csv',

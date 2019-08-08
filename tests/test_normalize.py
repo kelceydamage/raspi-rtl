@@ -10,7 +10,7 @@ from tasks.normalize import task_normalize
 from dummy_data import KWARGS, CONTENTS3
 
 def test_normalize():
-    KWARGS['task_normalize'] = {
+    KWARGS = {
         'columns': [
             'a',
             'b'
@@ -19,5 +19,5 @@ def test_normalize():
         'weight': 0.01
     }
     r = task_normalize(KWARGS, CONTENTS3)
-    assert r['ndata']['bNormal'][2] == 11.040422222222224
-    assert r['ndata']['aNormal'][0] == 0
+    assert r['bNormal'][2] == 10
+    assert r['aNormal'][0] == 0

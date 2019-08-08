@@ -10,10 +10,10 @@ from tasks.sort import task_sort
 from dummy_data import KWARGS, CONTENTS2
 
 def test_sort():
-    KWARGS['task_sort'] = {
+    KWARGS= {
         'axis': 0,
         'method': 'quicksort',
         'column': 'b'
     }
     r = task_sort(KWARGS, CONTENTS2)
-    assert r['ndata']['a'][2] == 1
+    assert r['a'][2] == 1

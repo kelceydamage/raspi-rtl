@@ -10,7 +10,7 @@ from tasks.divide import task_divide
 from dummy_data import KWARGS, CONTENTS
 
 def test_divide():
-    KWARGS['task_divide'] = {
+    KWARGS = {
         'operations': [
             {
                 'a': 'a',
@@ -25,5 +25,5 @@ def test_divide():
         ]
     }
     r = task_divide(KWARGS, CONTENTS)
-    assert r['ndata']['c1'][2] == 1
-    assert r['ndata']['c2'][2] == 2.0
+    assert r['c1'][2] == 1
+    assert r['c2'][2] == 2.0

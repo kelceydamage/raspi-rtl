@@ -10,7 +10,7 @@ from tasks.log import task_log
 from dummy_data import KWARGS, CONTENTS3
 
 def test_log():
-    KWARGS['task_log'] = {
+    KWARGS = {
         'operations': [
             {
                 'a': 'b',
@@ -19,4 +19,4 @@ def test_log():
         ]
     }
     r = task_log(KWARGS, CONTENTS3)
-    assert r['ndata']['c'][2] == 2.5649493574615367
+    assert r['c'][2] == 2.5649493574615367
