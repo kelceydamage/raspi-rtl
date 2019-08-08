@@ -42,6 +42,7 @@ from libc.stdlib cimport atoi
 from posix cimport time as p_time
 
 from numpy cimport ndarray
+from numpy cimport dtype
 
 # Globals
 # ------------------------------------------------------------------------ 79->
@@ -53,13 +54,11 @@ cdef class Task:
     cdef:
         # vector[vector[string, string]] dtypes
         # vector[vector[string, string]] newColumns
-        public list dtypes
+        public dtype dtypes
         public list newColumns
         public ndarray ndata
-        public dict data
-        public dict reduces
 
-    cpdef dict getContents(Task self)
+    cpdef ndarray getContents(Task self)
     cpdef void addColumns(Task self)
     cpdef void setColumn(Task self, int i, ndarray v)
     cpdef void getLSpace(Task self, string space, ndarray x)

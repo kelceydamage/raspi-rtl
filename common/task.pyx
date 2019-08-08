@@ -26,6 +26,7 @@
 # Imports
 # ------------------------------------------------------------------------ 79->
 import numpy as np
+from transport.conf.configuration import DEBUG
 
 cimport numpy as np
 from libcpp.list cimport list as cpplist
@@ -42,6 +43,7 @@ from libc.stdlib cimport atoi
 from posix cimport time as p_time
 
 from numpy cimport ndarray
+from numpy cimport dtype
 
 # Globals
 # ------------------------------------------------------------------------ 79->
@@ -51,67 +53,45 @@ ENCODING = 'utf-8'
 # ------------------------------------------------------------------------ 79->
 cdef class Task:
 
-    def __init__(Task self, dict kwargs, dict contents):
+    def __init__(Task self, dict kwargs, ndarray contents):
         super(Task, self).__init__()
         cdef:
-            list keys1 = list(kwargs)
-            list keys2 = list(contents)
-            int l1 = len(keys1)
-            int l2 = len(keys2)
+            list keys = list(kwargs)
+            int l = len(keys)
             int i
 
-        for i in range(l1):
-            if isinstance(kwargs[keys1[i]], str):
-                kwargs[keys1[i]] = kwargs[keys1[i]].encode(ENCODING)
-            setattr(
-                self, 
-                keys1[i],
-                kwargs[keys1[i]]
-            )
-        for i in range(l2):
-            if isinstance(contents[keys2[i]], str):
-                contents[keys2[i]] = contents[keys2[i]].encode(ENCODING)
-            setattr(
-                self, 
-                keys2[i],
-                contents[keys2[i]]
-            )
+        self.ndata = contents
+        self.dtypes = self.ndata.dtype
+        for i in range(l):
+            if isinstance(kwargs[keys[i]], str):
+                kwargs[keys[i]] = kwargs[keys[i]].encode(ENCODING)
+            setattr(self, keys[i], kwargs[keys[i]])
 
-    cpdef dict getContents(Task self):
-        return {
-            'ndata': self.ndata,
-            'data': self.data,
-            'reduces': self.reduces,
-            'dtypes': self.dtypes
-        }
+    cpdef ndarray getContents(Task self):
+        if DEBUG: print('TASK: getContents')
+        return self.ndata
 
     cpdef void addColumns(Task self):
+        if DEBUG: print('TASK: addColumns')
         cdef:
             ndarray newrecarray
-            int l = len(self.ndata)
+            int length = self.ndata.shape[0]
             tuple names = self.ndata.dtype.names
-            int l2 = len(names)
-            # int l3 = self.newColumns.size()
+            int l = len(names)
             int i
-
-        # for i in range(l3):
-        #     self.dtypes.push_back(self.newColumns[i])
-        self.dtypes += self.newColumns
-        newrecarray = np.zeros(l, dtype=self.dtypes)
-        for i in range(l2):
+            
+        self.dtypes = dtype(self.dtypes.descr + self.newColumns)
+        newrecarray = np.zeros(length, dtype=self.dtypes)
+        for i in range(l):
             newrecarray[names[i]] = self.ndata[names[i]]
         self.ndata = newrecarray
 
     cpdef void setColumn(Task self, int i, ndarray v):
-        # removed argument int r=-1
-        #if r == -1:
-
+        if DEBUG: print('TASK: setColumn')
         self.ndata[self.newColumns[i][0]] = v
 
-        #else:
-        #    self.ndata[r][self.newColumns[i][0]] = v
-
     cpdef void getLSpace(Task self, string space, ndarray x):
+        if DEBUG: print('TASK: getLSpace')
         if x is None:
             raise TypeError
         if space == <string>b'log':
