@@ -40,12 +40,17 @@ ELSE:
     import numpy as p
 import zmq
 import lmdb
+import cbor
+import time
 from os import getpid
 from bokeh.server.server import Server
 from tasks import *
+import tasks as Tasks
+from collections import deque
 from numpy import frombuffer
 from subprocess import check_output
 from common.datatypes cimport Envelope
+from transport.cache import ExperimentalCache
 from transport.conf.configuration import TASK_WORKERS
 from transport.conf.configuration import CACHE_PATH
 from transport.conf.configuration import CACHE_MAP_SIZE
@@ -56,6 +61,8 @@ from transport.conf.configuration import CACHE_LISTEN
 from transport.conf.configuration import CACHE_RECV
 from transport.conf.configuration import PLOT_LISTEN
 from transport.conf.configuration import PLOT_ADDR
+from transport.conf.configuration import DEBUG
+from transport.conf.configuration import PROFILE
 from common.print_helpers import printc, Colours
 from web.plot import modify_doc
 import time
@@ -95,24 +102,34 @@ cdef class Node:
     def __init__(self):
         self.pid = getpid()
         self._context = zmq.Context()
+        self.recv_poller = zmq.Poller()
         self.version = VERSION.encode()
         self.header = 'NODE-{0}'.format(self.pid).encode()
         command = ['cat', '/proc/sys/kernel/random/boot_id']
         self.domain_id = check_output(command).decode().rstrip('\n').encode()
         self.envelope = Envelope()
+        self.cache = ExperimentalCache()
 
     cdef void recv(self):
-        self.envelope.load(self.recv_socket.recv_multipart(), unseal=True)
+        if DEBUG: print('NODE: recv')
+        self.envelope.load(self.recv_socket.recv_multipart(copy=False))
 
     cdef void send(self):
-        self.send_socket.send_multipart(self.envelope.seal())
+        if DEBUG: print('NODE: send')
+        if PROFILE: print('TS', time.time())
+        self.send_socket.send_multipart(self.envelope.seal(), copy=False)
 
     cpdef void start(self):
+        if DEBUG: print('NODE: start')
         while True:
-            self.recv()
-            if self.envelope.get_lifespan() > 0:
-                self.run()
-            self.send()
+            messages = dict(self.recv_poller.poll(5000))
+            if self.recv_socket in messages and messages[self.recv_socket] == zmq.POLLIN:
+                if PROFILE: print('TR', time.time())
+                self.recv()
+                if DEBUG: print('NODE: received envelope')
+                if self.envelope.getLifespan() > 0:
+                    self.run()
+                self.send()
 
 
 cdef class TaskNode(Node):
@@ -138,34 +155,57 @@ cdef class TaskNode(Node):
         push_uri = 'tcp://{0}:{1}'.format(RELAY_ADDR, RELAY_RECV)
         self.recv_socket.connect(pull_uri)
         self.send_socket.connect(push_uri)
+        self.recv_poller.register(self.recv_socket, zmq.POLLIN)
         self.functions = functions
+        self.jobQueue = deque()
+
+    cdef void populateJobQueue(self, bytes id):
+        if DEBUG: print('TASKNODE: populateJobQueue')
+        cdef:
+            dict schema
+            long l
+            long i
+            list keys
+
+        schema = cbor.loads(self.cache.get(id)[1])
+        keys = list(schema.keys())
+        l = len(keys)
+        for i in range(l):
+            self.jobQueue.append({keys[i]: schema[keys[i]]})
 
     cpdef void run(self):
+        if DEBUG: print('TASKNODE: run')
         cdef:
-            dict contents = self.envelope.get_contents()
-            str func = self.functions[self.envelope.meta['tasks'][0]]
+            ndarray contents = self.envelope.getContents()
+            bytes id = self.envelope.getId()
+            str func
+            str functionKey
             Exception msg
             double t
+            dict job
 
-        t = time.perf_counter()
-        printc('Running: {0}'.format(func.split('.')[0]), COLOURS.LIGHTBLUE)
         try:
-            contents = eval(func)(self.envelope.meta['kwargs'], contents)
+            self.populateJobQueue(id)
+            while self.jobQueue:
+                t = time.perf_counter()
+                job = self.jobQueue.popleft()
+                functionKey = list(job.keys())[0]
+                func = self.functions[functionKey]
+                printc('Running: {0}'.format(func.split('.')[0]), COLOURS.LIGHTBLUE)
+                contents = eval(func)(job[functionKey], contents)
+                printc('Completed: {0} {1}'.format(
+                    convert_time(time.perf_counter() - t), func.split('.')[0]), 
+                    COLOURS.GREEN
+                )
         except Exception as e:
             msg = Exception(
-                'TASK-EVAL: {0}, {1}'.format(
-                    self.envelope['completed'][-1], e
-                    )
+                'TASK-EVAL: {0}, {1}'.format(e)
                 )
-            (msg)
+            print(msg)
             raise msg
         else:
             self.envelope.consume()
-        self.envelope.set_contents(contents)
-        printc('Completed: {0} {1}'.format(
-            convert_time(time.perf_counter() - t), func.split('.')[0]), 
-            COLOURS.GREEN
-        )
+        self.envelope.setContents(contents)
 
 
 cdef class PlotNode(Node):
@@ -191,6 +231,7 @@ cdef class PlotNode(Node):
             f.write(str(self.pid))
 
     cpdef void start(self):
+        if DEBUG: print('PLOTNODE: start')
         self.server.io_loop.add_callback(self.server.show, "/")
         self.server.io_loop.start()
         try:

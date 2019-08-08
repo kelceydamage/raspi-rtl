@@ -30,6 +30,7 @@
 # Cython imports
 cimport cython
 from libcpp.string cimport string
+from libcpp.vector cimport vector
 from libc.stdint cimport uint_fast16_t
 from common.datatypes cimport Envelope
 
@@ -47,9 +48,11 @@ cdef class Node:
         uint_fast16_t pid
         Envelope envelope
         object _context
+        object cache
         string version
         string header
         string domain_id
+        object recv_poller
 
     # Python acccessible API
     cpdef void start(self)
@@ -64,9 +67,13 @@ cdef class TaskNode(Node):
         public object recv_socket
         public object send_socket
         public dict functions
+        object jobQueue
 
     # Python acccessible API
     cpdef void run(self)
+
+    # CPP/Cython acccessible API
+    cdef void populateJobQueue(self, bytes id)
 
 
 cdef class PlotNode(Node):

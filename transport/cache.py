@@ -24,10 +24,11 @@
 # ------------------------------------------------------------------------ 79->
 from transport.conf.configuration import CACHE_ADDR
 from transport.conf.configuration import CACHE_RECV
-from transport.conf.configuration import LOG_LEVEL
+from transport.conf.configuration import DEBUG
 from transport.conf.configuration import CACHE_MAP_SIZE
 from transport.conf.configuration import CACHE_PATH
 from transport.conf.configuration import PROFILE
+from transport.conf.configuration import TASK_WORKERS
 import zmq
 import lmdb
 import cbor
@@ -39,12 +40,11 @@ VERSION = '0.4'
 # Classes
 # ------------------------------------------------------------------------ 79->
 
-
-class Cache(object):
+class ExperimentalCache(object):
     """
-    NAME:           Cache
+    NAME:           ExperimentalCache
 
-    DESCRIPTION:    Sends cache requests to a cache node.
+    DESCRIPTION:    Sends cache requests to a local cache.
 
     METHODS:        .log_wrapper(msg, mode=0, colour='GREEN')
                     Wrapper for logger to clean up code.
@@ -70,46 +70,38 @@ class Cache(object):
                     .info()
                     Return additional information about the database.
     """
-
+    
     def __init__(self):
-        self.log_msg = {
-            'system': 'cache',
-            'name': self.__init__.__name__,
-            }
-        context = zmq.Context()
-        try:
-            req_uri = 'tcp://{0}:{1}'.format(CACHE_ADDR, CACHE_RECV)
-            self.req_socket = context.socket(zmq.REQ)
-            self.req_socket.connect(req_uri)
-            self.lmdb = lmdb.open(
-                CACHE_PATH,
-                # readonly=True,
-                subdir=True,
-                map_size=CACHE_MAP_SIZE,
-                lock=True
-                )
-        except Exception as e:
-            self.log_wrapper(str(e), mode=0)
+        self.lmdb = lmdb.open(
+            CACHE_PATH,
+            # readonly=True,
+            metasync=True,
+            sync=True,
+            writemap=True,
+            readahead=True,
+            subdir=True,
+            map_size=CACHE_MAP_SIZE,
+            lock=True,
+            max_readers=TASK_WORKERS+2,
+            max_dbs=0,
+            max_spare_txns=TASK_WORKERS+2
+            )
 
     def get(self, key):
         with self.lmdb.begin() as txn:
-            r = txn.get(key.encode())
+            r = txn.get(key)
         if r is None:
             return (key, False)
-        return (key, cbor.loads(r))
+        return (key, r)
 
     def put(self, key, value):
-        try:
-            with self.lmdb.begin(write=True) as txn:
-                r = txn.put(
-                    key.encode(),
-                    cbor.dumps(value),
-                    overwrite=True
-                    )
-        except Exception as e:
-            raise Exception(e)
-        else:
-            return (key, r)
+        with self.lmdb.begin(write=True) as txn:
+            r = txn.put(
+                key,
+                value,
+                overwrite=True
+            )
+        return (key, r)
 
     def delete(self, key):
         with self.lmdb.begin(write=True) as txn:
@@ -119,15 +111,16 @@ class Cache(object):
     def drop(self):
         with self.lmdb.begin(write=True) as txn:
             self.lmdb.drop(self.lmdb, delete=True)
-
-    def sync(self):
-        return self.lmdb.sync()
-
+    
     def status(self):
         return self.lmdb.stat()
 
     def info(self):
         return self.lmdb.info()
+
+    def sync(self):
+        return self.lmdb.sync()
+
 
 # Functions
 # ------------------------------------------------------------------------ 79->

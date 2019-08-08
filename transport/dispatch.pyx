@@ -30,9 +30,12 @@
 
 # Python imports
 import zmq
+import time
 from transport.conf.configuration import RELAY_ADDR
 from transport.conf.configuration import RELAY_RECV
 from transport.conf.configuration import RELAY_PUBLISHER
+from transport.conf.configuration import DEBUG
+from transport.conf.configuration import PROFILE
 
 # Cython imports
 cimport cython
@@ -78,22 +81,30 @@ cdef class Dispatcher:
         self.push_socket.connect(push_uri)
         self.sub_socket.connect(pull_uri)
         self.results = []
+        if DEBUG: print('DISPATCHER PUSH:', push_uri)
+        if DEBUG: print('DISPATCHER SUB:', pull_uri)
 
     cdef Envelope _recieve(self):
+        if DEBUG: print('DISPATCHER: _receive')
         envelope = Envelope()
-        envelope.load(self.sub_socket.recv_multipart(), unseal=True)
+        envelope.load(self.sub_socket.recv_multipart(copy=False))
+        if PROFILE: print('DR', time.time())
         return envelope
 
     cdef void close(self):
+        if DEBUG: print('DISPATCHER: close')
         self.push_socket.disconnect(self.push_addr)
         self.sub_socket.disconnect(self.sub_addr)
 
     cdef Envelope _send(self, Envelope envelope):
-        self.sub_socket.set(zmq.SUBSCRIBE, envelope.get_header())
-        self.push_socket.send_multipart(envelope.seal())
+        if DEBUG: print('DISPATCHER: _send')
+        self.sub_socket.set(zmq.SUBSCRIBE, envelope.getId())
+        self.push_socket.send_multipart(envelope.seal(), copy=False)
+        if PROFILE: print('DS', time.time())
         return self._recieve()
 
     cpdef Envelope send(self, Envelope envelope):
+        if DEBUG: print('DISPATCHER: send')
         return self._send(envelope)
 
 
