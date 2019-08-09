@@ -43,10 +43,11 @@ class ClassifyStatic(Task):
         self.addColumns()
 
     def formKey(self, keys):
-        if not isinstance(keys, list):
+        try:
             keys = str(keys.astype(int))
             return keys
-        return '-'.join([str(k) for k in keys])
+        except Exception as e:
+            print(Exception('invalid type for key: {0}'.format(type(keys))))
 
     def createClasses(self, combinations, counts):
         classes = {}
@@ -75,11 +76,11 @@ class ClassifyStatic(Task):
             classes, counts = self.applyClass(_classes, o['a'])
             self.setColumn(
                 i,
-                classes
+                np.array(classes)
             )
             self.setColumn(
                 i + len(self.operations),
-                counts
+                np.array(counts)
             )
         return self
     

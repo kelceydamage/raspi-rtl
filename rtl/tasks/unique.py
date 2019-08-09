@@ -36,11 +36,12 @@ class Unique(Task):
         super(Unique, self).__init__(kwargs, content)
 
     def unique(self):
-        keys = np.unique(self.ndata[self.a]).tolist()
+        print(dir(self))
+        keys = np.unique(self.ndata[self.a.decode()]).tolist()
         t = np.ndarray((len(keys), ), dtype=self.ndata.dtype)
         for i in range(len(keys)):
             for r in self.ndata:
-                if keys[i] == r[self.a]:
+                if keys[i] == r[self.a.decode()]:
                     t[i] = r
         self.ndata = t
         return self

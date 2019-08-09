@@ -66,7 +66,7 @@ class Histogram(Task):
             self.buckets = histogram[1]
             self.setColumn(
                 i,
-                self.tagRows(self.ndata[o['a']])
+                np.array(self.tagRows(self.ndata[o['a']]))
             )
         return self
 
