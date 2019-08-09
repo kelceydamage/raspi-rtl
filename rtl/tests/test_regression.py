@@ -6,7 +6,7 @@ os.sys.path.append(
             )
         )
     )
-from tasks.regression import task_regression
+from rtl.tasks.regression import task_regression
 from dummy_data import KWARGS, CONTENTS3
 
 def test_linear_regression():

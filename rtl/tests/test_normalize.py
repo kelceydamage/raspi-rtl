@@ -6,7 +6,7 @@ os.sys.path.append(
             )
         )
     )
-from tasks.normalize import task_normalize
+from rtl.tasks.normalize import task_normalize
 from dummy_data import KWARGS, CONTENTS3
 
 def test_normalize():

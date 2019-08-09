@@ -6,8 +6,8 @@ os.sys.path.append(
             )
         )
     )
-from tasks.simple_plot import task_simple_plot
-from web.plot import PLOT_QUEUE
+from rtl.tasks.simple_plot import task_simple_plot
+from rtl.web.plot import PLOT_QUEUE
 from dummy_data import KWARGS, CONTENTS
 
 def test_plot():

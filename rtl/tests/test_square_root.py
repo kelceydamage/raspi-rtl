@@ -6,7 +6,7 @@ os.sys.path.append(
             )
         )
     )
-from tasks.square_root import task_square_root
+from rtl.tasks.square_root import task_square_root
 from dummy_data import KWARGS, CONTENTS3
 
 def test_square_root():

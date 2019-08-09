@@ -6,7 +6,7 @@ os.sys.path.append(
             )
         )
     )
-from tasks.subtract import task_subtract
+from rtl.tasks.subtract import task_subtract
 from dummy_data import KWARGS, CONTENTS
 
 def test_subtract():

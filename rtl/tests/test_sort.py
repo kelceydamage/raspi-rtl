@@ -6,7 +6,7 @@ os.sys.path.append(
             )
         )
     )
-from tasks.sort import task_sort
+from rtl.tasks.sort import task_sort
 from dummy_data import KWARGS, CONTENTS2
 
 def test_sort():

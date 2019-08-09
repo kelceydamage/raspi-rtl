@@ -6,7 +6,7 @@ os.sys.path.append(
             )
         )
     )
-from tasks.add import task_add
+from rtl.tasks.add import task_add
 from dummy_data import KWARGS, CONTENTS
 
 def test_add():

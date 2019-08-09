@@ -6,7 +6,7 @@ os.sys.path.append(
             )
         )
     )
-from tasks.column_space import task_column_space
+from rtl.tasks.column_space import task_column_space
 from dummy_data import KWARGS, CONTENTS3
 
 def test_column_space():

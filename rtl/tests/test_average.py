@@ -6,7 +6,7 @@ os.sys.path.append(
             )
         )
     )
-from tasks.average import task_average
+from rtl.tasks.average import task_average
 from dummy_data import KWARGS, CONTENTS3
 
 def test_average():

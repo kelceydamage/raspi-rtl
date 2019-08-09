@@ -6,7 +6,7 @@ os.sys.path.append(
             )
         )
     )
-from tasks.divide import task_divide
+from rtl.tasks.divide import task_divide
 from dummy_data import KWARGS, CONTENTS
 
 def test_divide():

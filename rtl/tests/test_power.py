@@ -6,7 +6,7 @@ os.sys.path.append(
             )
         )
     )
-from tasks.power import task_power
+from rtl.tasks.power import task_power
 from dummy_data import KWARGS, CONTENTS3
 
 def test_power():

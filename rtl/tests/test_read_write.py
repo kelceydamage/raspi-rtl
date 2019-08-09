@@ -6,8 +6,8 @@ os.sys.path.append(
             )
         )
     )
-from tasks.open_array import task_open_array
-from tasks.write import task_write
+from rtl.tasks.open_array import task_open_array
+from rtl.tasks.write import task_write
 from dummy_data import KWARGS, CONTENTS
 
 def test_read_write():

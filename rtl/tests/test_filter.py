@@ -6,7 +6,7 @@ os.sys.path.append(
             )
         )
     )
-from tasks.filter import task_filter
+from rtl.tasks.filter import task_filter
 from dummy_data import KWARGS, CONTENTS2
 
 def test_filter():

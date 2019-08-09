@@ -6,7 +6,7 @@ os.sys.path.append(
             )
         )
     )
-from tasks.multiply import task_multiply
+from rtl.tasks.multiply import task_multiply
 from dummy_data import KWARGS, CONTENTS
 
 def test_multiply():

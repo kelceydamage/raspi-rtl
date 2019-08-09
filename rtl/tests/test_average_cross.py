@@ -6,7 +6,7 @@ os.sys.path.append(
             )
         )
     )
-from tasks.average_cross import task_average_cross
+from rtl.tasks.average_cross import task_average_cross
 from dummy_data import KWARGS, CONTENTS3
 
 def test_average_cross():

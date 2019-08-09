@@ -6,7 +6,7 @@ os.sys.path.append(
             )
         )
     )
-from tasks.difference import task_difference
+from rtl.tasks.difference import task_difference
 from dummy_data import KWARGS, CONTENTS2
 
 def test_difference():

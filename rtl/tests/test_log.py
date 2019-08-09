@@ -6,7 +6,7 @@ os.sys.path.append(
             )
         )
     )
-from tasks.log import task_log
+from rtl.tasks.log import task_log
 from dummy_data import KWARGS, CONTENTS3
 
 def test_log():
