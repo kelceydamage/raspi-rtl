@@ -12,7 +12,7 @@ from rtl.common.transform import Transform
 DSDSL = {
     0: {
         'tasks': {
-            'task_null': {}
+            'null': {}
         }
     }
 }
