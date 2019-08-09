@@ -82,8 +82,7 @@ setup(
     py_modules=[
         'rtl.transport.cache',
         'rtl.transport.registry',
-        'rtl.transport.conf.configuration',
-        'rtl.transport.bin.start'
+        'rtl.transport.conf.configuration'
     ],
     packages=[
         'rtl.tasks',
@@ -95,6 +94,7 @@ setup(
         zmq.get_includes()
     ],
     scripts=[
-        'rtl/transport/bin/raspi-rtl'
+        'rtl/transport/bin/raspi-rtl',
+        'rtl/transport/bin/.rtl_helper.py'
     ]
 )

@@ -3,8 +3,8 @@
 import os
 import re
 
-TASK_DIR = 'tasks'
-TEST_DIR = 'tests'
+TASK_DIR = 'rtl/tasks'
+TEST_DIR = 'rtl/tests'
 BLACKLIST = [
     '__init__',
     '.pyc'
@@ -20,4 +20,4 @@ if __name__ == '__main__':
     ldiff = [x for x in tasks if x not in tests]
 
     print('COUNT: {0}'.format(len(ldiff)))
-    [print('--> {0}'.format(x)) for x in ldiff]
+    [print('--> {0}'.format(x)) for x in ldiff if '.py' in x]
