@@ -15,6 +15,7 @@ before_script:
   - ls
 script:
   - raspi-rtl start
+  - ls -l /home/travis/.local/lib/python2.7/site-packages/rtl/tasks
   - ./platformTest.py
   - raspi-rtl stop
   - pytest -v --cov=rtl.tasks --cov-report=term-missing
