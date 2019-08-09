@@ -152,6 +152,7 @@ cdef class TaskNode(Node):
         self.header = 'TASK-{0}'.format(self.pid).encode()
         with open('{0}{1}'.format(RUNDIR, self.header.decode()), 'w+') as f:
             f.write(str(self.pid))
+        if DEBUG: print('PIDLOC:', RUNDIR)
         self.recv_socket = self._context.socket(zmq.PULL)
         self.send_socket = self._context.socket(zmq.PUSH)
         pull_uri = 'tcp://{0}:{1}'.format(RELAY_ADDR, RELAY_SEND)
@@ -232,6 +233,7 @@ cdef class PlotNode(Node):
             )
         with open('{0}{1}'.format(RUNDIR, self.header.decode()), 'w+') as f:
             f.write(str(self.pid))
+        if DEBUG: print('PIDLOC:', RUNDIR)
 
     cpdef void start(self):
         if DEBUG: print('PLOTNODE: start')
@@ -263,6 +265,7 @@ cdef class CacheNode(Node):
         self.header = 'CACHE-{0}'.format(self.pid).encode()
         with open('{0}{1}'.format(RUNDIR, self.header.decode()), 'w+') as f:
             f.write(str(self.pid))
+        if DEBUG: print('PIDLOC:', RUNDIR)
         self.recv_socket = self._context.socket(zmq.ROUTER)
         router_uri = 'tcp://{0}:{1}'.format(CACHE_LISTEN, CACHE_RECV)
         self.recv_socket.bind(router_uri)

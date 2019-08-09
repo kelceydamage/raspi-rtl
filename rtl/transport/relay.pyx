@@ -112,6 +112,7 @@ cdef class Relay:
         self.pid = os.getpid()
         with open('{0}{1}'.format(RUNDIR, 'RELAY-{0}'.format(self.pid)), 'w+') as f:
             f.write(str(self.pid))
+        if DEBUG: print('PIDLOC:', RUNDIR)
         context = zmq.Context()
         self.recv_socket = context.socket(zmq.PULL)
         self.send_socket = context.socket(zmq.PUSH)

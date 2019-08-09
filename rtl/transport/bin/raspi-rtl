@@ -59,7 +59,7 @@ function stop() {
     IFS=''
     pidfiles=(`ls $PIDFILES`)
     IFS=$DEFAULT_IFS
-    PIDS=(`ps aux|grep start.py|grep -v grep|awk '{print $2}'`)
+    PIDS=(`ps aux|grep rtl_helper|grep -v grep|awk '{print $2}'`)
     for i in ${pidfiles[@]}; do
         for j in ${!PIDS[@]}; do
             if [[ "${PIDS[$j]}" == `cat $PIDFILES$i` ]]; then

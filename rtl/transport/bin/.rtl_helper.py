@@ -147,24 +147,28 @@ def launcher(args, functions):
     if validate(args.relay):
         try:
             start_node(0, select_value(args.relay, 1))
+            if DEBUG: print('Launching RELAY')
             success = True
         except Exception as e:
             print(e)
     if validate(args.task):
         try:
             start_node(1, select_value(args.task, TASK_WORKERS), functions)
+            if DEBUG: print('Launching TASK')
             success = True
         except Exception as e:
             print(e)
     if validate(args.cache):
         try:
             start_node(2, select_value(args.cache, CACHE_WORKERS))
+            if DEBUG: print('Launching CACHE')
             success = True
         except Exception as e:
             print(e)
     if validate(args.plot):
         try:
             start_node(3, select_value(args.plot, PLOT_WORKERS))
+            if DEBUG: print('Launching PLOT')
             success = True
         except Exception as e:
             print(e)
