@@ -183,7 +183,6 @@ if __name__ == '__main__':
         temp = [
             x for x in sys.path if "site-packages" in x and 'python3' in x
         ]
-        print(temp)
         path = temp[0]
         print('INIT:', path, 'rtl/tasks')
         functions = load_tasks('{0}/{1}'.format(path, 'rtl/tasks'))
