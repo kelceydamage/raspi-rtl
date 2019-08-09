@@ -18,7 +18,7 @@ __pycache__
 .DS_Store
 drivers
 jobs/custom*
-tasks/custom*
+rtl/tasks/custom*
 *.list
 var/run/*
 raw_data/
