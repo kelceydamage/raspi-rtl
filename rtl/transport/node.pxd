@@ -32,7 +32,7 @@ cimport cython
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 from libc.stdint cimport uint_fast16_t
-from common.datatypes cimport Envelope
+from rtl.common.datatypes cimport Envelope
 
 # Globals
 # ------------------------------------------------------------------------ 79->

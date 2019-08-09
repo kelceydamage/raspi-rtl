@@ -26,7 +26,7 @@
 # Imports
 # ------------------------------------------------------------------------ 79->
 import numpy as np
-from transport.conf.configuration import DEBUG
+from rtl.transport.conf.configuration import DEBUG
 
 cimport numpy as np
 from libcpp.list cimport list as cpplist

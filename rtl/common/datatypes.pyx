@@ -43,7 +43,7 @@ IF GPU == 1:
 ELSE:
     print('Failed to load CuPy falling back to Numpy')
     from numpy import array, frombuffer, dtype
-from transport.conf.configuration import DEBUG
+from rtl.transport.conf.configuration import DEBUG
 #from numpy import array, frombuffer, dtype
 
 # Cython imports

@@ -30,11 +30,11 @@ import argparse
 import time
 from multiprocessing import Process
 os.sys.path.append('{0}{1}'.format(os.getcwd().split('rtl')[0], 'rtl'))
-from transport.registry import load_tasks
-from transport.node import TaskNode, CacheNode, PlotNode
-from transport.relay import Relay
-from transport.conf.configuration import *
-from common.print_helpers import Logger, Colours
+from rtl.transport.registry import load_tasks
+from rtl.transport.node import TaskNode, CacheNode, PlotNode
+from rtl.transport.relay import Relay
+from rtl.transport.conf.configuration import *
+from rtl.common.print_helpers import Logger, Colours
 
 # Globals
 # ------------------------------------------------------------------------ 79->

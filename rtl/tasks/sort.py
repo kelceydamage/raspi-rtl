@@ -27,7 +27,7 @@
 # Imports
 # ------------------------------------------------------------------------ 79->
 import numpy as np
-from common.task import Task
+from rtl.common.task import Task
 
 # Globals
 # ------------------------------------------------------------------------ 79->

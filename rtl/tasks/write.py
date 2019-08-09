@@ -25,7 +25,7 @@ import numpy as np
 from base64 import b64encode, b64decode
 import re
 import ujson as json
-from common.task import Task
+from rtl.common.task import Task
 
 # Globals
 # ------------------------------------------------------------------------ 79->

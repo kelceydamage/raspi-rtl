@@ -30,7 +30,7 @@
 
 # Cython imports
 cimport cython
-from common.datatypes cimport Envelope
+from rtl.common.datatypes cimport Envelope
 
 # Globals
 # ------------------------------------------------------------------------ 79->

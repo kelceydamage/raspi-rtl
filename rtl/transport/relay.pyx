@@ -41,18 +41,18 @@ ELSE:
     from numpy import array_split, empty
 #from numpy import array_split
 #from numpy import empty
-from transport.conf.configuration import CHUNKING_SIZE
-from transport.conf.configuration import RELAY_LISTEN
-from transport.conf.configuration import RELAY_RECV
-from transport.conf.configuration import RELAY_SEND
-from transport.conf.configuration import RELAY_PUBLISHER
-from transport.conf.configuration import DEBUG
-from transport.conf.configuration import PROFILE
+from rtl.transport.conf.configuration import CHUNKING_SIZE
+from rtl.transport.conf.configuration import RELAY_LISTEN
+from rtl.transport.conf.configuration import RELAY_RECV
+from rtl.transport.conf.configuration import RELAY_SEND
+from rtl.transport.conf.configuration import RELAY_PUBLISHER
+from rtl.transport.conf.configuration import DEBUG
+from rtl.transport.conf.configuration import PROFILE
 
 # Cython imports
 cimport cython
 from numpy cimport ndarray
-from common.datatypes cimport Envelope
+from rtl.common.datatypes cimport Envelope
 from libcpp.string cimport string
 from libcpp.unordered_map cimport unordered_map
 from libc.stdint cimport uint_fast16_t

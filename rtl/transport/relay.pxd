@@ -31,7 +31,7 @@
 # Cython imports
 cimport cython
 from numpy cimport ndarray
-from common.datatypes cimport Envelope
+from rtl.common.datatypes cimport Envelope
 from libcpp.string cimport string
 from libcpp.unordered_map cimport unordered_map
 from libc.stdint cimport uint_fast16_t

@@ -21,8 +21,8 @@
 # Imports
 # ------------------------------------------------------------------------ 79->
 import numpy as np
-from common.task import Task
-from common.regression import Models
+from rtl.common.task import Task
+from rtl.common.regression import Models
 
 # Globals
 # ------------------------------------------------------------------------ 79->

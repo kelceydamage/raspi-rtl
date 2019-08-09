@@ -31,15 +31,15 @@
 # Python imports
 import zmq
 import time
-from transport.conf.configuration import RELAY_ADDR
-from transport.conf.configuration import RELAY_RECV
-from transport.conf.configuration import RELAY_PUBLISHER
-from transport.conf.configuration import DEBUG
-from transport.conf.configuration import PROFILE
+from rtl.transport.conf.configuration import RELAY_ADDR
+from rtl.transport.conf.configuration import RELAY_RECV
+from rtl.transport.conf.configuration import RELAY_PUBLISHER
+from rtl.transport.conf.configuration import DEBUG
+from rtl.transport.conf.configuration import PROFILE
 
 # Cython imports
 cimport cython
-from common.datatypes cimport Envelope
+from rtl.common.datatypes cimport Envelope
 
 # Globals
 # ------------------------------------------------------------------------ 79->

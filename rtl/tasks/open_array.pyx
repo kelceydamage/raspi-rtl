@@ -27,7 +27,7 @@ import numpy as np
 import ast
 from base64 import b64decode
 import re
-from common.task import Task
+from rtl.common.task import Task
 import csv
 import mmap
 import time
@@ -36,7 +36,7 @@ cimport numpy as np
 from libcpp.string cimport string
 from libc.stdio cimport fopen, FILE, fclose
 from posix.stdio cimport fileno
-from common.task cimport Task
+from rtl.common.task cimport Task
 from numpy cimport ndarray
 from numpy cimport dtype
 

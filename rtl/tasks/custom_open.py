@@ -27,7 +27,7 @@ import ujson as json
 import numpy as np
 from numpy import ndarray
 from numpy import array
-from common.task import Task
+from rtl.common.task import Task
 import csv
 
 # Globals

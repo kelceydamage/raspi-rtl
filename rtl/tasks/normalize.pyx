@@ -23,8 +23,8 @@
 # Imports
 # ------------------------------------------------------------------------ 79->
 import numpy as np
-from common.task import Task
-from common.normalization import Models
+from rtl.common.task import Task
+from rtl.common.normalization import Models
 
 # Globals
 # ------------------------------------------------------------------------ 79->

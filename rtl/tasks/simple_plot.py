@@ -21,8 +21,8 @@
 # Imports
 # ------------------------------------------------------------------------ 79->
 import numpy as np
-from common.task import Task
-from web.plot import PLOT_QUEUE
+from rtl.common.task import Task
+from rtl.web.plot import PLOT_QUEUE
 
 
 # Globals
