@@ -1,5 +1,5 @@
 rm -rf var/run/*
-FILTER='rtl_helper'
+FILTER='rtl/main'
 PIDS=(`ps aux|grep $FILTER|grep -v grep|awk '{print $2}'`)
 #unset 'PIDS[${#PIDS[@]}-1]'
 if [ ${#PIDS[@]} -eq 0 ]; then
