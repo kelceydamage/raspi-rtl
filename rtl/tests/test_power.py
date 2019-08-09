@@ -21,3 +21,14 @@ def test_power():
     }
     r = task_power(KWARGS, CONTENTS3)
     assert r['c'][2] == 169.0
+    KWARGS = {
+        'operations': [
+            {
+                'a': 'b',
+                'b': 'a',
+                'column': 'c'
+            }
+        ]
+    }
+    r = task_power(KWARGS, CONTENTS3)
+    assert r['c'][2] == 169.0

@@ -10,8 +10,13 @@ NDATA2['b'] = np.arange(4)[::-1]
 NDATA3 = np.ones((4), dtype=DTYPE)
 NDATA3['a'] = np.arange(4)
 NDATA3['b'] = [2, 23, 13, 7]
+DTYPE = [('a', '<i8'), ('b', 'O')]
+NDATA4 = np.ones((4), dtype=DTYPE)
+NDATA4['a'] = np.arange(4)
+NDATA4['b'] = ['2', '23', '13', '7']
 
 KWARGS = {}
 CONTENTS = NDATA
 CONTENTS2 = NDATA2
 CONTENTS3 = NDATA3
+CONTENTS4 = NDATA4
