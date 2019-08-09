@@ -1,7 +1,10 @@
-#!/usr/bin/env python3
+#!python
+#cython: language_level=3, cdivision=True
+###boundscheck=False, wraparound=False //(Disabled by default)
 # ------------------------------------------------------------------------ 79->
-# Author: ${name=Kelcey Damage}
-# Python: 3.5+
+# Author: Kelcey Damage
+# Cython: 0.28+
+# Doc
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,34 +20,43 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-
+# Dependancies:
+#                   zmq
+#                   common
+#                   conf
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-from rtl.common.transform import Transform
+
+# Cython imports
+cimport cython
+from rtl.common.datatypes cimport Envelope
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
-# Classes
-# ------------------------------------------------------------------------ 79->
-DSDSL = {
-    0: {
-        'tasks': {
-            'task_null': {}
-        }
-    }
-}
-
+VERSION = '2.0a'
 
 # Classes
 # ------------------------------------------------------------------------ 79->
+
+
+cdef class Dispatcher:
+    cdef:
+        object push_socket
+        object sub_socket
+        list results
+
+    # Python acccessible API
+    cpdef Envelope send(self, Envelope envelope)
+
+    # CPP/Cython acccessible API
+    cdef Envelope _recieve(self)
+    cdef void close(self)
+    cdef Envelope _send(self, Envelope envelope)
 
 # Functions
 # ------------------------------------------------------------------------ 79->
 
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':  # pragma: no cover
-    print(Transform().execute(DSDSL).result())
-    

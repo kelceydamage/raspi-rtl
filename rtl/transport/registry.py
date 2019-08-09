@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # ------------------------------------------------------------------------ 79->
 # Author: ${name=Kelcey Damage}
 # Python: 3.5+
@@ -17,25 +17,20 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-
+# Dependancies:
+#                   pkgutil
+#                   sys
+#                   common
+#                   transport
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-from rtl.common.transform import Transform
+import pkgutil
+import sys
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-
-# Classes
-# ------------------------------------------------------------------------ 79->
-DSDSL = {
-    0: {
-        'tasks': {
-            'task_null': {}
-        }
-    }
-}
-
+VERSION = '0.5'
 
 # Classes
 # ------------------------------------------------------------------------ 79->
@@ -43,8 +38,30 @@ DSDSL = {
 # Functions
 # ------------------------------------------------------------------------ 79->
 
+
+def load_tasks(dirname):
+    """
+    NAME:           load_tasks
+
+    DESCRIPTION:    Auto loader and parser for task modules. This function is
+                    written for efficiency, so I appologize for lack of
+                    readability.
+    """
+    functions = {}
+    member_list = []
+    for importer, package_name, _ in pkgutil.iter_modules([dirname]):
+        full_package_name = 'tasks.%s' % (package_name)
+        if package_name not in sys.modules:
+            try:
+                module = importer.find_module(package_name).load_module()
+                for member in [x for x in dir(module) if 'task_' in x]:
+                    functions[member] = '{0}.{1}'.format(package_name, member)
+            except Exception as e:
+                print('ERROR, e')
+    return functions
+
+
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':  # pragma: no cover
-    print(Transform().execute(DSDSL).result())
-    
+if __name__ == '__main__':
+    print(load_tasks('rtl/tasks'))

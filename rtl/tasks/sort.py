@@ -17,34 +17,41 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-
+#
+# {
+#     'column': 'columnA',
+#     'method': 'quicksort',
+#     'axis': 0
+# }
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-from rtl.common.transform import Transform
+import numpy as np
+from rtl.common.task import Task
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-DSDSL = {
-    0: {
-        'tasks': {
-            'task_null': {}
-        }
-    }
-}
+class Sort(Task):
 
+    def __init__(self, kwargs, content):
+        super(Sort, self).__init__(kwargs, content)
 
-# Classes
-# ------------------------------------------------------------------------ 79->
+    def sort(self):
+        self.ndata.sort(
+            axis=self.axis,
+            kind=self.method,
+            order=self.column.decode()
+        )
+        return self
+
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+def task_sort(kwargs, contents):
+    return Sort(kwargs, contents).sort().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':  # pragma: no cover
-    print(Transform().execute(DSDSL).result())
-    

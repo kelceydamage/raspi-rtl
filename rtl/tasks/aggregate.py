@@ -17,34 +17,46 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-from rtl.common.transform import Transform
+import numpy as np
+from rtl.common.task import Task
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-DSDSL = {
-    0: {
-        'tasks': {
-            'task_null': {}
-        }
-    }
-}
+class Aggregate(Task):
 
+    def __init__(self, kwargs, content):
+        super(Aggregate, self).__init__(kwargs, content)
+        self.newColumns = [
+            ('{0}'.format(o['column']), '<f8')
+            for o in self.operations
+        ]
+        self.addColumns()
 
-# Classes
-# ------------------------------------------------------------------------ 79->
+    def aggregate(self):
+        for i in range(len(self.operations)):
+            o = self.operations[i]
+            dtypes = [x for x in self.dtypes.descr if x[0] in o['columns']]
+            tempData = np.zeros(self.ndata.shape, dtypes)
+            for j in range(len(dtypes)):
+                tempData[dtypes[j][0]] = self.ndata[dtypes[j][0]]
+
+            self.setColumn(
+                i,
+                np.mean(np.array(tempData.tolist()), axis=1)
+            )
+        return self
+
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+def task_aggregate(kwargs, contents):
+    return Aggregate(kwargs, contents).aggregate().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':  # pragma: no cover
-    print(Transform().execute(DSDSL).result())
-    

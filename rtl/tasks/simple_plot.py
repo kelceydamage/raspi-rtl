@@ -17,34 +17,57 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-from rtl.common.transform import Transform
+import numpy as np
+from rtl.common.task import Task
+from rtl.web.plot import PLOT_QUEUE
+
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
-# Classes
-# ------------------------------------------------------------------------ 79->
-DSDSL = {
-    0: {
-        'tasks': {
-            'task_null': {}
-        }
-    }
-}
-
 
 # Classes
 # ------------------------------------------------------------------------ 79->
+class Plot(Task):
+
+    def __init__(self, kwargs, contents):
+        super(Plot, self).__init__(kwargs, contents)
+        self.queue = PLOT_QUEUE
+
+    def getSeries(self, series):
+        if series is None:
+            return None
+        return self.ndata[series].tolist()
+
+    def plot(self):
+        for plot in self.plots.keys():
+            draws = []
+            for draw in self.plots[plot]:
+                draws.append(
+                    {
+                        'type': draw['type'], 
+                        'x': self.ndata[draw['x']].tolist(), 
+                        'y': self.ndata[draw['y']].tolist(),
+                        'series': self.getSeries(draw['series'])
+                    }
+                )
+            self.queue.put({
+                'name': plot,
+                'draws': draws,
+                'xAxis': self.plots[plot][0]['x'],
+                'yAxis': self.plots[plot][0]['y'],
+                'scale': self.plots[plot][0]['scale']
+            })
+        return self
+
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+def task_simple_plot(kwargs, contents):
+    return Plot(kwargs, contents).plot().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':  # pragma: no cover
-    print(Transform().execute(DSDSL).result())
-    

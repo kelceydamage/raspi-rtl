@@ -17,34 +17,42 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-from rtl.common.transform import Transform
+import numpy as np
+from rtl.common.task import Task
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-DSDSL = {
-    0: {
-        'tasks': {
-            'task_null': {}
-        }
-    }
-}
+class Average(Task):
 
+    def __init__(self, kwargs, content):
+        super(Average, self).__init__(kwargs, content)
+        self.newColumns = [
+            ('{0}'.format(o['column']), '<f8')
+            for o in self.operations
+        ]
+        self.addColumns()
 
-# Classes
-# ------------------------------------------------------------------------ 79->
+    def average(self):
+        for i in range(len(self.operations)):
+            o = self.operations[i]
+            avg = np.mean(self.ndata[o['a']])
+            self.setColumn(
+                i,
+                np.array(np.mean(self.ndata[o['a']]))
+            )
+        return self
+
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+def task_average(kwargs, contents):
+    return Average(kwargs, contents).average().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':  # pragma: no cover
-    print(Transform().execute(DSDSL).result())
-    

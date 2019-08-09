@@ -28,7 +28,7 @@ os.sys.path.append(
             )
         )
     )
-from common.transform import Transform
+from rtl.common.transform import Transform
 
 # Globals
 # ------------------------------------------------------------------------ 79->
@@ -199,12 +199,5 @@ DSDSL = {
 
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':  # pragma: no cover
-    r = Transform().execute(DSDSL).result()
-    print(r)
-    #print(r)
-    #print(r['ndata'].shape)
-    #print(r['ndata'].dtype)
-    #print('A1', r['ndata']['alphaAvg1'][-1:])
-    #print('A2', r['ndata']['alphaAvg2'][-1:])
-    
+if __name__ == '__main__':
+    print(Transform().execute(DSDSL).result())

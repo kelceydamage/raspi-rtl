@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
-
-from distutils.core import setup
+from setuptools import setup
+#from distutils.core import setup
 from distutils.extension import Extension
 from os.path import dirname
 import platform
@@ -24,18 +24,18 @@ USE_CYTHON = True
 ext = '.pyx' if USE_CYTHON else '.c'
 
 PYX_FILES = [
-    "common.datatypes",
-    "common.encoding",
-    "common.print_helpers",
-    "common.normalization",
-    "common.regression",
-    "common.transform",
-    "common.task",
-    "transport.relay",
-    "transport.node",
-    "transport.dispatch",
-    "tasks.open_array",
-    "tasks.normalize"
+    "rtl.common.datatypes",
+    "rtl.common.encoding",
+    "rtl.common.print_helpers",
+    "rtl.common.normalization",
+    "rtl.common.regression",
+    "rtl.common.transform",
+    "rtl.common.task",
+    "rtl.transport.relay",
+    "rtl.transport.node",
+    "rtl.transport.dispatch",
+    "rtl.tasks.open_array",
+    "rtl.tasks.normalize"
 ]
 
 extensions = []
@@ -61,12 +61,40 @@ if USE_CYTHON:
     extensions = cythonize(extensions)
 
 setup(
-    name='RTL',
-    version='3-experimental',
-    description='Raspi Transport Layer',
+    name='RTL3',
+    version='3.0.0.dev1',
+    description='Raspi Transport Layer 3',
     author='Kelcey Jamison-Damage',
     author_email='',
     url='https://github.com/kelceydamage/rtl.git',
-    ext_modules = extensions,
-    include_dirs = [numpy.get_include(), zmq.get_includes()]
+    download_url='https://github.com/kelceydamage/rtl.git',
+    license='http://www.apache.org/licenses/LICENSE-2.0',
+    install_requires=[
+        "pyzmq",
+        "lmdb",
+        "cbor",
+        "numpy",
+        "cython",
+        "sklearn",
+        "bokeh",
+        #"cupy" for systems with nvcc and CUDA
+    ],
+    py_modules=[
+        'rtl.transport.cache',
+        'rtl.transport.registry',
+        'rtl.transport.conf.configuration'
+    ],
+    packages=[
+        'rtl.tasks',
+        'rtl.web'
+    ],
+    ext_modules=extensions,
+    include_dirs=[
+        numpy.get_include(), 
+        zmq.get_includes()
+    ],
+    scripts=[
+        'rtl/transport/bin/raspi-rtl',
+        'rtl/transport/bin/.rtl_helper.py'
+    ]
 )

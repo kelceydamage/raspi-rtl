@@ -17,34 +17,39 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-from rtl.common.transform import Transform
+import numpy as np
+from rtl.common.task import Task
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-DSDSL = {
-    0: {
-        'tasks': {
-            'task_null': {}
-        }
-    }
-}
+class Unique(Task):
 
+    # IM PROG
 
-# Classes
-# ------------------------------------------------------------------------ 79->
+    def __init__(self, kwargs, content):
+        super(Unique, self).__init__(kwargs, content)
+
+    def unique(self):
+        print(dir(self))
+        keys = np.unique(self.ndata[self.a.decode()]).tolist()
+        t = np.ndarray((len(keys), ), dtype=self.ndata.dtype)
+        for i in range(len(keys)):
+            for r in self.ndata:
+                if keys[i] == r[self.a.decode()]:
+                    t[i] = r
+        self.ndata = t
+        return self
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+def task_unique(kwargs, contents):
+    return Unique(kwargs, contents).unique().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':  # pragma: no cover
-    print(Transform().execute(DSDSL).result())
-    

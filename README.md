@@ -18,6 +18,11 @@
 ### Known Issues
 * Constant CPU usage even when nothing is processing. My best guess is this is due ot the way POLLING is implemented in ZMQ. Current timeout is 5000 ms but it has no impact on CPU usage. This usage manifests as start.py but I haven't implemented any code to express which node (they all launch as start.py) is causing the issue. That said, you can get the PID and check against `transport/bin/ini.sh status`.
 
+### Installation
+To install run: `pip install RTL3 --upgrade .` from the project root directory.
+
+Or run: `pip install --upgrade git+https://github.com/kelceydamage/rtl.git@3-experimental`
+
 ### Included Tasks
 * add
 * aggregate
@@ -48,15 +53,33 @@
 
 To start the service:
 ```
-./transport/bin/init.sh start
+raspi-rtl start
 ```
 
 To stop the service:
 ```
-./transport/bin/init.sh stop
+raspi-rtl stop
 ```
 
 There are also `status` and `restart` commands.
+
+### Using from interactive python
+`(myenv)$ python`
+```
+>>> from rtl.common.transform import Transform
+>>> DSDSL = {0: {'tasks': {'task_null': {}}}}
+>>> Transform().execute(DSDSL).result()
+```
+
+Response
+```
+Running: 0 - b'a928f828-7619-4560-8637-730b52ae9034'
+Running: null
+[('1', '<i8')]
+Completed: 0.40 ms null
+Total Elapsed Time: 0.007911043001513463
+array([(0,)], dtype=[('1', '<i8')])
+```
 
 ### Using The Built-in Client
 

@@ -5,6 +5,7 @@ python:
 install:
   - pip install -r requirements.txt
   - bash BUILD.sh
+  - pip install .
 before_script:
   - export PYTHONPATH=$PYTHONPATH:$(pwd):/home/travis/.local/lib/python2.7/site-packages/
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -12,13 +13,13 @@ before_script:
   - ./cc-test-reporter before-build
   - mkdir -p var/run
   - ls
-  - ./transport/bin/init.sh start
 script:
-  - pytest -v --cov=tasks --cov-report=term-missing
+  - raspi-rtl start
   - ./platformTest.py
+  - raspi-rtl stop
+  - pytest -v --cov=rtl.tasks --cov-report=term-missing
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
-  - ./transport/bin/init.sh stop
 after_success:
   - coveralls
   - codecov

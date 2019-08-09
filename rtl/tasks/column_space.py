@@ -17,34 +17,41 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-from rtl.common.transform import Transform
+import numpy as np
+from rtl.common.task import Task
+from rtl.common.regression import Models
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-DSDSL = {
-    0: {
-        'tasks': {
-            'task_null': {}
-        }
-    }
-}
+class ColumnSpace(Task):
 
+    def __init__(self, kwargs, contents):
+        super(ColumnSpace, self).__init__(kwargs, contents)
+        self.newColumns = [('{0}Space'.format(self.column.decode()), '<i8')]
+        self.addColumns()
 
-# Classes
-# ------------------------------------------------------------------------ 79->
+    def columnSpace(self):
+        self.getLSpace(
+            self.space,
+            self.ndata[self.column.decode()]
+        )
+        self.setColumn(
+            0,
+            self.lSpace.reshape(-1, )
+        )
+        return self
+
 
 # Functions
-# ------------------------------------------------------------------------ 79->
+# ----------------------------------------------------------------------- 79->
+def task_column_space(kwargs, contents):
+    return ColumnSpace(kwargs, contents).columnSpace().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':  # pragma: no cover
-    print(Transform().execute(DSDSL).result())
-    

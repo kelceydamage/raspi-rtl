@@ -17,34 +17,45 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-from rtl.common.transform import Transform
+import numpy as np
+from rtl.common.task import Task
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-DSDSL = {
-    0: {
-        'tasks': {
-            'task_null': {}
-        }
-    }
-}
+class Divide(Task):
 
+    def __init__(self, kwargs, content):
+        super(Divide, self).__init__(kwargs, content)
+        self.newColumns = [
+            ('{0}'.format(o['column']), '<f8')
+            for o in self.operations
+        ]
+        self.addColumns()
 
-# Classes
-# ------------------------------------------------------------------------ 79->
+    def divide(self):
+        for i in range(len(self.operations)):
+            o = self.operations[i]
+            if not isinstance(o['b'], str):
+                b = o['b']
+            else:
+                b = self.ndata[o['b']]
+            self.setColumn(
+                i,
+                np.divide(self.ndata[o['a']], b)
+            )
+        return self
+
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+def task_divide(kwargs, contents):
+    return Divide(kwargs, contents).divide().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':  # pragma: no cover
-    print(Transform().execute(DSDSL).result())
-    

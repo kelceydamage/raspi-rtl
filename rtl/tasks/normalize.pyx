@@ -1,4 +1,6 @@
-#!/usr/bin/env python3
+#!python
+#cython: language_level=3, cdivision=True
+###boundscheck=False, wraparound=False //(Disabled by default)
 # ------------------------------------------------------------------------ 79->
 # Author: ${name=Kelcey Damage}
 # Python: 3.5+
@@ -17,34 +19,50 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-
+#
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-from rtl.common.transform import Transform
+import numpy as np
+from rtl.common.task import Task
+from rtl.common.normalization import Models
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
 # ------------------------------------------------------------------------ 79->
-DSDSL = {
-    0: {
-        'tasks': {
-            'task_null': {}
-        }
-    }
-}
+class Normalize(Task):
+    
+    def __init__(self, kwargs, content):
+        super(Normalize, self).__init__(kwargs, content)
+        self.newColumns = [
+            ('{0}Normal'.format(x), '<f8') 
+            for x in self.columns
+        ]
+        self.addColumns()
 
+    def lookupModel(self, modelName):
+        if self.model is None: modelName = 'Null'
+        return Models.__dict__[modelName.decode('utf-8')]
 
-# Classes
-# ------------------------------------------------------------------------ 79->
+    def normalize(self):
+        for i in range(len(self.columns)):
+            M = self.lookupModel(self.model)(
+                self.ndata[self.columns[i]],
+                self.weight,
+                self.columns[i]
+            )
+            self.setColumn(
+                i,
+                M.column
+            )
+        return self
+
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+def task_normalize(kwargs, contents):
+    return Normalize(kwargs, contents).normalize().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':  # pragma: no cover
-    print(Transform().execute(DSDSL).result())
-    
