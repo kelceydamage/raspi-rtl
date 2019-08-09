@@ -1,3 +1,3 @@
 #!/usr/bin/bash
-pip uninstall rtl3 -y
-pip install --upgrade /git/projects/personal/rtl/.
+pip uninstall raspi-rtl -y
+pip install --upgrade . --no-cache-dir
