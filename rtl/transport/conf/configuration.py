@@ -30,6 +30,8 @@
 
 # Globals
 # ------------------------------------------------------------------------ 79->
+PIDFILES                = '~/var/run/'
+
 # Logging
 DEBUG                   = False
 PROFILE                 = False
@@ -38,7 +40,7 @@ PROFILE                 = False
 STARTING_PORT           = 10000
 TASK_WORKERS            = 3         # Worker processes per node (per physical
                                     # server)
-CACHE_WORKERS           = 1
+CACHE_WORKERS           = 0
 PLOT_WORKERS            = 1
 PLOT_LISTEN             = 5006
 PLOT_ADDR               = '0.0.0.0'

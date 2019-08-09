@@ -26,6 +26,7 @@
 # Imports
 # ------------------------------------------------------------------------ 79->
 import os
+import sys
 import argparse
 import time
 from multiprocessing import Process
@@ -38,6 +39,7 @@ from rtl.common.print_helpers import Logger, Colours
 
 # Globals
 # ------------------------------------------------------------------------ 79->
+RUNDIR = os.path.expanduser(PIDFILES)
 COLOURS = Colours()
 LOG_LEVEL = 1
 LOG = Logger(LOG_LEVEL)
@@ -174,7 +176,8 @@ def launcher(args, functions):
 if __name__ == '__main__':
     pid = os.getpid()
     try:
-        functions = load_tasks('rtl/tasks')
+        path = [x for x in sys.path if "site-packages" in x][0]
+        functions = load_tasks('{0}/{1}'.format(path, 'rtl/tasks'))
     except Exception as e:
         print(str(e))
         quit()
@@ -186,7 +189,7 @@ if __name__ == '__main__':
         print(parser.print_help())
         exit(1)
     print('Starting RTL')
-    with open('var/run/{0}-{1}'.format('master', pid), 'w+') as f:
+    with open('{0}{1}-{2}'.format(RUNDIR,'master', pid), 'w+') as f:
         f.write(str(pid))
     while True:
         time.sleep(1000)

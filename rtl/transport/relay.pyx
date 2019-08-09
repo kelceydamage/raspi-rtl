@@ -48,6 +48,7 @@ from rtl.transport.conf.configuration import RELAY_SEND
 from rtl.transport.conf.configuration import RELAY_PUBLISHER
 from rtl.transport.conf.configuration import DEBUG
 from rtl.transport.conf.configuration import PROFILE
+from rtl.transport.conf.configuration import PIDFILES
 
 # Cython imports
 cimport cython
@@ -59,7 +60,7 @@ from libc.stdint cimport uint_fast16_t
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-
+RUNDIR = os.path.expanduser(PIDFILES)
 VERSION = '2.0a'
 
 # Classes
@@ -109,7 +110,7 @@ cdef class Relay:
         self.index_tracker = {}
         self.success = True
         self.pid = os.getpid()
-        with open('var/run/{0}'.format('RELAY-{0}'.format(self.pid)), 'w+') as f:
+        with open('{0}{1}'.format(RUNDIR, 'RELAY-{0}'.format(self.pid)), 'w+') as f:
             f.write(str(self.pid))
         context = zmq.Context()
         self.recv_socket = context.socket(zmq.PULL)

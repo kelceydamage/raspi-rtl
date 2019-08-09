@@ -1,8 +1,8 @@
 #!/bin/bash
-RASPI_HOME=$(pwd)
-ROOT=/rtl
-SCRIPT=/transport/bin/start.py
-PIDFILES=var/run/
+#RTL_PATH=`python -c 'import sys; print([x for x in sys.path if "site-packages" in x][0])'`
+#ROOT=/rtl
+SCRIPT=.rtl_helper.py
+PIDFILES=~/var/run/
 DEFAULT_IFS=$IFS
 
 function print_header() {
@@ -22,23 +22,12 @@ function print_header() {
     echo -e "         R A S P I      (c) Robot OS                         -K. Damage\n"
 }
 
-function setup_env() {
-    export PATH=$RASPI_HOME$ROOT:$PATH
-    export RASPI_HOME=$RASPI_HOME$ROOT
-    PYTHON="python"
-}
-
-function split() {
-    IFS='-'
-    read -r -a service <<< i
-}
-
 function print_plugins() {
-    $PYTHON $RASPI_HOME$ROOT$SCRIPT -m
+    $PYTHON $SCRIPT -m
 }
 
 function print_terminal_lines() {
-    myString=$(printf "%79s");echo ${myString// /-} 
+    myString=$(printf "%79s");echo ${myString// /-}
 }
 
 function print_running_services() {
@@ -46,17 +35,18 @@ function print_running_services() {
     echo -e "Service\t  PID"
     print_terminal_lines
     IFS='-'
-    pidfiles=`ls var/run`
+    pidfiles=`ls $PIDFILES`
     column -t <<< $pidfiles
     IFS=''
     print_terminal_lines
 }
 
 function start() {
-    if [ -z "$(ls -A var/run)" ]; then
+    mkdir -p $PIDFILES
+    if [ -z "$(ls -A $PIDFILES)" ]; then
         print_header
         print_plugins
-        $PYTHON $RASPI_HOME$ROOT$SCRIPT &
+        $PYTHON $SCRIPT &
     else
         echo -e "RTL is already running:"
         print_running_services
@@ -86,7 +76,7 @@ function stop() {
         fi
     done
     if [[ $force -eq 1 ]]; then 
-        rm -rf var/run/*
+        rm -rf $PIDFILES*
     fi
     echo -e "RTL has been shut down"
 }

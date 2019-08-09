@@ -38,6 +38,7 @@ IF GPU == 1:
     import cupy as p
 ELSE:
     import numpy as p
+import os
 import zmq
 import lmdb
 import cbor
@@ -63,6 +64,7 @@ from rtl.transport.conf.configuration import PLOT_LISTEN
 from rtl.transport.conf.configuration import PLOT_ADDR
 from rtl.transport.conf.configuration import DEBUG
 from rtl.transport.conf.configuration import PROFILE
+from rtl.transport.conf.configuration import PIDFILES
 from rtl.common.print_helpers import printc, Colours
 from rtl.web.plot import modify_doc
 import time
@@ -75,6 +77,7 @@ from libc.stdint cimport uint_fast16_t
 
 # Globals
 # ------------------------------------------------------------------------ 79->
+RUNDIR = os.path.expanduser(PIDFILES)
 COLOURS = Colours()
 VERSION = '2.0a'
 
@@ -147,7 +150,7 @@ cdef class TaskNode(Node):
     def __init__(self, functions=''):
         super(TaskNode, self).__init__()
         self.header = 'TASK-{0}'.format(self.pid).encode()
-        with open('var/run/{0}'.format(self.header.decode()), 'w+') as f:
+        with open('{0}{1}'.format(RUNDIR, self.header.decode()), 'w+') as f:
             f.write(str(self.pid))
         self.recv_socket = self._context.socket(zmq.PULL)
         self.send_socket = self._context.socket(zmq.PUSH)
@@ -227,7 +230,7 @@ cdef class PlotNode(Node):
             port=PLOT_LISTEN,
             allow_websocket_origin=["*"]
             )
-        with open('var/run/{0}'.format(self.header.decode()), 'w+') as f:
+        with open('{0}{1}'.format(RUNDIR, self.header.decode()), 'w+') as f:
             f.write(str(self.pid))
 
     cpdef void start(self):
@@ -258,7 +261,7 @@ cdef class CacheNode(Node):
     def __init__(self, functions=''):
         super(CacheNode, self).__init__()
         self.header = 'CACHE-{0}'.format(self.pid).encode()
-        with open('var/run/{0}'.format(self.header.decode()), 'w+') as f:
+        with open('{0}{1}'.format(RUNDIR, self.header.decode()), 'w+') as f:
             f.write(str(self.pid))
         self.recv_socket = self._context.socket(zmq.ROUTER)
         router_uri = 'tcp://{0}:{1}'.format(CACHE_LISTEN, CACHE_RECV)
