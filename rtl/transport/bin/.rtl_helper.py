@@ -181,9 +181,10 @@ if __name__ == '__main__':
     pid = os.getpid()
     try:
         path = [x for x in sys.path if "site-packages" in x][0]
+        print('INIT:', path, 'rtl/tasks')
         functions = load_tasks('{0}/{1}'.format(path, 'rtl/tasks'))
     except Exception as e:
-        print(str(e))
+        print('ERROR loading functions:', str(e))
         quit()
     args = args[0]
     if args.meta:

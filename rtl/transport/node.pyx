@@ -162,6 +162,7 @@ cdef class TaskNode(Node):
         self.recv_poller.register(self.recv_socket, zmq.POLLIN)
         self.functions = functions
         self.jobQueue = deque()
+        if DEBUG: print(self.functions)
 
     cdef void populateJobQueue(self, bytes id):
         if DEBUG: print('TASKNODE: populateJobQueue')
@@ -194,6 +195,7 @@ cdef class TaskNode(Node):
                 t = time.perf_counter()
                 job = self.jobQueue.popleft()
                 functionKey = list(job.keys())[0]
+                if DEBUG: print(self.functions)
                 func = self.functions[functionKey]
                 printc('Running: {0}'.format(func.split('.')[0]), COLOURS.LIGHTBLUE)
                 contents = eval(func)(job[functionKey], contents)
