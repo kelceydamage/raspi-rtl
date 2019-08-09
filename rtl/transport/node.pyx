@@ -43,15 +43,15 @@ import zmq
 import lmdb
 import cbor
 import time
+import sys
 from os import getpid
 from bokeh.server.server import Server
-from rtl.tasks import *
-import rtl.tasks as Tasks
 from collections import deque
 from numpy import frombuffer
 from subprocess import check_output
 from rtl.common.datatypes cimport Envelope
 from rtl.transport.cache import ExperimentalCache
+from rtl.transport.registry import import_tasks
 from rtl.transport.conf.configuration import TASK_WORKERS
 from rtl.transport.conf.configuration import CACHE_PATH
 from rtl.transport.conf.configuration import CACHE_MAP_SIZE
@@ -66,7 +66,6 @@ from rtl.transport.conf.configuration import DEBUG
 from rtl.transport.conf.configuration import PROFILE
 from rtl.transport.conf.configuration import PIDFILES
 from rtl.common.print_helpers import printc, Colours
-from rtl.web.plot import modify_doc
 import time
 
 cimport cython
@@ -147,7 +146,7 @@ cdef class TaskNode(Node):
                     is determined by the state of the pipeline.
     """
 
-    def __init__(self, functions=''):
+    def __init__(self, _functions=''):
         super(TaskNode, self).__init__()
         self.header = 'TASK-{0}'.format(self.pid).encode()
         with open('{0}{1}'.format(RUNDIR, self.header.decode()), 'w+') as f:
@@ -160,9 +159,10 @@ cdef class TaskNode(Node):
         self.recv_socket.connect(pull_uri)
         self.send_socket.connect(push_uri)
         self.recv_poller.register(self.recv_socket, zmq.POLLIN)
-        self.functions = functions
+        self.functions = import_tasks()
+        self.custom_functions = {}
         self.jobQueue = deque()
-        if DEBUG: print(self.functions)
+        if DEBUG: print('FUNCTIONS', self.functions)
 
     cdef void populateJobQueue(self, bytes id):
         if DEBUG: print('TASKNODE: populateJobQueue')
@@ -183,7 +183,7 @@ cdef class TaskNode(Node):
         cdef:
             ndarray contents = self.envelope.getContents()
             bytes id = self.envelope.getId()
-            str func
+            object func
             str functionKey
             Exception msg
             double t
@@ -195,12 +195,11 @@ cdef class TaskNode(Node):
                 t = time.perf_counter()
                 job = self.jobQueue.popleft()
                 functionKey = list(job.keys())[0]
-                if DEBUG: print(self.functions)
                 func = self.functions[functionKey]
-                printc('Running: {0}'.format(func.split('.')[0]), COLOURS.LIGHTBLUE)
-                contents = eval(func)(job[functionKey], contents)
+                printc('Running: {0}'.format(functionKey), COLOURS.LIGHTBLUE)
+                contents = func.__dict__[functionKey](job[functionKey], contents)
                 printc('Completed: {0} {1}'.format(
-                    convert_time(time.perf_counter() - t), func.split('.')[0]), 
+                    convert_time(time.perf_counter() - t), func), 
                     COLOURS.GREEN
                 )
         except Exception as e:
@@ -223,18 +222,21 @@ cdef class PlotNode(Node):
     METHODS:        
     """
 
-    def __init__(self, docs=''):
+    def __init__(self, doc=None):
         super(PlotNode, self).__init__()
         self.header = 'PLOT-{0}'.format(self.pid).encode()
-        self.server = Server(
-            {'/': modify_doc}, 
-            num_procs=1, 
-            address=PLOT_ADDR,
-            port=PLOT_LISTEN,
-            allow_websocket_origin=["*"]
-            )
-        with open('{0}{1}'.format(RUNDIR, self.header.decode()), 'w+') as f:
-            f.write(str(self.pid))
+        if doc is not None:
+            self.server = Server(
+                {'/': doc},
+                num_procs=1,
+                address=PLOT_ADDR,
+                port=PLOT_LISTEN,
+                allow_websocket_origin=["*"]
+                )
+            with open('{0}{1}'.format(RUNDIR, self.header.decode()), 'w+') as f:
+                f.write(str(self.pid))
+        else:
+            exit('No web resources found')
         if DEBUG: print('PIDLOC:', RUNDIR)
 
     cpdef void start(self):

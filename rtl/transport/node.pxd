@@ -66,6 +66,7 @@ cdef class TaskNode(Node):
     cdef:
         public object recv_socket
         public object send_socket
+        public dict custom_functions
         public dict functions
         object jobQueue
 

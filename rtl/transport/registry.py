@@ -37,7 +37,17 @@ VERSION = '0.5'
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-
+def import_tasks():
+    path = next(pkgutil.iter_importers('rtl.tasks.*')).path
+    modules = {}
+    for importer, package_name, _ in pkgutil.iter_modules([path]):
+        full_package_name = 'tasks.%s' % (package_name)
+        try:
+            module = importer.find_module(package_name).load_module()
+            modules[module.__name__] = module
+        except Exception as e:
+            print('ERROR', e)
+    return modules
 
 def load_tasks(dirname):
     """
@@ -57,11 +67,12 @@ def load_tasks(dirname):
                 for member in [x for x in dir(module) if 'task_' in x]:
                     functions[member] = '{0}.{1}'.format(package_name, member)
             except Exception as e:
-                print('ERROR, e')
+                print('ERROR', e)
     return functions
 
 
 # Main
 # ------------------------------------------------------------------------ 79->
 if __name__ == '__main__':
-    print(load_tasks('rtl/tasks'))
+    print('LT1',  load_tasks('rtl/tasks'))
+    print('IT', import_tasks())
