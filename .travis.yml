@@ -17,7 +17,7 @@ script:
   - raspi-rtl start
   - ./platformTest.py
   - raspi-rtl stop
-  - pytest -v --cov=tasks --cov-report=term-missing
+  - pytest -v --cov=rtl.tasks --cov-report=term-missing
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 after_success:
