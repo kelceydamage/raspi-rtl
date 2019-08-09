@@ -181,7 +181,7 @@ if __name__ == '__main__':
     pid = os.getpid()
     try:
         temp = [
-            x for x in sys.path if "site-packages" in x and 'python3' in x]
+            x for x in sys.path if "site-packages" in x and 'python3' in x
         ]
         print(temp)
         path = temp[0]
