@@ -1,11 +1,3 @@
-import os
-os.sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.abspath(__file__)
-            )
-        )
-    )
 from rtl.tasks.normalize import task_normalize
 from dummy_data import KWARGS, CONTENTS3
 

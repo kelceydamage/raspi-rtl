@@ -1,11 +1,3 @@
-import os
-os.sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.abspath(__file__)
-            )
-        )
-    )
 from rtl.tasks.open_array import task_open_array
 from rtl.tasks.write import task_write
 from dummy_data import KWARGS, CONTENTS

@@ -1,11 +1,3 @@
-import os
-os.sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.abspath(__file__)
-            )
-        )
-    )
 from rtl.tasks.subtract import task_subtract
 from dummy_data import KWARGS, CONTENTS
 

@@ -1,11 +1,3 @@
-import os
-os.sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.abspath(__file__)
-            )
-        )
-    )
 from rtl.tasks.simple_plot import task_simple_plot
 from rtl.web.plot import PLOT_QUEUE
 from dummy_data import KWARGS, CONTENTS
