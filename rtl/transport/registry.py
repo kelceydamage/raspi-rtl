@@ -38,15 +38,19 @@ VERSION = '0.5'
 # Functions
 # ------------------------------------------------------------------------ 79->
 def import_tasks():
-    path = next(pkgutil.iter_importers('rtl.tasks.*')).path
     modules = {}
+    try:
+        path = next(pkgutil.iter_importers('rtl.tasks.*')).path
+    except ImportError as e:
+        print('ERROR:', e)
+        return modules
     for importer, package_name, _ in pkgutil.iter_modules([path]):
         full_package_name = 'tasks.%s' % (package_name)
         try:
             module = importer.find_module(package_name).load_module()
             modules[module.__name__] = module
         except Exception as e:
-            print('ERROR', e)
+            print('ERROR:', e)
     return modules
 
 def load_tasks(dirname):
@@ -74,5 +78,5 @@ def load_tasks(dirname):
 # Main
 # ------------------------------------------------------------------------ 79->
 if __name__ == '__main__':
-    print('LT1',  load_tasks('rtl/tasks'))
+    print('LT', load_tasks('rtl/tasks'))
     print('IT', import_tasks())

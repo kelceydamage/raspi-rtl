@@ -195,21 +195,23 @@ cdef class TaskNode(Node):
                 t = time.perf_counter()
                 job = self.jobQueue.popleft()
                 functionKey = list(job.keys())[0]
-                func = self.functions[functionKey]
-                printc('Running: {0}'.format(functionKey), COLOURS.LIGHTBLUE)
-                contents = func.__dict__[functionKey](job[functionKey], contents)
-                printc('Completed: {0} {1}'.format(
-                    convert_time(time.perf_counter() - t), func), 
-                    COLOURS.GREEN
-                )
+                if functionKey not in self.functions.keys():    
+                    raise Exception(
+                        'Requested task[{0}] not found in library'.format(
+                            functionKey
+                        )
+                    )
+                else:
+                    func = self.functions[functionKey]
+                    printc('Running: {0}'.format(functionKey), COLOURS.LIGHTBLUE)
+                    contents = func.__dict__[functionKey](job[functionKey], contents)
+                    printc('Completed: {0} {1}'.format(
+                        convert_time(time.perf_counter() - t), func), 
+                        COLOURS.GREEN
+                    )
         except Exception as e:
-            msg = Exception(
-                'TASK-EVAL: {0}, {1}'.format(e)
-                )
-            print(msg)
-            raise msg
-        else:
-            self.envelope.consume()
+            print('ERROR:', e)
+        self.envelope.consume()
         self.envelope.setContents(contents)
 
 

@@ -82,9 +82,7 @@ setup(
         'rtl.transport.registry',
         'rtl.transport.conf.configuration'
     ],
-    packages=[
-        'rtl.tasks'
-    ],
+    packages=[],
     ext_modules=extensions,
     include_dirs=[
         numpy.get_include(),
