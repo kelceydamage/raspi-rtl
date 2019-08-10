@@ -33,7 +33,7 @@
 PIDFILES                = '~/var/run/'
 
 # Logging
-DEBUG                   = True
+DEBUG                   = False
 PROFILE                 = False
 
 # Workers
