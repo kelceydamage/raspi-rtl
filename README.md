@@ -1,9 +1,9 @@
 [![Build Status](https://travis-ci.org/kelceydamage/raspi-rtl.svg?branch=3-experimental)](https://travis-ci.org/kelceydamage/raspi-rtl)
-[![Coverage Status](https://coveralls.io/repos/github/kelceydamage/rtl/badge.svg)](https://coveralls.io/github/kelceydamage/rtl) 
-[![codecov](https://codecov.io/gh/kelceydamage/rtl/branch/master/graph/badge.svg)](https://codecov.io/gh/kelceydamage/rtl) 
-[![Code Health](https://landscape.io/github/kelceydamage/rtl/master/landscape.svg?style=flat)](https://landscape.io/github/kelceydamage/rtl/master)
-[![Maintainability](https://api.codeclimate.com/v1/badges/05de3d7d075c1ca48b1a/maintainability)](https://codeclimate.com/github/kelceydamage/rtl/maintainability) 
-[![Test Coverage](https://api.codeclimate.com/v1/badges/05de3d7d075c1ca48b1a/test_coverage)](https://codeclimate.com/github/kelceydamage/rtl/test_coverage)
+[![Coverage Status](https://coveralls.io/repos/github/kelceydamage/raspi-tasks/badge.svg?branch=master)](https://coveralls.io/github/kelceydamage/raspi-tasks?branch=master)
+[![codecov](https://codecov.io/gh/kelceydamage/raspi-rtl/branch/master/graph/badge.svg)](https://codecov.io/gh/kelceydamage/raspi-rtl) 
+[![Code Health](https://landscape.io/github/kelceydamage/raspi-rtl/develop/landscape.svg?style=flat)](https://landscape.io/github/kelceydamage/raspi-rtl/develop)
+[![Maintainability](https://api.codeclimate.com/v1/badges/f2cd5d6e36b090b0b552/maintainability)](https://codeclimate.com/github/kelceydamage/raspi-rtl/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/f2cd5d6e36b090b0b552/test_coverage)](https://codeclimate.com/github/kelceydamage/raspi-rtl/test_coverage)
 
 ![logo](https://github.com/kelceydamage/rtl/blob/master/docs/logo.png?raw=true)
 
