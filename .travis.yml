@@ -12,12 +12,12 @@ before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
-  - ll
+  - ls -l
   - mkdir -p /home/travis/var/run
   - cd /home/travis
 script:
   - raspi-rtl start
-  - ll
+  - ls -l
   - python3 /home/travis/build/kelceydamage/raspi-rtl/platformTest.py
   - raspi-rtl stop
   - cd /home/travis/build/kelceydamage/raspi-rtl
