@@ -1,6 +1,6 @@
 language: python
 python:
-  - 3.6
+  - "3.6"
 install:
   - pip install -r requirements.txt
   - ./BUILD.sh
@@ -9,19 +9,18 @@ install:
   - echo $(pwd)
   - ls /home/travis/.local/lib/python3.6/site-packages/rtl
   - ls /home/travis/.local/lib/python3.6/site-packages/rtl/tasks
-  before_script:
+before_script:
   - export PYTHONPATH=$PYTHONPATH:$(pwd):/home/travis/.local/lib/python2.7/site-packages/
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
-  - mkdir -p ~/var/run
-  - cd /var/run
-  - ls rtl
+  - mkdir -p /home/travis/var/run
+  - cd /home/travis/var/run
 script:
   - raspi-rtl start
-  - python3 ~/platformTest.py
+  - python3 /home/travis/platformTest.py
   - raspi-rtl stop
-  - cd ~
+  - cd /home/travis
   - pytest rtl/tests -v --cov=rtl.transport --cov-report=term-missing
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
