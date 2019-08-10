@@ -4,7 +4,7 @@ python:
   - 3.6
 install:
   - pip install -r requirements.txt
-  - bash BUILD.sh
+  - pip install --upgrade git+https://github.com/kelceydamage/raspi-tasks.git@master
   - pip install .
 before_script:
   - export PYTHONPATH=$PYTHONPATH:$(pwd):/home/travis/.local/lib/python2.7/site-packages/
