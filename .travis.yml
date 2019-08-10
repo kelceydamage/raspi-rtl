@@ -6,7 +6,7 @@ install:
   - ./BUILD.sh
   - pip install -U .
   - pip install -U git+https://github.com/kelceydamage/raspi-tasks.git@master
-  - pwd
+  - echo $(pwd)
   - ls /home/travis/.local/lib/python3.6/site-packages/rtl
   - ls /home/travis/.local/lib/python3.6/site-packages/rtl/tasks
   before_script:
