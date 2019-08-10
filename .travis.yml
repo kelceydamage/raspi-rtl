@@ -7,16 +7,16 @@ install:
 #  - pip install -U .
 #  - pip install -U git+https://github.com/kelceydamage/raspi-tasks.git@master
   - echo $(pwd)
-  - python3 dummy.py
 before_script:
+  - python3 /home/travis/build/kelceydamage/raspi-rtl/dummy.py
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
   - mkdir -p /home/travis/var/run
-  - cd /home/travis/var/run
+  - cd /home/travis
 script:
 #  - raspi-rtl start
-#  - python3 /home/travis/platformTest.py
+#  - python3 /home/travis/build/kelceydamage/raspi-rtl/platformTest.py
 #  - raspi-rtl stop
 #  - cd /home/travis
   - pytest rtl/tests -v --cov=rtl.transport --cov-report=term-missing
