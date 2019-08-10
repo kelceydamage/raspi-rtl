@@ -5,6 +5,7 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install --upgrade git+https://github.com/kelceydamage/raspi-tasks.git@master
+  - ./BUILD.sh
   - pip install .
 before_script:
   - export PYTHONPATH=$PYTHONPATH:$(pwd):/home/travis/.local/lib/python2.7/site-packages/
@@ -12,7 +13,7 @@ before_script:
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
   - mkdir -p var/run
-  - ls
+  - ls rtl
 script:
   - raspi-rtl start
   - ./platformTest.py
