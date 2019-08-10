@@ -9,6 +9,7 @@ install:
   - echo $(pwd)
 before_script:
   - python3 /home/travis/build/kelceydamage/raspi-rtl/dummy.py
+  - export PYTHONPATH=$PYTHONPATH:$(pwd):/home/travis/.local/lib/python2.7/site-packages/
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
@@ -17,7 +18,7 @@ before_script:
   - cd /home/travis
 script:
   - raspi-rtl start
-  - sleep 5s 
+  - sleep 5s
   - ls -l
   - python3 /home/travis/build/kelceydamage/raspi-rtl/platformTest.py
   - sleep 5s 
