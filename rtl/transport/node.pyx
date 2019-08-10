@@ -207,7 +207,7 @@ cdef class TaskNode(Node):
                     printc('Running: {0}'.format(functionKey), COLOURS.LIGHTBLUE)
                     contents = func.__dict__[functionKey](job[functionKey], contents)
                     printc('Completed: {0} {1}'.format(
-                        convert_time(time.perf_counter() - t), func), 
+                        convert_time(time.perf_counter() - t), functionKey), 
                         COLOURS.GREEN
                     )
         except Exception as e:
