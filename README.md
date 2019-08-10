@@ -24,7 +24,7 @@ To install run: `pip install raspi-rtl --upgrade .` from the project root direct
 Or run: `pip install --upgrade git+https://github.com/kelceydamage/raspi-rtl.git@3-experimental`
 
 ### Task Bundle
-There is a task bundle available through `pip install --upgrade git+https://github.com/kelceydamage/raspi-tasks.git@3-experimental`
+There is a task bundle available through `pip install --upgrade git+https://github.com/kelceydamage/raspi-tasks.git@master`
 
 It includes the following:
 * add
