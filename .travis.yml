@@ -17,8 +17,10 @@ before_script:
   - cd /home/travis
 script:
   - raspi-rtl start
+  - sleep 5s 
   - ls -l
-#  - python3 /home/travis/build/kelceydamage/raspi-rtl/platformTest.py
+  - python3 /home/travis/build/kelceydamage/raspi-rtl/platformTest.py
+  - sleep 5s 
   - raspi-rtl stop
   - cd /home/travis/build/kelceydamage/raspi-rtl
   - pytest rtl/tests -v --cov=rtl.transport --cov-report=term-missing
