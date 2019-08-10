@@ -1,6 +1,5 @@
 language: python
 python:
-  - 3.5
   - 3.6
 install:
   - pip install -r requirements.txt
@@ -14,9 +13,9 @@ before_script:
   - mkdir -p var/run
   - ls rtl
 script:
-#  - raspi-rtl start
-#  - ./platformTest.py
-#  - raspi-rtl stop
+  - raspi-rtl start
+  - ./platformTest.py
+  - raspi-rtl stop
   - pytest rtl/tests -v --cov=rtl.transport --cov-report=term-missing
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
