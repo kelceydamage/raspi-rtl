@@ -26,8 +26,6 @@ PYX_FILES=(
     "${PROJECT_DIR}transport/relay.pyx"
     "${PROJECT_DIR}transport/node.pyx"
     "${PROJECT_DIR}transport/dispatch.pyx"
-    "${PROJECT_DIR}tasks/open_array.pyx"
-    "${PROJECT_DIR}tasks/normalize.pyx"
     )
 
 # precompile c++ modules

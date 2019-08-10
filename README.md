@@ -16,14 +16,17 @@
 
 ## Functionality
 ### Known Issues
-* Constant CPU usage even when nothing is processing. My best guess is this is due ot the way POLLING is implemented in ZMQ. Current timeout is 5000 ms but it has no impact on CPU usage. This usage manifests as start.py but I haven't implemented any code to express which node (they all launch as start.py) is causing the issue. That said, you can get the PID and check against `transport/bin/ini.sh status`.
+* ...
 
 ### Installation
-To install run: `pip install RTL3 --upgrade .` from the project root directory.
+To install run: `pip install raspi-rtl --upgrade .` from the project root directory.
 
-Or run: `pip install --upgrade git+https://github.com/kelceydamage/rtl.git@3-experimental`
+Or run: `pip install --upgrade git+https://github.com/kelceydamage/raspi-rtl.git@3-experimental`
 
-### Included Tasks
+### Task Bundle
+There is a task bundle available through `pip install --upgrade git+https://github.com/kelceydamage/raspi-tasks.git@master`
+
+It includes the following:
 * add
 * aggregate
 * average

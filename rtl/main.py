@@ -30,12 +30,16 @@ import sys
 import argparse
 import time
 from multiprocessing import Process
-os.sys.path.append('{0}{1}'.format(os.getcwd().split('rtl')[0], 'rtl'))
-from rtl.transport.registry import load_tasks
+from rtl.transport.registry import import_tasks
 from rtl.transport.node import TaskNode, CacheNode, PlotNode
 from rtl.transport.relay import Relay
 from rtl.transport.conf.configuration import *
 from rtl.common.print_helpers import Logger, Colours
+try:
+    from raspi.web.plot import modify_doc
+except ImportError as e:
+    print('ERROR: Unable to find raspi.web.plot resource Continuing without plotting')
+    modify_doc = None
 
 # Globals
 # ------------------------------------------------------------------------ 79->
@@ -142,7 +146,7 @@ def select_value(arg=None, conf=0):
     return 0
 
 
-def launcher(args, functions):
+def launcher(args):
     success = False
     if validate(args.relay):
         try:
@@ -153,7 +157,7 @@ def launcher(args, functions):
             print(e)
     if validate(args.task):
         try:
-            start_node(1, select_value(args.task, TASK_WORKERS), functions)
+            start_node(1, select_value(args.task, TASK_WORKERS))
             if DEBUG: print('Launching TASK')
             success = True
         except Exception as e:
@@ -167,7 +171,7 @@ def launcher(args, functions):
             print(e)
     if validate(args.plot):
         try:
-            start_node(3, select_value(args.plot, PLOT_WORKERS))
+            start_node(3, select_value(args.plot, PLOT_WORKERS), modify_doc)
             if DEBUG: print('Launching PLOT')
             success = True
         except Exception as e:
@@ -180,12 +184,7 @@ def launcher(args, functions):
 if __name__ == '__main__':
     pid = os.getpid()
     try:
-        temp = [
-            x for x in sys.path if "site-packages" in x and 'python3' in x
-        ]
-        path = temp[0]
-        print('INIT:', path, 'rtl/tasks')
-        functions = load_tasks('{0}/{1}'.format(path, 'rtl/tasks'))
+        functions = import_tasks(TASK_LIB)
     except Exception as e:
         print('ERROR loading functions:', str(e))
         quit()
@@ -193,7 +192,7 @@ if __name__ == '__main__':
     if args.meta:
         print_meta(functions)
         exit(1)
-    if not launcher(args, functions):
+    if not launcher(args):
         print(parser.print_help())
         exit(1)
     print('Starting RTL')

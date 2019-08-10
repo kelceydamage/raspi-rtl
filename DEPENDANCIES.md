@@ -16,8 +16,8 @@ source ~/python3/bin/activate
 
 ### Required (within virtual env)
 ```
-pip3 install pyzmq pytest-cov python-coveralls codecov coverage lmdb cbor 
-pip3 install ujson numpy cython bokeh sklearn zmq
+pip3 install pyzmq pytest-cov python-coveralls codecov coverage lmdb cbor
+pip3 install ujson numpy cython bokeh sklearn zmq sphinx
 ```
 
 ### Optional (for CUDA)
@@ -43,7 +43,7 @@ source ~/python3/bin/activate
 ### Required (within virtual env)
 ```
 pip3 install pyzmq pytest-cov python-coveralls codecov coverage lmdb cbor 
-pip3 install ujson numpy cython bokeh sklearn zmq
+pip3 install ujson numpy cython bokeh sklearn zmq sphinx
 ```
 
 ### Optional (for CUDA)

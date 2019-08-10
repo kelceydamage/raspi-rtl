@@ -1,7 +1,6 @@
 #!/bin/bash
-#RTL_PATH=`python -c 'import sys; print([x for x in sys.path if "site-packages" in x][0])'`
-#ROOT=/rtl
-SCRIPT=.rtl_helper.py
+PYTHON=python3
+SCRIPT=rtl.main
 PIDFILES=~/var/run/
 DEFAULT_IFS=$IFS
 
@@ -23,7 +22,7 @@ function print_header() {
 }
 
 function print_plugins() {
-    $PYTHON $SCRIPT -m
+    $PYTHON -m $SCRIPT -m
 }
 
 function print_terminal_lines() {
@@ -46,7 +45,7 @@ function start() {
     if [ -z "$(ls -A $PIDFILES)" ]; then
         print_header
         print_plugins
-        $PYTHON $SCRIPT &
+        $PYTHON -m $SCRIPT &
     else
         echo -e "RTL is already running:"
         print_running_services

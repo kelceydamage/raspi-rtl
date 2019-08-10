@@ -31,6 +31,7 @@
 # Globals
 # ------------------------------------------------------------------------ 79->
 PIDFILES                = '~/var/run/'
+TASK_LIB                = 'rtl.tasks.*'
 
 # Logging
 DEBUG                   = False

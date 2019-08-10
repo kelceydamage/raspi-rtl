@@ -74,7 +74,6 @@ class ExperimentalCache(object):
     def __init__(self):
         self.lmdb = lmdb.open(
             CACHE_PATH,
-            # readonly=True,
             metasync=True,
             sync=True,
             writemap=True,
@@ -83,10 +82,11 @@ class ExperimentalCache(object):
             map_size=CACHE_MAP_SIZE,
             lock=True,
             max_readers=TASK_WORKERS+2,
-            max_dbs=0,
+            max_dbs=1,
             max_spare_txns=TASK_WORKERS+2
             )
-
+        self.ndb = self.lmdb.open_db(b'raspi-rtl')
+        
     def get(self, key):
         with self.lmdb.begin() as txn:
             r = txn.get(key)
@@ -105,12 +105,12 @@ class ExperimentalCache(object):
 
     def delete(self, key):
         with self.lmdb.begin(write=True) as txn:
-            r = txn.delete(key.encode())
+            r = txn.delete(key)
         return (key, r)
 
-    def drop(self):
-        with self.lmdb.begin(write=True) as txn:
-            self.lmdb.drop(self.lmdb, delete=True)
+    #def drop(self):
+    #    with self.lmdb.begin(write=True) as txn:
+    #        txn.drop(b'raspi-rtl', delete=True)
     
     def status(self):
         return self.lmdb.stat()

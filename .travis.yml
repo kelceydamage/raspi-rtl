@@ -1,23 +1,28 @@
 language: python
 python:
-  - 3.5
   - 3.6
 install:
   - pip install -r requirements.txt
-  - bash BUILD.sh
-  - pip install .
-before_script:
+  - ./BUILD.sh
+  - pip install -U .
+  - pip install -U git+https://github.com/kelceydamage/raspi-tasks.git@master
+  - pwd
+  - ls /home/travis/.local/lib/python3.6/site-packages/rtl
+  - ls /home/travis/.local/lib/python3.6/site-packages/rtl/tasks
+  before_script:
   - export PYTHONPATH=$PYTHONPATH:$(pwd):/home/travis/.local/lib/python2.7/site-packages/
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
-  - mkdir -p var/run
-  - ls
+  - mkdir -p ~/var/run
+  - cd /var/run
+  - ls rtl
 script:
   - raspi-rtl start
-  - ./platformTest.py
+  - python3 ~/platformTest.py
   - raspi-rtl stop
-  - pytest -v --cov=rtl.tasks --cov-report=term-missing
+  - cd ~
+  - pytest rtl/tests -v --cov=rtl.transport --cov-report=term-missing
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 after_success:

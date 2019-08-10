@@ -33,9 +33,7 @@ PYX_FILES = [
     "rtl.common.task",
     "rtl.transport.relay",
     "rtl.transport.node",
-    "rtl.transport.dispatch",
-    "rtl.tasks.open_array",
-    "rtl.tasks.normalize"
+    "rtl.transport.dispatch"
 ]
 
 extensions = []
@@ -61,7 +59,7 @@ if USE_CYTHON:
     extensions = cythonize(extensions)
 
 setup(
-    name='RTL3',
+    name='raspi-rtl',
     version='3.0.0.dev1',
     description='Raspi Transport Layer 3',
     author='Kelcey Jamison-Damage',
@@ -76,25 +74,21 @@ setup(
         "numpy",
         "cython",
         "sklearn",
-        "bokeh",
         #"cupy" for systems with nvcc and CUDA
     ],
     py_modules=[
+        'rtl.main',
         'rtl.transport.cache',
         'rtl.transport.registry',
         'rtl.transport.conf.configuration'
     ],
-    packages=[
-        'rtl.tasks',
-        'rtl.web'
-    ],
+    packages=[],
     ext_modules=extensions,
     include_dirs=[
-        numpy.get_include(), 
+        numpy.get_include(),
         zmq.get_includes()
     ],
     scripts=[
         'rtl/transport/bin/raspi-rtl',
-        'rtl/transport/bin/.rtl_helper.py'
     ]
 )
