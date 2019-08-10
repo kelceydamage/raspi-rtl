@@ -1,7 +1,5 @@
 [![Build Status](https://travis-ci.org/kelceydamage/raspi-rtl.svg?branch=3-experimental)](https://travis-ci.org/kelceydamage/raspi-rtl)
 [![Known Vulnerabilities](https://snyk.io//test/github/kelceydamage/raspi-rtl/badge.svg?targetFile=requirements.txt)](https://snyk.io//test/github/kelceydamage/raspi-rtl?targetFile=requirements.txt)
-[![Coverage Status](https://coveralls.io/repos/github/kelceydamage/raspi-tasks/badge.svg?branch=master)](https://coveralls.io/github/kelceydamage/raspi-tasks?branch=master)
-[![codecov](https://codecov.io/gh/kelceydamage/raspi-rtl/branch/master/graph/badge.svg)](https://codecov.io/gh/kelceydamage/raspi-rtl) 
 [![codebeat badge](https://codebeat.co/badges/c46459c3-7075-4baf-8486-80d21b168ca8)](https://codebeat.co/projects/github-com-kelceydamage-raspi-rtl-3-experimental)
 [![Maintainability](https://api.codeclimate.com/v1/badges/f2cd5d6e36b090b0b552/maintainability)](https://codeclimate.com/github/kelceydamage/raspi-rtl/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/f2cd5d6e36b090b0b552/test_coverage)](https://codeclimate.com/github/kelceydamage/raspi-rtl/test_coverage)
