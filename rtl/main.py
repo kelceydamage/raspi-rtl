@@ -184,7 +184,7 @@ def launcher(args):
 if __name__ == '__main__':
     pid = os.getpid()
     try:
-        functions = import_tasks()
+        functions = import_tasks(TASK_LIB)
     except Exception as e:
         print('ERROR loading functions:', str(e))
         quit()
