@@ -4,7 +4,6 @@ python:
   - 3.6
 install:
   - pip install -r requirements.txt
-  - pip install --upgrade git+https://github.com/kelceydamage/raspi-tasks.git@master
   - ./BUILD.sh
   - pip install .
 before_script:
@@ -18,7 +17,7 @@ script:
   - raspi-rtl start
   - ./platformTest.py
   - raspi-rtl stop
-  - pytest -v --cov=rtl.tasks --cov-report=term-missing
+  - pytest rtl/tests -v --cov=rtl.transport --cov-report=term-missing
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 after_success:
