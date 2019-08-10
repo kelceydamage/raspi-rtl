@@ -65,6 +65,7 @@ from rtl.transport.conf.configuration import PLOT_ADDR
 from rtl.transport.conf.configuration import DEBUG
 from rtl.transport.conf.configuration import PROFILE
 from rtl.transport.conf.configuration import PIDFILES
+from rtl.transport.conf.configuration import TASK_LIB
 from rtl.common.print_helpers import printc, Colours
 import time
 
@@ -159,7 +160,7 @@ cdef class TaskNode(Node):
         self.recv_socket.connect(pull_uri)
         self.send_socket.connect(push_uri)
         self.recv_poller.register(self.recv_socket, zmq.POLLIN)
-        self.functions = import_tasks()
+        self.functions = import_tasks(TASK_LIB)
         self.custom_functions = {}
         self.jobQueue = deque()
         if DEBUG: print('FUNCTIONS', self.functions)
