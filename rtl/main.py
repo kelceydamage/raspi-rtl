@@ -35,7 +35,6 @@ import time
 from multiprocessing import Process
 from rtl.transport.registry import import_tasks
 from rtl.transport.node import TaskNode
-from rtl.transport.node import CacheNode
 from rtl.transport.node import PlotNode
 from rtl.transport.relay import Relay
 from rtl.transport.conf import configuration as conf
@@ -50,29 +49,13 @@ COLOURS = Colours()
 NODES = {
     'relay': Relay,
     'task': TaskNode,
-    'plot': PlotNode,
-    'cache': CacheNode
+    'plot': PlotNode
 }
 COUNTS = {
     'relay': 1,
     'task': conf.TASK_WORKERS,
-    'plot': conf.PLOT_WORKERS,
-    'cache': conf.CACHE_WORKERS
+    'plot': conf.PLOT_WORKERS
 }
-
-
-# Parser
-# ------------------------------------------------------------------------ 79->
-PARSER = argparse.ArgumentParser(prog="Task Engine")
-GROUP = PARSER.add_argument_group('Extras')
-GROUP.add_argument(
-    '-m',
-    "--meta",
-    action="store_true",
-    default=False,
-    help="Print meta header"
-    )
-ARGS = PARSER.parse_known_args()
 
 
 # Classes
@@ -87,12 +70,41 @@ class StartError(Exception):
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+def embedded_parser():
+    """Parser as a function for better test cases
+
+    Returns:
+        argparser args
+
+    """
+    parser = argparse.ArgumentParser(prog="Task Engine")
+    group = parser.add_argument_group('Extras')
+    group.add_argument(
+        '-m',
+        "--meta",
+        action="store_true",
+        default=False,
+        help="Print meta header"
+        )
+    group.add_argument(
+        '-n',
+        "--no-server",
+        action="store_true",
+        default=False,
+        help="do not start server loop"
+        )
+    return parser.parse_known_args()[0]
+
+
 def print_meta(functions):
     """Print the loaded tasks to the console.
 
     Args:
         functions (dict): The dict of task modules the platform has loaded
             into memory and stored as a reference.
+
+    Returns:
+        bool: True for testing.
 
     """
     print('-' * 79)
@@ -107,6 +119,7 @@ def print_meta(functions):
             key
             ))
     print('-' * 79)
+    return True
 
 
 def launcher():
@@ -117,11 +130,12 @@ def launcher():
 
     """
     for service in COUNTS:
-        success = launch(service)
+        log('Launching {0}'.format(service.upper()))
+        success = launch(NODES[service], COUNTS[service])
     return success
 
 
-def launch(service):
+def launch(service_class, count):
     """Call startNode on each service and check for exceptions.
 
     Args:
@@ -131,25 +145,26 @@ def launch(service):
         bool: True if all services launched successfully, False otherwise.
 
     """
-    log('Launching {0}'.format(service.upper()))
     try:
-        start_node(service)
+        start_node(service_class, count)
     except StartError:
         return False
     return True
 
 
-def start_node(service):
+def start_node(service_class, count):
     """Start a subprocess for each micro-service
 
     Args:
         service (str): The short name for the micro-service to be started.
 
     """
-    for _ in range(COUNTS[service]):
+    if count == 0:
+        raise StartError('Invalid count, can not launch 0 services')
+    for _ in range(count):
         process = Process(
             target=service_wrapper,
-            args=[NODES[service]]
+            args=[service_class]
         )
         process.daemon = True
         process.start()
@@ -159,7 +174,7 @@ def service_wrapper(service_class):
     """Call start on the the service inside the process.
 
     Args:
-        serviceClass (class): The reference to the class to be started in this
+        service_class (class): The reference to the class to be started in this
             subprocess.
 
     Raise:
@@ -172,19 +187,35 @@ def service_wrapper(service_class):
         raise StartError(error)
 
 
-# Main
-# ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':
-    PID = os.getpid()
-    FUNCTIONS = import_tasks(conf.TASK_LIB)
-    if ARGS[0].meta:
-        print_meta(FUNCTIONS)
+def main(args):
+    """Main function and entrypoint
+
+    Args:
+        server (bool): Default to true, pass False for tests.
+
+    Returns:
+        bool: True if code completes without error, and in test mode.
+
+    """
+    pid = os.getpid()
+    functions = import_tasks(conf.TASK_LIB)
+    if args.meta:
+        print_meta(functions)
         exit(1)
     if not launcher():
         print('Failed to launch one or more micro-services')
         exit(1)
     print('Starting RTL')
-    with open('{0}{1}-{2}'.format(RUNDIR, 'master', PID), 'w+') as f:
-        f.write(str(PID))
+    with open('{0}{1}-{2}'.format(RUNDIR, 'master', pid), 'w+') as file:
+        file.write(str(pid))
+    if args.no_server:
+        print('hit')
+        return True
     while True:
         time.sleep(1000)
+
+
+# Main
+# ------------------------------------------------------------------------ 79->
+if __name__ == '__main__':  # pragma: no cover
+    main(embedded_parser())
