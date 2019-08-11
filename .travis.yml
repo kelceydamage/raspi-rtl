@@ -21,10 +21,10 @@ script:
   - sleep 5s
   - ls -l
   - python3 /home/travis/build/kelceydamage/raspi-rtl/platform_test.py
-  - sleep 5s 
+  - sleep 5s
   - raspi-rtl stop
   - cd /home/travis/build/kelceydamage/raspi-rtl
-  - pytest rtl/tests -v --cov=rtl.transport --cov-report=term-missing
+  - pytest -v --cov=rtl --cov-report=term-missing
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 after_success:
