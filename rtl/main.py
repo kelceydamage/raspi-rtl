@@ -18,72 +18,51 @@
 # Doc
 # ------------------------------------------------------------------------ 79->
 # Dependancies:
-#                   transport
-#                   common
-#                   argparse
-#                   time
+#   rtl.transport
+#   rtl.common
+#   multiprocessing
+#   argparse
+#   time
+#   os
 #
 # Imports
 # ------------------------------------------------------------------------ 79->
 import os
-import sys
 import argparse
 import time
 from multiprocessing import Process
-from rtl.transport.registry import import_tasks
-from rtl.transport.node import TaskNode, CacheNode, PlotNode
+from rtl.transport.registry import importTasks
+from rtl.transport.node import TaskNode
+from rtl.transport.node import CacheNode
+from rtl.transport.node import PlotNode
 from rtl.transport.relay import Relay
 from rtl.transport.conf.configuration import *
-from rtl.common.print_helpers import Logger, Colours
-try:
-    from raspi.web.plot import modify_doc
-except ImportError as e:
-    print('ERROR: Unable to find raspi.web.plot resource Continuing without plotting')
-    modify_doc = None
+from rtl.common.print_helpers import Colours
+
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 RUNDIR = os.path.expanduser(PIDFILES)
 COLOURS = Colours()
-LOG_LEVEL = 1
-LOG = Logger(LOG_LEVEL)
 NODES = {
-    0: Relay,
-    1: TaskNode,
-    2: CacheNode,
-    3: PlotNode
+    'relay': Relay,
+    'task': TaskNode,
+    'plot': PlotNode,
+    'cache': CacheNode
 }
+COUNTS = {
+    'relay': 1,
+    'task': TASK_WORKERS,
+    'plot': PLOT_WORKERS,
+    'cache': CACHE_WORKERS
+}
+
 
 # Parser
 # ------------------------------------------------------------------------ 79->
 parser = argparse.ArgumentParser(prog="Task Engine")
-group_2 = parser.add_argument_group('Mode Of Operation')
-group_2.add_argument(
-    '-r',
-    "--relay",
-    dest="relay",
-    help="Specify number of relays to start"
-    )
-group_2.add_argument(
-    '-t',
-    "--task",
-    dest="task",
-    help="Specify number of tasknodes to start"
-    )
-group_2.add_argument(
-    '-c',
-    "--cache",
-    dest="cache",
-    help="Specify number of cachenodes to start"
-    )
-group_2.add_argument(
-    '-p',
-    "--plot",
-    dest="plot",
-    help="Specify number of plotnodes to start"
-    )
-group_3 = parser.add_argument_group('Extras')
-group_3.add_argument(
+group = parser.add_argument_group('Extras')
+group.add_argument(
     '-m',
     "--meta",
     action="store_true",
@@ -92,14 +71,26 @@ group_3.add_argument(
     )
 args = parser.parse_known_args()
 
+
 # Classes
 # ------------------------------------------------------------------------ 79->
+class StartError(Exception):
+    """Micro-service failed to start"""
+
+    def __init__(self, error):
+        self.error = error
+
 
 # Functions
 # ------------------------------------------------------------------------ 79->
+def printMeta(functions):
+    """Print the loaded tasks to the console.
 
+    Args:
+        functions (dict): The dict of task modules the platform has loaded 
+            into memory and stored as a reference.
 
-def print_meta(functions):
+    """
     print('-' * 79)
     print('REGISTERED-TASKS:')
     print('-' * 79)
@@ -113,87 +104,76 @@ def print_meta(functions):
             ))
     print('-' * 79)
 
+def launcher():
+    """Main loop for lanching services.
 
-def start_node(_type, count, functions=''):
-    for i in range(int(count)):
-        service = NODES[_type]
-        start(service, functions)
+    Returns:
+        bool: True if all micro-services launched successfully, False otherwise.
+    
+    """
+    for service in COUNTS:
+        success = launch(service)
+    return success
 
+def launch(service):
+    """Call startNode on each service and check for exceptions.
 
-def service_wrapper(service, functions):
-    service(functions).start()
+    Args:
+        service (str): The short name for the micro-service to be started.
 
-
-def start(service, functions):
-    p = Process(target=service_wrapper, args=[service, functions])
-    p.daemon = True
-    p.start()
-
-
-def validate(param):
-    if param is not None:
-        if int(param) > 0:
-            return True
+    Returns:
+        bool: True if all micro-services launched successfully, False otherwise.
+    
+    """
+    if DEBUG: print('Launching', service.upper())
+    try:
+        startNode(service)
+    except StartError:
         return False
     return True
 
+def startNode(service):
+    """Start a subprocess for each micro-service
 
-def select_value(arg=None, conf=0):
-    if arg is not None:
-        return arg
-    if conf > 0:
-        return conf
-    return 0
+    Args:
+        service (str): The short name for the micro-service to be started.
 
+    """
+    for i in range(COUNTS[service]):
+        p = Process(
+            target=serviceWrapper,
+            args=[NODES[service]]
+        )
+        p.daemon = True
+        p.start()
 
-def launcher(args):
-    success = False
-    if validate(args.relay):
-        try:
-            start_node(0, select_value(args.relay, 1))
-            if DEBUG: print('Launching RELAY')
-            success = True
-        except Exception as e:
-            print(e)
-    if validate(args.task):
-        try:
-            start_node(1, select_value(args.task, TASK_WORKERS))
-            if DEBUG: print('Launching TASK')
-            success = True
-        except Exception as e:
-            print(e)
-    if validate(args.cache):
-        try:
-            start_node(2, select_value(args.cache, CACHE_WORKERS))
-            if DEBUG: print('Launching CACHE')
-            success = True
-        except Exception as e:
-            print(e)
-    if validate(args.plot):
-        try:
-            start_node(3, select_value(args.plot, PLOT_WORKERS), modify_doc)
-            if DEBUG: print('Launching PLOT')
-            success = True
-        except Exception as e:
-            print(e)
-    return success
+def serviceWrapper(serviceClass):
+    """Call start on the the service inside the process.
+
+    Args:
+        serviceClass (class): The reference to the class to be started in this 
+            subprocess.
+
+    Raise:
+        StartError: if service failes to start.
+
+    """
+    try:
+        serviceClass().start()
+    except Exception as e:
+        raise StartError(e)
 
 
 # Main
 # ------------------------------------------------------------------------ 79->
 if __name__ == '__main__':
     pid = os.getpid()
-    try:
-        functions = import_tasks(TASK_LIB)
-    except Exception as e:
-        print('ERROR loading functions:', str(e))
-        quit()
-    args = args[0]
-    if args.meta:
-        print_meta(functions)
+    functions = importTasks(TASK_LIB)
+    if args[0].meta:
+        printMeta(functions)
         exit(1)
-    if not launcher(args):
-        print(parser.print_help())
+    if not launcher():
+        print('Failed to launch one or more micro-services')
         exit(1)
     print('Starting RTL')
     with open('{0}{1}-{2}'.format(RUNDIR,'master', pid), 'w+') as f:
