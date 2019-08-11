@@ -73,7 +73,7 @@ def test_pidfile_creation():
     time.sleep(0.5)
     pidfiles = os.listdir(os.path.expanduser('~/var/run'))
     test = [x.split('-')[0] for x in pidfiles]
-    assert test == MOCK_PIDFILES
+    assert test.sort() == MOCK_PIDFILES.sort()
 
 
 @pytest.yield_fixture
