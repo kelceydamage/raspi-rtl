@@ -2,17 +2,19 @@
 from rtl.transport.registry import import_tasks
 
 
-def test_registry():
-    """Test registry.py"""
-
-    # Test valid module name
+def test_registry_valid_module():
+    """Test valid module name"""
     result = import_tasks('rtl.tasks.*')
     assert isinstance(result, dict)
 
-    # Test invalid module name
+
+def test_registry_invalid_module():
+    """Test invalid module name"""
     result = import_tasks('bob.*')
     assert isinstance(result, dict)
 
-    # Test module path
+
+def test_registry_valid_path():
+    """Test module path"""
     result = import_tasks('rtl/tasks')
     assert isinstance(result, dict)
