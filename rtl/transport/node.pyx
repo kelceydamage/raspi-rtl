@@ -47,7 +47,7 @@ from numpy import frombuffer
 from subprocess import check_output
 from rtl.common.datatypes cimport Envelope
 from rtl.transport.cache import ExperimentalCache
-from rtl.transport.registry import importTasks
+from rtl.transport.registry import import_tasks
 from rtl.transport.conf.configuration import TASK_WORKERS
 from rtl.transport.conf.configuration import CACHE_PATH
 from rtl.transport.conf.configuration import CACHE_MAP_SIZE
@@ -161,7 +161,7 @@ cdef class TaskNode(Node):
         self.recv_socket.connect(pull_uri)
         self.send_socket.connect(push_uri)
         self.recv_poller.register(self.recv_socket, zmq.POLLIN)
-        self.functions = importTasks(TASK_LIB)
+        self.functions = import_tasks(TASK_LIB)
         self.custom_functions = {}
         self.jobQueue = deque()
         if DEBUG: print('FUNCTIONS', self.functions)
