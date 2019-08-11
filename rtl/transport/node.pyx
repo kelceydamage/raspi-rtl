@@ -34,10 +34,6 @@
 DEF GPU = 0
 
 # Python imports
-IF GPU == 1:
-    import cupy as p
-ELSE:
-    import numpy as p
 import os
 import zmq
 import lmdb
@@ -51,7 +47,7 @@ from numpy import frombuffer
 from subprocess import check_output
 from rtl.common.datatypes cimport Envelope
 from rtl.transport.cache import ExperimentalCache
-from rtl.transport.registry import import_tasks
+from rtl.transport.registry import importTasks
 from rtl.transport.conf.configuration import TASK_WORKERS
 from rtl.transport.conf.configuration import CACHE_PATH
 from rtl.transport.conf.configuration import CACHE_MAP_SIZE
@@ -68,6 +64,11 @@ from rtl.transport.conf.configuration import PIDFILES
 from rtl.transport.conf.configuration import TASK_LIB
 from rtl.common.print_helpers import printc, Colours
 import time
+try:
+    from raspi.web.plot import modify_doc
+except ImportError as e:
+    print('ERROR: Unable to find raspi.web.plot resource Continuing without plotting')
+    modify_doc = None
 
 cimport cython
 # Cython imports
@@ -147,7 +148,7 @@ cdef class TaskNode(Node):
                     is determined by the state of the pipeline.
     """
 
-    def __init__(self, _functions=''):
+    def __init__(self):
         super(TaskNode, self).__init__()
         self.header = 'TASK-{0}'.format(self.pid).encode()
         with open('{0}{1}'.format(RUNDIR, self.header.decode()), 'w+') as f:
@@ -160,7 +161,7 @@ cdef class TaskNode(Node):
         self.recv_socket.connect(pull_uri)
         self.send_socket.connect(push_uri)
         self.recv_poller.register(self.recv_socket, zmq.POLLIN)
-        self.functions = import_tasks(TASK_LIB)
+        self.functions = importTasks(TASK_LIB)
         self.custom_functions = {}
         self.jobQueue = deque()
         if DEBUG: print('FUNCTIONS', self.functions)
@@ -225,12 +226,12 @@ cdef class PlotNode(Node):
     METHODS:        
     """
 
-    def __init__(self, doc=None):
+    def __init__(self):
         super(PlotNode, self).__init__()
         self.header = 'PLOT-{0}'.format(self.pid).encode()
-        if doc is not None:
+        if modify_doc is not None:
             self.server = Server(
-                {'/': doc},
+                {'/': modify_doc},
                 num_procs=1,
                 address=PLOT_ADDR,
                 port=PLOT_LISTEN,
@@ -267,7 +268,7 @@ cdef class CacheNode(Node):
                     Initialize the lmdb database environment.
     """
 
-    def __init__(self, functions=''):
+    def __init__(self):
         super(CacheNode, self).__init__()
         self.header = 'CACHE-{0}'.format(self.pid).encode()
         with open('{0}{1}'.format(RUNDIR, self.header.decode()), 'w+') as f:

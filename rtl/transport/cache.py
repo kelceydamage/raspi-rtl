@@ -17,21 +17,17 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-# Dependancies:
-#
+"""
+Dependancies:
 
+"""
 # Imports
 # ------------------------------------------------------------------------ 79->
-from rtl.transport.conf.configuration import CACHE_ADDR
-from rtl.transport.conf.configuration import CACHE_RECV
-from rtl.transport.conf.configuration import DEBUG
+import lmdb
 from rtl.transport.conf.configuration import CACHE_MAP_SIZE
 from rtl.transport.conf.configuration import CACHE_PATH
-from rtl.transport.conf.configuration import PROFILE
 from rtl.transport.conf.configuration import TASK_WORKERS
-import zmq
-import lmdb
-import cbor
+
 
 # Globals
 # ------------------------------------------------------------------------ 79->
@@ -70,7 +66,7 @@ class ExperimentalCache(object):
                     .info()
                     Return additional information about the database.
     """
-    
+
     def __init__(self):
         self.lmdb = lmdb.open(
             CACHE_PATH,
@@ -86,39 +82,45 @@ class ExperimentalCache(object):
             max_spare_txns=TASK_WORKERS+2
             )
         self.ndb = self.lmdb.open_db(b'raspi-rtl')
-        
+
     def get(self, key):
+        """Get a value from the cache"""
         with self.lmdb.begin() as txn:
-            r = txn.get(key)
-        if r is None:
+            result = txn.get(key)
+        if result is None:
             return (key, False)
-        return (key, r)
+        return (key, result)
 
     def put(self, key, value):
+        """Put a value in the cache"""
         with self.lmdb.begin(write=True) as txn:
-            r = txn.put(
+            result = txn.put(
                 key,
                 value,
                 overwrite=True
             )
-        return (key, r)
+        return (key, result)
 
     def delete(self, key):
+        """Delete a value from the cache"""
         with self.lmdb.begin(write=True) as txn:
-            r = txn.delete(key)
-        return (key, r)
+            result = txn.delete(key)
+        return (key, result)
 
     #def drop(self):
     #    with self.lmdb.begin(write=True) as txn:
     #        txn.drop(b'raspi-rtl', delete=True)
-    
+
     def status(self):
+        """Get the status of the cache"""
         return self.lmdb.stat()
 
     def info(self):
+        """Get info about the current environment"""
         return self.lmdb.info()
 
     def sync(self):
+        """Sync the state of the cache"""
         return self.lmdb.sync()
 
 

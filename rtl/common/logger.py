@@ -19,23 +19,20 @@
 # ------------------------------------------------------------------------ 79->
 """
 Dependancies:
+    rtl.transport
+    rtl.common
 
 """
 # Imports
 # ------------------------------------------------------------------------ 79->
+from rtl.transport.conf.configuration import DEBUG
+from rtl.common.print_helpers import COLOURS
+from rtl.common.print_helpers import printc
 
-
-# Globals
-# ------------------------------------------------------------------------ 79->
-
-# Classes
-# ------------------------------------------------------------------------ 79->
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-
-
-# Main
-# ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':
-    pass
+def log(msg):
+    """If debug (bool) is true, then print the message"""
+    if DEBUG:
+        printc(msg, COLOURS.RED)

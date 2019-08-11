@@ -17,40 +17,24 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-# Dependancies:
-#                   pkgutil
-#                   sys
-#                   common
-#                   transport
-#
+"""
+Dependancies:
+    pkgutil
+
+"""
 # Imports
 # ------------------------------------------------------------------------ 79->
 import pkgutil
-import sys
 
 # Globals
 # ------------------------------------------------------------------------ 79->
-VERSION = '0.5'
 
 # Classes
 # ------------------------------------------------------------------------ 79->
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def import_tasks(module_name):
-    modules = {}
-    try:
-        path = next(pkgutil.iter_importers(module_name)).path
-    except ImportError as e:
-        print('ERROR:', e)
-        return modules
-    for importer, package_name, _ in pkgutil.iter_modules([path]):
-        full_package_name = 'tasks.%s' % (package_name)
-        module = importer.find_module(package_name).load_module()
-        modules[module.__name__] = module
-    return modules
-
-def load_tasks(dirname):
+def loader(path):
     """
     NAME:           load_tasks
 
@@ -58,17 +42,26 @@ def load_tasks(dirname):
                     written for efficiency, so I appologize for lack of
                     readability.
     """
-    functions = {}
-    member_list = []
-    for importer, package_name, _ in pkgutil.iter_modules([dirname]):
-        full_package_name = 'tasks.%s' % (package_name)
-        module = importer.find_module(package_name).load_module()
-        for member in [x for x in dir(module) if 'task_' in x]:
-            functions[member] = '{0}.{1}'.format(package_name, member)
-    return functions
+    modules = {}
+    for importer, package_ame, _ in pkgutil.iter_modules([path]):
+        module = importer.find_module(package_ame).load_module()
+        modules[module.__name__] = module
+    return modules
+
+
+def import_tasks(module_name):
+    """Locate the path to the module for importing"""
+    if '/' in module_name:
+        return loader(module_name)
+    try:
+        path = next(pkgutil.iter_importers(module_name)).path
+    except ImportError as error:
+        print('ERROR:', error)
+        return {}
+    return loader(path)
 
 
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':
-    pass
+if __name__ == '__main__': # pragma: no cover
+    print(import_tasks('rtl.tasks.*'))

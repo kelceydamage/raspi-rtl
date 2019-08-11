@@ -1,27 +1,27 @@
 #! /usr/bin/env python3
-from setuptools import setup
-#from distutils.core import setup
+"""Setup fo compiling and installing raspi-rtl"""
 from distutils.extension import Extension
-from os.path import dirname
 import platform
 import numpy
 import zmq
+from setuptools import setup
 
-c_options = { 
+
+C_OPTIONS = {
     'gpu': False,
 }
 
 if 'tegra' in platform.release():
-    c_options['gpu'] = True
+    C_OPTIONS['gpu'] = True
 
 print('Generate config.pxi')
 with open('config.pxi', 'w') as fd:
-    for k, v in c_options.items():
+    for k, v in C_OPTIONS.items():
         fd.write('DEF %s = %d\n' % (k.upper(), int(v)))
 
 USE_CYTHON = True
 
-ext = '.pyx' if USE_CYTHON else '.c'
+EXT = '.pyx' if USE_CYTHON else '.c'
 
 PYX_FILES = [
     "rtl.common.datatypes",
@@ -36,12 +36,12 @@ PYX_FILES = [
     "rtl.transport.dispatch"
 ]
 
-extensions = []
+EXTENSIONS = []
 for i in PYX_FILES:
-    extensions.append(
+    EXTENSIONS.append(
         Extension(
             i,
-            sources=['{0}{1}'.format(i.replace('.', '/'), ext)],
+            sources=['{0}{1}'.format(i.replace('.', '/'), EXT)],
             extra_compile_args=['-std=c++11'],
             language="c++"
             )
@@ -56,7 +56,7 @@ if USE_CYTHON:
     Cython.Compiler.Options.cache_builtins = True
     Cython.Compiler.Options.gcc_branch_hints = True
     Cython.Compiler.Options.embed = False
-    extensions = cythonize(extensions)
+    EXTENSIONS = cythonize(EXTENSIONS)
 
 setup(
     name='raspi-rtl',
@@ -83,7 +83,7 @@ setup(
         'rtl.transport.conf.configuration'
     ],
     packages=[],
-    ext_modules=extensions,
+    ext_modules=EXTENSIONS,
     include_dirs=[
         numpy.get_include(),
         zmq.get_includes()

@@ -1,20 +1,23 @@
+"""Test case for registry.py"""
+import sys
 from rtl.transport.registry import import_tasks
 from rtl.transport.registry import load_tasks
-import sys
+
 
 def test_registry():
-    pythonPath = [
+    """Test registry.py"""
+    python_path = [
         x for x in sys.path if 'python3' in x and 'site' in x
     ]
 
     # Test valid module name
-    r = import_tasks('rtl.tasks.*')
-    assert isinstance(r, dict)
+    result = import_tasks('rtl.tasks.*')
+    assert isinstance(result, dict)
 
     # Test invalid module name
-    r = import_tasks('bob.*')
-    assert isinstance(r, dict)
+    result = import_tasks('bob.*')
+    assert isinstance(result, dict)
 
     # Test valid task folder
-    r = load_tasks('{0}/rtl/tasks'.format(pythonPath[0]))
-    assert isinstance(r, dict)
+    result = load_tasks('{0}/rtl/tasks'.format(python_path[0]))
+    assert isinstance(result, dict)
