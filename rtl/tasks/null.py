@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # ------------------------------------------------------------------------ 79->
 # Author: ${name=Kelcey Damage}
 # Python: 3.5+
@@ -18,51 +18,32 @@
 # Doc
 # ------------------------------------------------------------------------ 79->
 """
-Dependancies:
-    pkgutil
+Depenencies:
+    rtl.common
 
 """
 # Imports
 # ------------------------------------------------------------------------ 79->
-import pkgutil
+from rtl.common.task import Task
 
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 
 # Classes
-# ------------------------------------------------------------------------ 79->
+class Null(Task):
+    """Null class to facilitate testing"""
+
+    def null(self):
+        """Null method to facilitate testing"""
+        return self
+
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def loader(path):
-    """
-    NAME:           load_tasks
-
-    DESCRIPTION:    Auto loader and parser for task modules. This function is
-                    written for efficiency, so I appologize for lack of
-                    readability.
-    """
-    modules = {}
-    for importer, package_ame, _ in pkgutil.iter_modules([path]):
-        module = importer.find_module(package_ame).load_module()
-        modules[module.__name__] = module
-    return modules
-
-
-def import_tasks(module_name):
-    """Locate the path to the module for importing"""
-    if '/' in module_name:
-        return loader(module_name)
-    try:
-        path = next(pkgutil.iter_importers(module_name)).path
-    except ImportError as error:
-        print('ERROR:', error)
-        return {}
-    return loader(path)
-
+def null(kwargs, contents):
+    """Null function to facilitate testing"""
+    return Null(kwargs, contents).null().getContents()
 
 # Main
 # ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':  # pragma: no cover
-    print(import_tasks('rtl.tasks.*'))

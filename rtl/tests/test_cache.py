@@ -1,42 +1,53 @@
+"""Test case for cache.py"""
 from rtl.transport.cache import ExperimentalCache
-import sys
 
-def test_cache():
-    # Test cache instantiation
+
+CACHE = ExperimentalCache()
+
+
+def test_cache_instantiation():
+    """Test cache instantiation"""
     cache = ExperimentalCache()
     assert isinstance(cache, ExperimentalCache)
 
-    # Test cache put
-    r = cache.put(b'test', b'10')
-    assert r == (b'test', True)
 
-    # Test cache get
-    r = cache.get(b'test')
-    assert r == (b'test', b'10')
+def test_cache_put():
+    """Test cache put"""
+    result = CACHE.put(b'test', b'10')
+    assert result == (b'test', True)
 
-    # Test cache get
-    r = cache.get(b'bob')
-    assert r == (b'bob', False)
 
-    # Test cache recore delete
-    r = cache.delete(b'test')
-    assert r == (b'test', True)
+def test_cache_valid_get():
+    """Test cache get"""
+    result = CACHE.get(b'test')
+    assert result == (b'test', b'10')
 
-    # Test cache status
-    r = cache.status()
-    assert isinstance(r, dict)
 
-    # Test cache info
-    r = cache.info()
-    assert isinstance(r, dict)
+def test_cache_invalid_get():
+    """Test cache get"""
+    result = CACHE.get(b'bob')
+    assert result == (b'bob', False)
 
-    # Test cache recore delete
-    r = cache.sync()
-    assert r == None
 
-    # Test cache recore delete
-    # r = cache.drop()
-    # print(r)
-    # assert r == (b'test', True)
+def test_cache_delete():
+    """Test cache recore delete"""
+    result = CACHE.delete(b'test')
+    assert result == (b'test', True)
 
-    
+
+def test_cache_status():
+    """Test cache status"""
+    result = CACHE.status()
+    assert isinstance(result, dict)
+
+
+def test_cache_info():
+    """Test cache info"""
+    result = CACHE.info()
+    assert isinstance(result, dict)
+
+
+def test_cache_sync():
+    """Test cache synce"""
+    result = CACHE.sync()
+    assert result is None

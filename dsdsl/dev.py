@@ -17,25 +17,19 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
+"""
+Dependencies:
+    rtl.common
 
+"""
 # Imports
 # ------------------------------------------------------------------------ 79->
-import os
-os.sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.abspath(__file__)
-            )
-        )
-    )
 from rtl.common.transform import Transform
+
 
 # Globals
 # ------------------------------------------------------------------------ 79->
 FILENAME = 'output27Numeric'
-
-# Classes
-# ------------------------------------------------------------------------ 79->
 DSDSL = {
     0: {
         'tasks': {

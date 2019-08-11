@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # ------------------------------------------------------------------------ 79->
 # Author: ${name=Kelcey Damage}
 # Python: 3.5+
@@ -18,36 +18,21 @@
 # Doc
 # ------------------------------------------------------------------------ 79->
 """
-Dependencies:
+Dependancies:
+    rtl.transport
     rtl.common
 
 """
 # Imports
 # ------------------------------------------------------------------------ 79->
-from rtl.common.transform import Transform
+from rtl.transport.conf.configuration import DEBUG
+from rtl.common.print_helpers import Colours
+from rtl.common.print_helpers import printc
 
-
-# Globals
-# ------------------------------------------------------------------------ 79->
-
-# Classes
-# ------------------------------------------------------------------------ 79->
-DSDSL = {
-    0: {
-        'tasks': {
-            'task_null': {}
-        }
-    }
-}
-
-
-# Classes
-# ------------------------------------------------------------------------ 79->
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-
-# Main
-# ------------------------------------------------------------------------ 79->
-if __name__ == '__main__':  # pragma: no cover
-    print(Transform().execute(DSDSL).result())
+def log(msg):
+    """If debug (bool) is true, then print the message"""
+    if DEBUG:
+        printc(msg, Colours().RED)

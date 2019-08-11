@@ -20,11 +20,11 @@ script:
   - raspi-rtl start
   - sleep 5s
   - ls -l
-  - python3 /home/travis/build/kelceydamage/raspi-rtl/platformTest.py
-  - sleep 5s 
+  - python3 /home/travis/build/kelceydamage/raspi-rtl/platform_test.py
+  - sleep 5s
   - raspi-rtl stop
   - cd /home/travis/build/kelceydamage/raspi-rtl
-  - pytest rtl/tests -v --cov=rtl.transport --cov-report=term-missing
+  - pytest -v --cov=rtl --cov-report=term-missing
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 after_success:
@@ -33,5 +33,4 @@ after_success:
 env:
   global:
     - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
-    - CODECLIMATE_REPO_TOKEN=[token]
-    - CC_TEST_REPORTER_ID=[id]
+    - CC_TEST_REPORTER_ID=0068c0dc7cd34c0a4b58d0ec495d5417973e1c3fc3854053f46d79bc12311a9d
