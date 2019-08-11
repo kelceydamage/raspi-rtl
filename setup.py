@@ -1,10 +1,10 @@
 #! /usr/bin/env python3
-"""Setup fo compiling and installing raspi-rtl"""
-from distutils.extension import Extension
+"""Setup for compiling and installing raspi-rtl"""
 import platform
 import numpy
 import zmq
 from setuptools import setup
+from distutils.extension import Extension
 
 
 C_OPTIONS = {
