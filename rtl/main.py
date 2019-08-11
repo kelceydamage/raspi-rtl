@@ -131,7 +131,7 @@ def launch(service):
         bool: True if all services launched successfully, False otherwise.
 
     """
-    log('Launching {0}'.forma(service.upper()))
+    log('Launching {0}'.format(service.upper()))
     try:
         start_node(service)
     except StartError:
