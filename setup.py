@@ -80,7 +80,8 @@ setup(
         'rtl.main',
         'rtl.transport.cache',
         'rtl.transport.registry',
-        'rtl.transport.conf.configuration'
+        'rtl.transport.conf.configuration',
+        'rtl.tasks.null'
     ],
     packages=[],
     ext_modules=EXTENSIONS,
