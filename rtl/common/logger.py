@@ -26,7 +26,7 @@ Dependancies:
 # Imports
 # ------------------------------------------------------------------------ 79->
 from rtl.transport.conf.configuration import DEBUG
-from rtl.common.print_helpers import COLOURS
+from rtl.common.print_helpers import Colours
 from rtl.common.print_helpers import printc
 
 
@@ -35,4 +35,4 @@ from rtl.common.print_helpers import printc
 def log(msg):
     """If debug (bool) is true, then print the message"""
     if DEBUG:
-        printc(msg, COLOURS.RED)
+        printc(msg, Colours().RED)
