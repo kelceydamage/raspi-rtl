@@ -18,15 +18,25 @@
 # Doc
 # ------------------------------------------------------------------------ 79->
 """
-Dependancies:
-    rtl.transport
-    rtl.common
-    multiprocessing
-    argparse
-    time
-    os
+This module provides functionality to the raspi-rtl shell script.
+
+Note:
+    This script should only be run from the main raspi-rtl shell script.
+
+Attributes:
+    RUNDIR (string): path to pidfiles.
+        Default: (~/var/run)
+    COLOURS (object): class of terminal colours.
+    NODES (dict): A mapping of string keywords to node classes.
+    COUNTS (dict): A mapping of string keywords to node counts.
+
+Todo
+    * Find a better way to handle args in the main function (less cyclomatic \
+        complexity).
 
 """
+
+
 # Imports
 # ------------------------------------------------------------------------ 79->
 import os
@@ -42,7 +52,7 @@ from rtl.common.print_helpers import Colours
 from rtl.common.logger import log
 
 
-# Globals
+# Const
 # ------------------------------------------------------------------------ 79->
 RUNDIR = os.path.expanduser(conf.PIDFILES)
 COLOURS = Colours()
@@ -71,10 +81,10 @@ class StartError(Exception):
 # Functions
 # ------------------------------------------------------------------------ 79->
 def embedded_parser():
-    """Parser as a function for better test cases
+    """This function collects and parses arguments passed to the main function.
 
     Returns:
-        argparser args
+        Namespace: A set of named values.
 
     """
     parser = argparse.ArgumentParser(prog="Task Engine")
@@ -103,9 +113,6 @@ def print_meta(functions):
         functions (dict): The dict of task modules the platform has loaded
             into memory and stored as a reference.
 
-    Returns:
-        bool: True for testing.
-
     """
     print('-' * 79)
     print('REGISTERED-TASKS:')
@@ -119,7 +126,6 @@ def print_meta(functions):
             key
             ))
     print('-' * 79)
-    return True
 
 
 def launcher():
@@ -132,6 +138,9 @@ def launcher():
     for service in COUNTS:
         log('Launching {0}'.format(service.upper()))
         success = launch(NODES[service], COUNTS[service])
+    if not success:
+        print('Failed to launch one or more micro-services')
+        exit(1)
     return success
 
 
@@ -139,7 +148,7 @@ def launch(service_class, count):
     """Call startNode on each service and check for exceptions.
 
     Args:
-        service (str): The short name for the micro-service to be started.
+        service_class (ClassType): The name of a valude service class.
 
     Returns:
         bool: True if all services launched successfully, False otherwise.
@@ -156,7 +165,7 @@ def start_node(service_class, count):
     """Start a subprocess for each micro-service
 
     Args:
-        service (str): The short name for the micro-service to be started.
+        service_class (ClassType): The name of a valude service class.
 
     """
     if count == 0:
@@ -174,8 +183,7 @@ def service_wrapper(service_class):
     """Call start on the the service inside the process.
 
     Args:
-        service_class (class): The reference to the class to be started in this
-            subprocess.
+        service_class (ClassType): The name of a valude service class.
 
     Raise:
         StartError: if service failes to start.
@@ -187,35 +195,50 @@ def service_wrapper(service_class):
         raise StartError(error)
 
 
+def store_pid():
+    """store_pid function for storing the scripts pid"""
+    pid = os.getpid()
+    with open('{0}{1}-{2}'.format(RUNDIR, 'master', pid), 'w+') as file:
+        file.write(str(pid))
+
+
+def serve(args):
+    """serve function for executing the main process loop
+
+    Args:
+        args (Namespace):
+            * meta (bool): True to print meta, else False to run script.
+            * no_server (bool): Default to False, pass True for tests.
+
+    """
+    if args.no_server:
+        quit(1)
+    while True:
+        time.sleep(1000)
+
+
 def main(args):
     """Main function and entrypoint
 
     Args:
-        server (bool): Default to true, pass False for tests.
-
-    Returns:
-        bool: True if code completes without error, and in test mode.
+        args (Namespace):
+            * meta (bool): True to print meta, else False to run script.
+            * no_server (bool): Default to False, pass True for tests.
 
     """
-    pid = os.getpid()
     functions = import_tasks(conf.TASK_LIB)
     if args.meta:
         print_meta(functions)
         exit(1)
-    if not launcher():
-        print('Failed to launch one or more micro-services')
-        exit(1)
     print('Starting RTL')
-    with open('{0}{1}-{2}'.format(RUNDIR, 'master', pid), 'w+') as file:
-        file.write(str(pid))
-    if args.no_server:
-        print('hit')
-        return True
-    while True:
-        time.sleep(1000)
+    launcher()
+    store_pid()
+    serve(args)
 
 
 # Main
 # ------------------------------------------------------------------------ 79->
 if __name__ == '__main__':  # pragma: no cover
+    # pass the embedded parser to the main function. This pattern is chosen to
+    # make testing easier.
     main(embedded_parser())
