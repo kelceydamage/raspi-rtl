@@ -18,30 +18,36 @@
 # Doc
 # ------------------------------------------------------------------------ 79->
 """
-Dependancies:
-    pkgutil
+Thhis module provides dynamically loads tasks as provided in the raspi-tasks
+package.
+
+Note:
+    This is not intented to be used for any other reason. Standard python \
+        standard python importing should always be used.
 
 """
+
+
 # Imports
 # ------------------------------------------------------------------------ 79->
 import pkgutil
 
 
-# Globals
-# ------------------------------------------------------------------------ 79->
-
-# Classes
-# ------------------------------------------------------------------------ 79->
-
 # Functions
 # ------------------------------------------------------------------------ 79->
-def loader(path):
-    """
-    NAME:           load_tasks
+def _loader(path):
+    """Load all modules located within the given path. Add each loaded
+    module to a dict of modules.
 
-    DESCRIPTION:    Auto loader and parser for task modules. This function is
-                    written for efficiency, so I appologize for lack of
-                    readability.
+    Warning:
+        This is a private function and should never be called directly.
+
+    Args:
+        path (str): path to a folder containing modules.
+
+    Returns:
+        dict: a map of names and module references.
+
     """
     modules = {}
     for importer, package_ame, _ in pkgutil.iter_modules([path]):
@@ -51,15 +57,28 @@ def loader(path):
 
 
 def import_tasks(module_name):
-    """Locate the path to the module for importing"""
+    """Convert module name into a path and call loader on the path.
+
+    Example:
+        .. code-block:: Python
+
+            modules = import_tasks('rtl.tasks.*')
+
+    Args:
+        module_name (str): either a path or a name referencing a valid module.
+
+    Returns:
+        dict: a map of names and module references.
+
+    """
     if '/' in module_name:
-        return loader(module_name)
+        return _loader(module_name)
     try:
         path = next(pkgutil.iter_importers(module_name)).path
     except ImportError as error:
         print('ERROR:', error)
         return {}
-    return loader(path)
+    return _loader(path)
 
 
 # Main
