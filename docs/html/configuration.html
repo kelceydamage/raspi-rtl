@@ -1,0 +1,506 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Configuration &mdash; RTL (Raspi Transport Layer) 3.0.0.dev1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Development" href="development.html" />
+    <link rel="prev" title="Usage" href="usage.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> RTL (Raspi Transport Layer)
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="usage.html">Usage</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Configuration</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">RTL (Raspi Transport Layer)</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="usage.html">Usage</a> &raquo;</li>
+        
+      <li>Configuration</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/configuration.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="configuration">
+<span id="id1"></span><h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<span class="target" id="module-rtl.transport.conf.configuration"></span><dl class="attribute">
+<dt id="rtl.transport.conf.configuration.PIDFILES">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">PIDFILES</code><a class="headerlink" href="#rtl.transport.conf.configuration.PIDFILES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Location to store pid files.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">'~/var/run/'</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.TASK_LIB">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">TASK_LIB</code><a class="headerlink" href="#rtl.transport.conf.configuration.TASK_LIB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Module name for tasks library.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">'rtl.tasks.*'</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.DEBUG">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">DEBUG</code><a class="headerlink" href="#rtl.transport.conf.configuration.DEBUG" title="Permalink to this definition">¶</a></dt>
+<dd><p>True to enable debug printing, else False to prevent.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.PROFILE">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">PROFILE</code><a class="headerlink" href="#rtl.transport.conf.configuration.PROFILE" title="Permalink to this definition">¶</a></dt>
+<dd><p>True to enable timings, else False to prevent.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.STARTING_PORT">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">STARTING_PORT</code><a class="headerlink" href="#rtl.transport.conf.configuration.STARTING_PORT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Port block for workers to consume.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">10000</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.TASK_WORKERS">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">TASK_WORKERS</code><a class="headerlink" href="#rtl.transport.conf.configuration.TASK_WORKERS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of task workers to spawn.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">3</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.PLOT_WORKERS">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">PLOT_WORKERS</code><a class="headerlink" href="#rtl.transport.conf.configuration.PLOT_WORKERS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of plot workers to spawn.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">1</span></code></p></li>
+</ul>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
+<p>Setting this above 1 could have unexpected behaviors.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.PLOT_LISTEN">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">PLOT_LISTEN</code><a class="headerlink" href="#rtl.transport.conf.configuration.PLOT_LISTEN" title="Permalink to this definition">¶</a></dt>
+<dd><p>The port on which to server plots.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">5006</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.PLOT_ADDR">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">PLOT_ADDR</code><a class="headerlink" href="#rtl.transport.conf.configuration.PLOT_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>The IP address that the plot worker will listen on.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">'0.0.0.0'</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.RESPONSE_TIME">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">RESPONSE_TIME</code><a class="headerlink" href="#rtl.transport.conf.configuration.RESPONSE_TIME" title="Permalink to this definition">¶</a></dt>
+<dd><p>Controls the rate at which tasks are sent to the
+workers, and in doing so, the size of the queue.</p>
+<p class="rubric">Examples</p>
+<p>1000 req &#64;0.01 = ~100 tasks per queue.</p>
+<p>1000 reg &#64;0.001 = ~10 tasks per queue.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">0.005</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.RELAY_LISTEN">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">RELAY_LISTEN</code><a class="headerlink" href="#rtl.transport.conf.configuration.RELAY_LISTEN" title="Permalink to this definition">¶</a></dt>
+<dd><p>The IP address that the relay worker will listen on.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">'0.0.0.0'</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.RELAY_ADDR">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">RELAY_ADDR</code><a class="headerlink" href="#rtl.transport.conf.configuration.RELAY_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>The IP address that relay client will connect to.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">'127.0.0.1'</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.RELAY_RECV">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">RELAY_RECV</code><a class="headerlink" href="#rtl.transport.conf.configuration.RELAY_RECV" title="Permalink to this definition">¶</a></dt>
+<dd><p>The recieve port on the relay worker.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">19000</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.RELAY_SEND">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">RELAY_SEND</code><a class="headerlink" href="#rtl.transport.conf.configuration.RELAY_SEND" title="Permalink to this definition">¶</a></dt>
+<dd><p>The send port on the relay worker.</p>
+<ul class="simple">
+<li><p>DefaultL <code class="docutils literal notranslate"><span class="pre">19001</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.RELAY_PUBLISHER">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">RELAY_PUBLISHER</code><a class="headerlink" href="#rtl.transport.conf.configuration.RELAY_PUBLISHER" title="Permalink to this definition">¶</a></dt>
+<dd><p>The publisher port on the relay worker.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">19300</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.CHUNKING">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">CHUNKING</code><a class="headerlink" href="#rtl.transport.conf.configuration.CHUNKING" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable chunking service on the relay worker.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Chunking determines if and how much the router breaks up queues in
+order the better balance worker loads.</p>
+</div>
+<p class="rubric">Examples</p>
+<p>A setting of 10 will break up all queues int ~ 10 tasks per worker.
+This will negativly affect response time since it adds delay at the
+router, and extra network activity.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>RESPONSE_TIME and CHUNKING should be balanced to get an Optimal
+throughput and worker load balance.</p>
+</div>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">True</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.CHUNKING_SIZE">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">CHUNKING_SIZE</code><a class="headerlink" href="#rtl.transport.conf.configuration.CHUNKING_SIZE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The desired size of each chunk.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">1000000</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.CACHE_PATH">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">CACHE_PATH</code><a class="headerlink" href="#rtl.transport.conf.configuration.CACHE_PATH" title="Permalink to this definition">¶</a></dt>
+<dd><p>The path to store the cache file.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">'/tmp/transport'</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rtl.transport.conf.configuration.CACHE_MAP_SIZE">
+<code class="sig-prename descclassname">rtl.transport.conf.configuration.</code><code class="sig-name descname">CACHE_MAP_SIZE</code><a class="headerlink" href="#rtl.transport.conf.configuration.CACHE_MAP_SIZE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The size of the cache (memory allocation) for the
+task cache.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The default value is 512MB for embedded systems</p>
+</div>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">512*1024**2</span></code></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="development.html" class="btn btn-neutral float-right" title="Development" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Kelcey Jamison-Damage
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
