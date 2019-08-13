@@ -18,9 +18,18 @@
 # Doc
 # ------------------------------------------------------------------------ 79->
 """
-Dependancies:
+This module provides a cache interface for accessing LMDB.
+
+Note:
+    this is not intended for general cache use and is intended for job meta
+    data caching.
+
+Todo
+    - Convert to cython
 
 """
+
+
 # Imports
 # ------------------------------------------------------------------------ 79->
 import lmdb
@@ -29,45 +38,34 @@ from rtl.transport.conf.configuration import CACHE_PATH
 from rtl.transport.conf.configuration import TASK_WORKERS
 
 
-# Globals
-# ------------------------------------------------------------------------ 79->
-VERSION = '0.4'
-
 # Classes
 # ------------------------------------------------------------------------ 79->
 
+
 class ExperimentalCache(object):
-    """
-    NAME:           ExperimentalCache
-
-    DESCRIPTION:    Sends cache requests to a local cache.
-
-    METHODS:        .log_wrapper(msg, mode=0, colour='GREEN')
-                    Wrapper for logger to clean up code.
-
-                    .get(key)
-                    Retreive a value from cache, or return None.
-
-                    .put(key, value)
-                    Add a value to the cache
-
-                    .delete(key)
-                    Attempt to delete a key.
-
-                    .drop()
-                    Attempt to drop the database.
-
-                    .sync()
-                    Force sync of the lmdb environment.
-
-                    .status()
-                    Return status information about the database environment.
-
-                    .info()
-                    Return additional information about the database.
-    """
+    """Experimental cache is an api abstraction for LMDB."""
 
     def __init__(self):
+        """Initializer for the experimental cache class.
+
+        There are non-passable paramaters used to open the cache. These are:
+            * metasync=True
+            * sync=True
+            * writemap=True
+            * readahead=True
+            * subdir=True
+            * Lock=True
+            * max_dbs=true
+
+        The following can be configured in :ref:`configuration`:
+            * CACHE_PATH
+            * CACHE_MAP_SIZE
+            * TASK_WORKERS
+
+        Note:
+            Sets up the LMDB environment for use.
+
+        """
         self.lmdb = lmdb.open(
             CACHE_PATH,
             metasync=True,
@@ -84,7 +82,23 @@ class ExperimentalCache(object):
         self.ndb = self.lmdb.open_db(b'raspi-rtl')
 
     def get(self, key):
-        """Get a value from the cache"""
+        """Get method for retrieving a value from the cache based on a key.
+
+        Example:
+            .. code-block:: Python
+
+                key, result = ExperimentalCache().get(my_key)
+
+        Args:
+            key (bytes): a key name encoded as bytes.
+
+        Returns:
+            tuple:
+            - key (bytes): a key name encoded as bytes.
+            - result (bool, bytes): a value encoded as bytes, or a boolean \
+            false if not found.
+
+        """
         with self.lmdb.begin() as txn:
             result = txn.get(key)
         if result is None:
@@ -92,7 +106,23 @@ class ExperimentalCache(object):
         return (key, result)
 
     def put(self, key, value):
-        """Put a value in the cache"""
+        """Put method for adding a value to the cache based on a key.
+
+        Example:
+            .. code-block:: Python
+
+                key, result = ExperimentalCache().put(my_key, my_value)
+
+        Args:
+            key (bytes): a key name encoded as bytes.
+            value (bytes): a value encoded as bytes.
+
+        Returns:
+            tuple:
+            - key (bytes): a key name encoded as bytes.
+            - result (bool): a boolean value for success.
+
+        """
         with self.lmdb.begin(write=True) as txn:
             result = txn.put(
                 key,
@@ -102,25 +132,75 @@ class ExperimentalCache(object):
         return (key, result)
 
     def delete(self, key):
-        """Delete a value from the cache"""
+        """Delete method for removing a value from the cache based on a key.
+
+        Example:
+            .. code-block:: Python
+
+                key, result = ExperimentalCache().put(my_key)
+
+        Args:
+            key (bytes): a key name encoded as bytes.
+
+        Returns:
+            tuple:
+            - key (bytes): a key name encoded as bytes.
+            - result (bool): a boolean value for success.
+
+        """
         with self.lmdb.begin(write=True) as txn:
             result = txn.delete(key)
         return (key, result)
 
-    #def drop(self):
-    #    with self.lmdb.begin(write=True) as txn:
-    #        txn.drop(b'raspi-rtl', delete=True)
-
     def status(self):
-        """Get the status of the cache"""
+        """Status method for retrieving details on the makup of the cache.
+
+        Example:
+            .. code-block:: Python
+
+                status = ExperimentalCache().status()
+
+        Returns:
+            dict:
+            - psize (int)
+            - depth (int)
+            - branch_pages (int)
+            - leaf_pages (int)
+            - overflow_pages (int)
+            - entries (int)
+
+        """
         return self.lmdb.stat()
 
     def info(self):
-        """Get info about the current environment"""
+        """Info method for retrieving details on the environment.
+
+        Example:
+            .. code-block:: Python
+
+                info = ExperimentalCache().info()
+
+        Returns:
+            dict:
+            - map_addr (int)
+            - map_size (int)
+            - last_pgno (int)
+            - last_txnid (int)
+            - max_readers (int)
+            - num_readers (int)
+
+        """
         return self.lmdb.info()
 
     def sync(self):
-        """Sync the state of the cache"""
+        """Sync the state of the cache
+
+        Example:
+            .. code-block:: Python
+
+                ExperimentalCache().sync()
+
+        """
         return self.lmdb.sync()
 
 
