@@ -74,7 +74,7 @@ setup(
         "numpy",
         "cython",
         "sklearn",
-        #"cupy" for systems with nvcc and CUDA
+        # "cupy" for systems with nvcc and CUDA
     ],
     py_modules=[
         'rtl.main',
