@@ -17,45 +17,33 @@
 #
 # Doc
 # ------------------------------------------------------------------------ 79->
-"""Pytest module for testing the rtl.transport.registry module."""
+"""Pytest module for testing the rtl.common.logger module."""
 
 
 # Imports
 # ------------------------------------------------------------------------ 79->
-from types import ModuleType
-from rtl.transport.registry import import_tasks
+from unittest import mock
+from rtl.common.logger import log
+
+
+# Const
+# ------------------------------------------------------------------------ 79->
+DEBUG = True
 
 
 # Functions
 # ------------------------------------------------------------------------ 79->
-def test_registry_valid_module():
-    """Test importing module functions using a valid module name. Ensure a dict
-    is returned with values of ModuleType.
+@mock.patch('rtl.common.logger.DEBUG', DEBUG)
+def test_log(capsys):
+    """Test log message for debug mode.
+
+    Args:
+        capsys (class): System IO capture class.
 
     """
-    result = import_tasks('rtl.tasks.*')
-    assert isinstance(result, dict)
-    assert isinstance(result[list(result.keys())[0]], ModuleType)
-
-
-def test_registry_invalid_module():
-    """Test importing module functions using an invalid module name. Ensure an
-    empty dict is returned.
-
-    """
-    result = import_tasks('bob.*')
-    assert isinstance(result, dict)
-    assert not result
-
-
-def test_registry_valid_path():
-    """Test importing module functions using a valid path. Ensure a dict
-    is returned with values of ModuleType.
-
-    """
-    result = import_tasks('rtl/tasks')
-    assert isinstance(result, dict)
-    assert isinstance(result[list(result.keys())[0]], ModuleType)
+    log('this is a test')
+    out, _ = capsys.readouterr()
+    assert out == '\x1b[38;5;1mthis is a test\x1b[m\n'
 
 
 # Main
