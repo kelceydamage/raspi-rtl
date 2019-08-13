@@ -10,7 +10,7 @@
 # RASPI Transport Layer v3-experimental
 ## Documentation Links
 
-* [Sphinx Docs](https://github.com/kelceydamage/rtl/blob/docs/docs/html/index.html)
+* [Sphinx Docs](https://github.com/kelceydamage/rtl/blob/docs/docs/html/index.html?raw=true)
 * [datatypes](https://github.com/kelceydamage/rtl/blob/master/DATATYPES.md)
 * [dependancies](https://github.com/kelceydamage/rtl/blob/master/DEPENDANCIES.md)
 * [development](https://github.com/kelceydamage/rtl/blob/master/DEVELOPMENT.md)
