@@ -14,6 +14,10 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../../'))
+
 # -- Project information -----------------------------------------------------
 
 project = 'RTL (Raspi Transport Layer)'
@@ -22,10 +26,6 @@ author = 'Kelcey Jamison-Damage'
 
 # The full version, including alpha/beta/rc tags
 release = '3.0.0.dev1'
-
-import os
-import sys
-sys.path.insert(0, os.path.abspath('../../'))
 
 # -- General configuration ---------------------------------------------------
 
