@@ -201,7 +201,6 @@ class Launcher(object):
         with open('{0}{1}-{2}'.format(rundir, 'master', pid), 'w+') as file:
             file.write(str(pid))
 
-
     def _keep_alive(self):
         """serve function for executing the main process loop
 
@@ -267,6 +266,7 @@ def _service_wrapper(service_class):
         service_class().start()
     except Exception as error:
         raise StartError(error)
+
 
 # Main
 # ------------------------------------------------------------------------ 79->
