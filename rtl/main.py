@@ -78,6 +78,7 @@ class StartError(Exception):
         super(StartError, self).__init__()
         self.error = error
 
+
 class Launcher(object):
     """Launcher is class for handling all the setup logic for running an RTL
     cluster.
