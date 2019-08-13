@@ -49,13 +49,9 @@ from rtl.common.datatypes cimport Envelope
 from rtl.transport.cache import ExperimentalCache
 from rtl.transport.registry import import_tasks
 from rtl.transport.conf.configuration import TASK_WORKERS
-from rtl.transport.conf.configuration import CACHE_PATH
-from rtl.transport.conf.configuration import CACHE_MAP_SIZE
 from rtl.transport.conf.configuration import RELAY_ADDR
 from rtl.transport.conf.configuration import RELAY_SEND
 from rtl.transport.conf.configuration import RELAY_RECV
-from rtl.transport.conf.configuration import CACHE_LISTEN
-from rtl.transport.conf.configuration import CACHE_RECV
 from rtl.transport.conf.configuration import PLOT_LISTEN
 from rtl.transport.conf.configuration import PLOT_ADDR
 from rtl.transport.conf.configuration import DEBUG
@@ -255,47 +251,6 @@ cdef class PlotNode(Node):
                 )
             (msg)
             raise msg
-
-
-cdef class CacheNode(Node):
-    """
-    NAME:           CacheNode
-
-    DESCRIPTION:    A cache variant of the node, whose role is to initialize
-                    the cache databse.
-
-    METHODS:        .load_database()
-                    Initialize the lmdb database environment.
-    """
-
-    def __init__(self):
-        super(CacheNode, self).__init__()
-        self.header = 'CACHE-{0}'.format(self.pid).encode()
-        with open('{0}{1}'.format(RUNDIR, self.header.decode()), 'w+') as f:
-            f.write(str(self.pid))
-        if DEBUG: print('PIDLOC:', RUNDIR)
-        self.recv_socket = self._context.socket(zmq.ROUTER)
-        router_uri = 'tcp://{0}:{1}'.format(CACHE_LISTEN, CACHE_RECV)
-        self.recv_socket.bind(router_uri)
-        self.load_database()
-
-    cpdef void load_database(self):
-        self.lmdb = lmdb.Environment(
-            path=CACHE_PATH,
-            map_size=CACHE_MAP_SIZE,
-            subdir=True,
-            readonly=False,
-            metasync=True,
-            # map_async=True,
-            sync=True,
-            writemap=True,
-            readahead=True,
-            max_readers=TASK_WORKERS+2,
-            max_dbs=0,
-            max_spare_txns=TASK_WORKERS+2,
-            lock=True,
-            create=True
-        )
 
 
 # Functions

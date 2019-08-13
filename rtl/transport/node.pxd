@@ -85,15 +85,6 @@ cdef class PlotNode(Node):
     cpdef void start(self)
 
 
-cdef class CacheNode(Node):
-    cdef:
-        public object recv_socket
-        public object lmdb
-
-    # Python acccessible API
-    cpdef void load_database(self)
-
-
 # Functions
 # ------------------------------------------------------------------------ 79->
 
