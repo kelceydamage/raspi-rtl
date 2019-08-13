@@ -37,11 +37,6 @@ Attributes:
     TASK_WORKERS (int): The number of task workers to spawn.
 
         - Default: ``3``
-    CACHE_WORKERS (int): The number of cache workers to spawn.
-
-        - Default: ``0``
-        Warning:
-            This service is not implemented.
     PLOT_WORKERS (int): The number of plot workers to spawn.
 
         - Default: ``1``
@@ -119,52 +114,34 @@ Attributes:
 
 # Globals
 # ------------------------------------------------------------------------ 79->
+# [Infrastructure]
 PIDFILES = '~/var/run/'
 TASK_LIB = 'rtl.tasks.*'
+CACHE_PATH = '/tmp/transport'
+CACHE_MAP_SIZE = 512*1024**2
+RESPONSE_TIME = 0.005
+CHUNKING_SIZE = 1000000
+CHUNKING = True
 
-# Logging
+# [Logging]
 DEBUG = False
 PROFILE = False
 
-# Workers
+# [Task Workers]
 STARTING_PORT = 10000
-# Worker processes per node (per physical # server)
 TASK_WORKERS = 3
-CACHE_WORKERS = 0
+
+# [Plot Workers]
 PLOT_WORKERS = 1
 PLOT_LISTEN = 5006
 PLOT_ADDR = '0.0.0.0'
 
-# Controls the rate at which tasks are sent to the workers, and in doing so,
-# the size of the queue.
-# Example:
-#       1000 req @0.01 = ~100 tasks per queue
-#       1000 reg @0.001 = ~10 tasks per queue
-# A higher response time increases throughput at the cost of the systems
-# responsiveness.
-RESPONSE_TIME = 0.005
-
-# Router
+# [Relay Workers]
 RELAY_LISTEN = '0.0.0.0'
 RELAY_ADDR = '127.0.0.1'
 RELAY_RECV = 19000
 RELAY_SEND = 19001
 RELAY_PUBLISHER = 19300
-
-# Chunking determines if and how much the router breaks up queues in order
-# the better balance worker loads.
-# Example:
-#       chunking = 10 will break up all queues int ~ 10 tasks per worker.
-#       This will negativly affect response time since it adds delay at the
-#       router, and extra network activity.
-# RESPONSE_TIME and CHUNKING should be balanced to get an Optimal throughput
-# and worker load balance.
-CHUNKING = True
-CHUNKING_SIZE = 1000000
-
-CACHE_PATH = '/tmp/transport'
-# 512NB for embedded systems
-CACHE_MAP_SIZE = 512*1024**2
 
 
 # Classes
