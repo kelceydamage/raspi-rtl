@@ -1,12 +1,14 @@
 *.pyc
-*.html
+rtl/*.html
+rtl/common/*.html
+rtl/transport/*.html
+rtl/tasks/*.html
 *.c
 *.cpp
 *.h
 *.log
 *.out
 var/security
-./build/*
 build/*
 build/
 *.cover
