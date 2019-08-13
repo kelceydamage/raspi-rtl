@@ -126,15 +126,6 @@ def test_print_meta_print(mock_args, capsys):
         assert out.encode() == META_PRINT.encode()
 
 
-def test_print_meta_alt():
-    """Test the print_meta function by calling directly from the command
-    line.
-
-    """
-    call = subprocess.call('rtl/main.py -m', shell=True)
-    assert call == 1
-
-
 @mock.patch(
     'argparse.ArgumentParser.parse_args',
     return_value=argparse.Namespace(meta=False, no_server=False)
