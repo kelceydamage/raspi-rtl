@@ -1,10 +1,13 @@
 *.pyc
 *.html
+*.js
+*.sizzle
 *.c
 *.cpp
 *.h
 *.log
 *.out
+docs/**
 var/security
 ./build/*
 build/*
