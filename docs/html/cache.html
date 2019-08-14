@@ -1,0 +1,398 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Cache &mdash; RTL (Raspi Transport Layer) 3.0.0.dev1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Registry" href="registry.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> RTL (Raspi Transport Layer)
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="development.html">Development</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="main.html">Main - Service Launcher</a></li>
+<li class="toctree-l2"><a class="reference internal" href="registry.html">Registry</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Cache</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">RTL (Raspi Transport Layer)</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="development.html">Development</a> &raquo;</li>
+        
+      <li>Cache</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cache.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cache">
+<span id="id1"></span><h1>Cache<a class="headerlink" href="#cache" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<span class="target" id="module-rtl.transport.cache"></span><p>This module provides a cache interface for accessing LMDB.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>this is not intended for general cache use and is intended for job meta
+data caching.</p>
+</div>
+<dl class="simple">
+<dt>Todo</dt><dd><ul class="simple">
+<li><p>Convert to cython</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="class">
+<dt id="rtl.transport.cache.ExperimentalCache">
+<em class="property">class </em><code class="sig-prename descclassname">rtl.transport.cache.</code><code class="sig-name descname">ExperimentalCache</code><a class="headerlink" href="#rtl.transport.cache.ExperimentalCache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Experimental cache is an api abstraction for LMDB.</p>
+<dl class="method">
+<dt id="rtl.transport.cache.ExperimentalCache.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rtl.transport.cache.ExperimentalCache.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializer for the experimental cache class.</p>
+<dl class="simple">
+<dt>There are non-passable paramaters used to open the cache. These are:</dt><dd><ul class="simple">
+<li><p>metasync=True</p></li>
+<li><p>sync=True</p></li>
+<li><p>writemap=True</p></li>
+<li><p>readahead=True</p></li>
+<li><p>subdir=True</p></li>
+<li><p>Lock=True</p></li>
+<li><p>max_dbs=true</p></li>
+</ul>
+</dd>
+<dt>The following can be configured in <a class="reference internal" href="configuration.html#configuration"><span class="std std-ref">Configuration</span></a>:</dt><dd><ul class="simple">
+<li><p>CACHE_PATH</p></li>
+<li><p>CACHE_MAP_SIZE</p></li>
+<li><p>TASK_WORKERS</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Sets up the LMDB environment for use.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="rtl.transport.cache.ExperimentalCache.delete">
+<code class="sig-name descname">delete</code><span class="sig-paren">(</span><em class="sig-param">key</em><span class="sig-paren">)</span><a class="headerlink" href="#rtl.transport.cache.ExperimentalCache.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete method for removing a value from the cache based on a key.</p>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">key</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">ExperimentalCache</span><span class="p">()</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">my_key</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> (<em>bytes</em>) – a key name encoded as bytes.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>key (bytes): a key name encoded as bytes.</p></li>
+<li><p>result (bool): a boolean value for success.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rtl.transport.cache.ExperimentalCache.get">
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param">key</em><span class="sig-paren">)</span><a class="headerlink" href="#rtl.transport.cache.ExperimentalCache.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get method for retrieving a value from the cache based on a key.</p>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">key</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">ExperimentalCache</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">my_key</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> (<em>bytes</em>) – a key name encoded as bytes.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>key (bytes): a key name encoded as bytes.</p></li>
+<li><p>result (bool, bytes): a value encoded as bytes, or a boolean             false if not found.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rtl.transport.cache.ExperimentalCache.info">
+<code class="sig-name descname">info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rtl.transport.cache.ExperimentalCache.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Info method for retrieving details on the environment.</p>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">info</span> <span class="o">=</span> <span class="n">ExperimentalCache</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>map_addr (int)</p></li>
+<li><p>map_size (int)</p></li>
+<li><p>last_pgno (int)</p></li>
+<li><p>last_txnid (int)</p></li>
+<li><p>max_readers (int)</p></li>
+<li><p>num_readers (int)</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rtl.transport.cache.ExperimentalCache.put">
+<code class="sig-name descname">put</code><span class="sig-paren">(</span><em class="sig-param">key</em>, <em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#rtl.transport.cache.ExperimentalCache.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put method for adding a value to the cache based on a key.</p>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">key</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">ExperimentalCache</span><span class="p">()</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">my_key</span><span class="p">,</span> <span class="n">my_value</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>bytes</em>) – a key name encoded as bytes.</p></li>
+<li><p><strong>value</strong> (<em>bytes</em>) – a value encoded as bytes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>key (bytes): a key name encoded as bytes.</p></li>
+<li><p>result (bool): a boolean value for success.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rtl.transport.cache.ExperimentalCache.status">
+<code class="sig-name descname">status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rtl.transport.cache.ExperimentalCache.status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Status method for retrieving details on the makup of the cache.</p>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">status</span> <span class="o">=</span> <span class="n">ExperimentalCache</span><span class="p">()</span><span class="o">.</span><span class="n">status</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>psize (int)</p></li>
+<li><p>depth (int)</p></li>
+<li><p>branch_pages (int)</p></li>
+<li><p>leaf_pages (int)</p></li>
+<li><p>overflow_pages (int)</p></li>
+<li><p>entries (int)</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rtl.transport.cache.ExperimentalCache.sync">
+<code class="sig-name descname">sync</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rtl.transport.cache.ExperimentalCache.sync" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sync the state of the cache</p>
+<p class="rubric">Example</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">ExperimentalCache</span><span class="p">()</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="registry.html" class="btn btn-neutral float-left" title="Registry" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Kelcey Jamison-Damage
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
