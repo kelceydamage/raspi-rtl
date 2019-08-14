@@ -1,13 +1,13 @@
 ![logo](https://github.com/kelceydamage/rtl/blob/master/docs/logo.png?raw=true)
 
-[![Build Status](https://travis-ci.org/kelceydamage/raspi-rtl.svg?branch=3-experimental)](https://travis-ci.org/kelceydamage/raspi-rtl)
+[![Build Status](https://travis-ci.org/kelceydamage/raspi-rtl.svg?branch=master)](https://travis-ci.org/kelceydamage/raspi-rtl)
 [![Known Vulnerabilities](https://snyk.io//test/github/kelceydamage/raspi-rtl/badge.svg?targetFile=requirements.txt)](https://snyk.io//test/github/kelceydamage/raspi-rtl?targetFile=requirements.txt)
-[![codebeat badge](https://codebeat.co/badges/c46459c3-7075-4baf-8486-80d21b168ca8)](https://codebeat.co/projects/github-com-kelceydamage-raspi-rtl-3-experimental)
+[![codebeat badge](https://codebeat.co/badges/c46459c3-7075-4baf-8486-80d21b168ca8)](https://codebeat.co/projects/github-com-kelceydamage-raspi-rtl-master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/f2cd5d6e36b090b0b552/maintainability)](https://codeclimate.com/github/kelceydamage/raspi-rtl/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/f2cd5d6e36b090b0b552/test_coverage)](https://codeclimate.com/github/kelceydamage/raspi-rtl/test_coverage)
 [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-# RASPI Transport Layer v3-experimental
+# RASPI Transport Layer v3.0.0
 ## Documentation Links
 
 * [Sphinx Docs](http://htmlpreview.github.com/?https://github.com/kelceydamage/rtl/blob/docs/docs/html/index.html)
@@ -22,7 +22,7 @@
 ### Installation
 To install run: `pip install raspi-rtl --upgrade .` from the project root directory.
 
-Or run: `pip install --upgrade git+https://github.com/kelceydamage/raspi-rtl.git@3-experimental`
+Or run: `pip install --upgrade git+https://github.com/kelceydamage/raspi-rtl.git@master`
 
 ### Task Bundle
 There is a task bundle available through `pip install --upgrade git+https://github.com/kelceydamage/raspi-tasks.git@master`
