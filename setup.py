@@ -68,12 +68,14 @@ setup(
     download_url='https://github.com/kelceydamage/rtl.git',
     license='http://www.apache.org/licenses/LICENSE-2.0',
     install_requires=[
+        "zmq",
         "pyzmq",
         "lmdb",
         "cbor",
         "numpy",
         "cython",
         "sklearn",
+        "bokeh"
         # "cupy" for systems with nvcc and CUDA
     ],
     py_modules=[
@@ -81,6 +83,7 @@ setup(
         'rtl.transport.cache',
         'rtl.transport.registry',
         'rtl.transport.conf.configuration',
+        'rtl.common.logger',
         'rtl.tasks.null'
     ],
     packages=[],
